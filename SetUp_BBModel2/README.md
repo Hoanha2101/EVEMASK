@@ -90,6 +90,6 @@ Finally:
 
 ## Kaggle Data
 
-Test set (bbox): https://www.kaggle.com/datasets/khihon/logo-50
+Test set (bbox): https://www.kaggle.com/datasets/khihon/logo-verify-test
 
 Train set (94 logo): https://www.kaggle.com/datasets/khihon/model2-94logo
