@@ -1,0 +1,14 @@
+# Ignore model weights, videos, logs, and cache
+weights/
+videos/
+recognizeData/
+*.log
+__pycache__/
+*.pyc
+
+# But keep subfolder structure in weights
+!weights/.gitkeep
+!weights/onnx/.gitkeep
+!weights/pytorch/.gitkeep
+!weights/trtPlans/.gitkeep
+!weights/yolo/.gitkeep 

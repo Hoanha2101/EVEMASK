@@ -1,0 +1,51 @@
+CLASSES_NO_BLUR:
+- 0
+DELAY_TIME: 20
+INPUT_SOURCE: udp://224.1.1.1:30122?pkt_size=1316
+OUTPUT_STREAM_URL_RTMP: None
+OUTPUT_STREAM_URL_RTSP: None
+OUTPUT_STREAM_URL_UDP: udp://@225.1.9.254:30133?pkt_size=1316
+OUTPUT_TYPE: udp
+TARGET_FPS: 5
+batch_size: 3
+conf_threshold: 0.5
+extract_model:
+  input_names:
+  - input
+  len_emb: 256
+  max_batch_size: 32
+  output_names:
+  - output
+  path: weights/trtPlans/SupConLoss_BBVGG16.trt
+iou_threshold: 0.7
+names:
+  0: unbet
+  1: betrivers
+  2: fanduel
+  3: betway
+  4: caesars
+  5: bally
+  6: draftkings
+  7: pointsbet
+  8: bet365
+  9: fanatics
+  10: betparx
+  11: betmgm
+  12: gilariver
+  13: casino
+nc: 14
+recognizeData_path: recognizeData
+segment_model:
+  all_output_names:
+  - pred0
+  - pred1_0_0
+  - pred1_0_1
+  - pred1_0_2
+  - pred1_1
+  - pred1_2
+  dynamic_factor: 3
+  get_to: cuda
+  input_names:
+  - input
+  max_batch_size: 3
+  path: weights/trtPlans/yolov8_seg_aug_best_l_trimmed.trt
