@@ -73,8 +73,6 @@ class StreamController:
             self._start_ffmpeg()
 
     def _start_ffmpeg(self):
-
-        
         delay = time.time() - self.begin_time if self.begin_time else 0
         
         ffmpeg_command = [
@@ -153,31 +151,15 @@ class StreamController:
             self.ffmpeg_process = None
 
     def source_capture(self):
+
         print("Starting source capture...")
-        frame_time = 1.0 / self.target_fps
         
         while self.running:
-            try:
-                start_time = time.time()
-                ret, data = self.cap.read()
-                
-                if ret and data is not None:
-                    frame = Frame(frame_id=self._frame_index, frame_data=data)
-                    self.circle_queue.add_frame(frame=frame)
-                    print(self.circle_queue.queue_length())
-                    self._frame_index += 1
-                    
-                    # Frame rate control
-                    elapsed = time.time() - start_time
-                    if elapsed < frame_time:
-                        time.sleep(frame_time - elapsed)
-                else:
-                    print("Failed to read frame, attempting to reconnect...")
-                    self._init_capture()
-                    
-            except Exception as e:
-                print(f"Error in source capture: {e}")
-                time.sleep(0.1)
+            ret, data = self.cap.read()
+            frame = Frame(frame_id=self._frame_index, frame_data=data)
+            if ret and frame is not None:
+                self.circle_queue.add_frame(frame=frame)
+                self._frame_index += 1
 
     def out_stream(self):
         print("Starting output stream...")
@@ -191,51 +173,25 @@ class StreamController:
         max_failures = 10
         
         while self.running:
-            try:
+            if self._write_frame_index in self.circle_queue.frames.keys():
                 frame_out = self.circle_queue.get_by_id(self._write_frame_index)
                 
-                if frame_out and frame_out.processed:
-                    # Kiểm tra FFmpeg process
-                    if self.ffmpeg_process is None or self.ffmpeg_process.poll() is not None:
-                        print("FFmpeg process died. Restarting...")
-                        self._restart_ffmpeg()
-                        if self.ffmpeg_process is None:
-                            consecutive_failures += 1
-                            if consecutive_failures >= max_failures:
-                                print("Max FFmpeg restart failures reached")
-                                break
-                            time.sleep(1)
-                            continue
-                    
-                    try:
-                        frame_bytes = frame_out.frame_data.tobytes()
-                        self.ffmpeg_process.stdin.write(frame_bytes)
-                        self.ffmpeg_process.stdin.flush()
-                        
-                        # Cleanup
-                        self.circle_queue.remove_by_id(self._write_frame_index)
-                        self._write_frame_index += 1
-                        frame_out.destroy()
-                        
-                        consecutive_failures = 0  # Reset counter on success
-                        
-                    except (BrokenPipeError, OSError) as e:
-                        print(f"FFmpeg pipe error: {e}")
-                        self._restart_ffmpeg()
-                        consecutive_failures += 1
-                        
-                elif frame_out and not frame_out.processed:
-                    # Frame chưa được xử lý, chờ
-                    time.sleep(0.005)
-                    
+                if frame_out is not None:
+                    if not frame_out.processed:
+                        print("Frame not processed")
+                    else:
+                        print("Frame processed")
+                    frame_bytes = frame_out.frame_data.tobytes()
+                    self.ffmpeg_process.stdin.write(frame_bytes)
+                    # self.ffmpeg_process.stdin.flush()
+                    frame_out.destroy()
                 else:
-                    # Không có frame, chờ
-                    time.sleep(0.005)
-                    
-            except Exception as e:
-                print(f"Error in output stream: {e}")
-                time.sleep(0.1)
+                    time.sleep(0.001)
                 
+                self._write_frame_index += 1
+            else:
+                time.sleep(0.001)
+                    
         print("Output stream stopped")
         self._cleanup_ffmpeg()
 

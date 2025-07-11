@@ -37,6 +37,16 @@ class CircleQueue:
         count = min(count, self.queue_length())
         return list(self.frames.values())[-count:]
 
+    def get_frame_non_processed(self, count: int) -> List[Frame]:
+        frames_list: List[Frame] = []
+        for frame in self.frames.values():
+            if not frame.processed and frame.frame_data is not None:
+                frames_list.append(frame)
+                if len(frames_list) >= count:
+                    break
+        return frames_list
+        
+
     def get_range(self, start_id: int, count: int) -> (int, List[Frame]):
         frames_list: List[Frame] = []
         if start_id < self.first_frame_id:
@@ -52,34 +62,9 @@ class CircleQueue:
         return (start_id + count), frames_list
 
     def get_by_id(self, frame_id: int) -> Optional[Frame]:
-        return self.frames.get(frame_id)
-
-
-    def get_list_by_id_range(self, from_id: int, to_id: int) -> List[Frame]:
-        """
-        Lấy danh sách các Frame theo khoảng frame_id (bao gồm from_id và to_id - 1).
-        """
-        frames_list: List[Frame] = []
-        for frame_id in range(from_id, to_id):
-            frame = self.frames.get(frame_id)
-            if frame:
-                frames_list.append(frame)
-        return frames_list
-
-    def replace_frame_with_data(self, frame_id: int, frame_data, processedbool: bool = True) -> bool:
-        """
-        Thay thế frame có sẵn trong queue bằng frame_data mới.
-        Tự động tạo Frame mới từ frame_id và frame_data.
-        """
-        if frame_id in self.frames:
-            new_frame = Frame(frame_id=frame_id, frame_data=frame_data)
-            new_frame.processed = processedbool
-            self.frames[frame_id] = new_frame
-            return True
-        return False
-
-    def remove_by_id(self, frame_id: int) -> Optional[Frame]:
-        return self.frames.pop(frame_id, None)
+        frame = self.frames.get(frame_id)
+        del self.frames[frame_id]
+        return frame
 
     def buffer_capacity(self) -> int:
         return self.buffer_size

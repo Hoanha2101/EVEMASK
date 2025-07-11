@@ -24,9 +24,8 @@ class AI:
         self.boxPlot = boxPlot
         self.current_frame = None
 
-        self.from_id = 0
-        self.to_id = 0
-        
+        self._instance_list_ = None
+
         if FEmodel:
             from ..models.initNet import net2
             self.net2 = net2
@@ -34,23 +33,23 @@ class AI:
             vectorizer = VectorPrepare(orgFolderPath=orgFolderPath, enginePlan=self.net2)
             self.recognizeDataVector, self.image_names = vectorizer.run()
 
-
     def _get_frames_from_queue(self):
-        self.to_id = self.from_id + min(self.batch_size, self.circle_queue.queue_length())
-        frames = self.circle_queue.get_list_by_id_range(self.from_id, self.to_id)
-        print(f"Frames: {len(frames)}")
+        use_count = min(self.batch_size, self.circle_queue.queue_length())
+        frames = self.circle_queue.get_frame_non_processed(use_count)
+        self._instance_list_ = frames
         return frames
 
     def run(self):
         while True:
-            frames = self._get_frames_from_queue()
-            if frames:
-                processed_batch = [frame.framePreprocessing() for frame in frames]
-                self.inference(processed_batch, self.from_id)
-                self.from_id = self.to_id
-            time.sleep(0.01)
+            if self.circle_queue.queue_length() > 0:
+                frames = self._get_frames_from_queue()
+                if frames:
+                    processed_batch = [frame.framePreprocessing() for frame in frames]
+                    self.inference(processed_batch)
+            else:
+                time.sleep(0.01)
 
-    def inference(self, processed_batch, from_id):
+    def inference(self, processed_batch):
         origin_imno255 = np.concatenate([item[4] for item in processed_batch], axis=0)
         batch_tensor = np.concatenate([item[1] for item in processed_batch], axis=0)
         x = torch.from_numpy(origin_imno255).to(device='cuda', dtype=torch.float16)
@@ -166,7 +165,7 @@ class AI:
 
                                 if np.isnan(outputs).any():
                                     print("[Warning] NaN detected in net2 outputs. Skipping similarity matching.")
-                                    continue  # hoặc xử lý fallback nào đó
+                                    continue
 
                                 recognizeDataVector_array = np.array(self.recognizeDataVector)  # shape (N, D)
                                 
@@ -197,6 +196,6 @@ class AI:
                     final_class_ids,
                     downscale_factor=20, 
                     no_blur_classes=self.CLASSES_NO_BLUR)
-                   
-            self.circle_queue.replace_frame_with_data(frame_id = from_id, frame_data = current_frame, processedbool = True)
-            from_id += 1
+                    
+            self._instance_list_[b].frame_data = current_frame
+            self._instance_list_[b].processed = True

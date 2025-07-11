@@ -17,7 +17,7 @@ if __name__ == "__main__":
     
     # Initialize components
     streamController = StreamController(cfg)
-    useAI = AI(cfg)
+    useAI = AI(cfg, FEmodel=False)
 
     print("Configuration loaded successfully")
     print(f"Input source: {cfg.get('INPUT_SOURCE', 'Not specified')}")
