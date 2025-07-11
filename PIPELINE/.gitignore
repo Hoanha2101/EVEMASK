@@ -29,6 +29,7 @@ weights/yolo/*
 # Ignore other folders
 videos/
 recognizeData/
+block/
 *.log
 __pycache__/
 *.pyc

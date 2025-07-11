@@ -11,8 +11,8 @@ class Frame:
         return self.frame_id ,self.frame_data
 
     def framePreprocessing(self):
-        original_frame = self.frame_data.copy()
-        input_image, ratio, dwdh = letterbox(self.frame_data, (640, 640))
+        original_frame = self.frame_data
+        input_image, ratio, dwdh = letterbox(original_frame, (640, 640))
         input_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2RGB)
         input_image, img_no_255, seg_img = blob(input_image, return_seg=True)
         img_tensor = np.ascontiguousarray(input_image)

@@ -2,11 +2,9 @@ from .circle_queue import CircleQueue
 from .frame import Frame
 import cv2
 import time
-from ..brain import AI
 import subprocess
 import threading
 import numpy as np
-from collections import OrderedDict
 
 class StreamController:
     def __init__(self, cfg):
@@ -22,19 +20,16 @@ class StreamController:
         self._frame_index = 0
         self._write_frame_index = 0
         
-        # Thêm lock để đồng bộ hóa
-        self.lock = threading.Lock()
-        
+        # Initialize capture
         self._init_capture()
 
     def _init_capture(self):
+        print(f"Waiting for input stream: {self.INPUT_SOURCE}")
         while True:
             try:
                 cap = cv2.VideoCapture(self.INPUT_SOURCE)
-                # Thêm timeout và buffer size config
+                # Optimize buffer settings
                 cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-                cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-                cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
                 
                 ret, frame = cap.read()
                 if ret and frame is not None:
@@ -55,22 +50,7 @@ class StreamController:
                     cap.release()
                     
             print(f"[{time.time()}] Waiting for input stream: {self.INPUT_SOURCE}")
-            time.sleep(1)  # Tăng delay để tránh spam
-
-    def _restart_ffmpeg(self):
-        with self.lock:
-            if self.ffmpeg_process is not None:
-                try:
-                    self.ffmpeg_process.stdin.close()
-                    self.ffmpeg_process.wait(timeout=5)
-                except Exception as e:
-                    print(f"Error closing ffmpeg: {e}")
-                    try:
-                        self.ffmpeg_process.kill()
-                    except:
-                        pass
-                self.ffmpeg_process = None
-            self._start_ffmpeg()
+            time.sleep(1)
 
     def _start_ffmpeg(self):
         delay = time.time() - self.begin_time if self.begin_time else 0
@@ -78,48 +58,28 @@ class StreamController:
         ffmpeg_command = [
             "ffmpeg",
             "-re",  # Real time input
-            "-f",
-            "rawvideo",  # Input format
-            "-pix_fmt",
-            "bgr24",  # Pixel format
-            "-s",
-            "{}x{}".format(self.width, self.height),  # Size of one frame
-            "-r",
-            str(self.target_fps),  # Frame rate
-            "-i",
-            "-",  # The input comes from a pipe
-            "-i",
-            self.INPUT_SOURCE,
-            "-af",
-            f"adelay={delay * 1000}|{delay * 1000}",
-            "-async",
-            "1",
-            "-vsync",
-            "1",
-            "-q:v",
-            "1",
-            "-map",
-            "1:a",
-            "-map",
-            "0:v",
-            "-c:v",
-            "libx264",  # Codec
-            "-pix_fmt",
-            "yuv420p",  # Pixel format for output
-            "-preset",
-            "medium",  # Encoding speed medium
-            "-color_primaries",
-            "bt709",  # Color primaries as per BT.709
-            "-color_trc",
-            "bt709",  # Transfer characteristics as per BT.709
-            "-colorspace",
-            "bt709",  # Color space as per BT.709
-            "-vf",
-            "yadif",
+            "-f", "rawvideo",
+            "-pix_fmt", "bgr24",
+            "-s", "{}x{}".format(self.width, self.height),
+            "-r", str(self.target_fps),
+            "-i", "-",
+            "-i", self.INPUT_SOURCE,
+            "-af", f"adelay={delay * 1000}|{delay * 1000}",
+            "-async", "1",
+            "-vsync", "1",
+            "-q:v", "1",
+            "-map", "1:a",
+            "-map", "0:v",
+            "-c:v", "libx264",
+            "-pix_fmt", "yuv420p",
+            "-preset", "ultrafast",  # Use ultrafast for better performance
+            "-color_primaries", "bt709",
+            "-color_trc", "bt709",
+            "-colorspace", "bt709",
+            "-vf", "yadif",
             "-f",
         ]
         
-        # Đơn giản hóa audio handling
         if self.cfg['OUTPUT_TYPE'] == "rtsp":
             ffmpeg_command.extend([
                 "rtsp", "-rtsp_transport", "tcp", self.cfg['OUTPUT_STREAM_URL_RTSP']
@@ -132,18 +92,17 @@ class StreamController:
             output_stream_url = self.cfg['OUTPUT_STREAM_URL_RTMP']
         else:
             ffmpeg_command.extend([
-                "mpegts",
-                self.cfg['OUTPUT_STREAM_URL_UDP']
+                "mpegts", self.cfg['OUTPUT_STREAM_URL_UDP']
             ])
             output_stream_url = self.cfg['OUTPUT_STREAM_URL_UDP']
             
         print(f"Output URL: {output_stream_url}")
-        print(f"FFmpeg command: {' '.join(ffmpeg_command)}")
         
         try:
             self.ffmpeg_process = subprocess.Popen(
                 ffmpeg_command, 
-                stdin=subprocess.PIPE
+                stdin=subprocess.PIPE,
+                stderr=subprocess.DEVNULL  # Reduce logging overhead
             )
             print("FFmpeg process started successfully")
         except Exception as e:
@@ -151,15 +110,20 @@ class StreamController:
             self.ffmpeg_process = None
 
     def source_capture(self):
-
         print("Starting source capture...")
         
         while self.running:
-            ret, data = self.cap.read()
-            frame = Frame(frame_id=self._frame_index, frame_data=data)
-            if ret and frame is not None:
-                self.circle_queue.add_frame(frame=frame)
-                self._frame_index += 1
+            try:
+                ret, data = self.cap.read()
+                if ret and data is not None:
+                    frame = Frame(frame_id=self._frame_index, frame_data=data)
+                    self.circle_queue.add_frame(frame=frame)
+                    self._frame_index += 1
+                else:
+                    time.sleep(0.01)  # Short sleep if no frame
+            except Exception as e:
+                print(f"Error in capture: {e}")
+                time.sleep(0.1)
 
     def out_stream(self):
         print("Starting output stream...")
@@ -169,52 +133,40 @@ class StreamController:
             print("Failed to start FFmpeg")
             return
             
-        consecutive_failures = 0
-        max_failures = 10
-        
         while self.running:
-            if self._write_frame_index in self.circle_queue.frames.keys():
-                frame_out = self.circle_queue.get_by_id(self._write_frame_index)
-                
-                if frame_out is not None:
-                    if not frame_out.processed:
-                        print("Frame not processed")
-                    else:
-                        print("Frame processed")
-                    frame_bytes = frame_out.frame_data.tobytes()
-                    self.ffmpeg_process.stdin.write(frame_bytes)
-                    # self.ffmpeg_process.stdin.flush()
-                    frame_out.destroy()
+            try:
+                if self._write_frame_index in self.circle_queue.frames.keys():
+                    frame_out = self.circle_queue.get_by_id(self._write_frame_index)
+                    if frame_out is not None:
+                        if frame_out.processed:
+                            frame_bytes = frame_out.frame_data.tobytes()
+                            self.ffmpeg_process.stdin.write(frame_bytes)
+                        frame_out.destroy()
+                    self._write_frame_index += 1
                 else:
-                    time.sleep(0.001)
-                
-                self._write_frame_index += 1
-            else:
-                time.sleep(0.001)
+                    time.sleep(0.01)  # Reduced sleep time for better responsiveness
+            except Exception as e:
+                print(f"Error in output stream: {e}")
+                time.sleep(0.1)
                     
         print("Output stream stopped")
         self._cleanup_ffmpeg()
 
     def _cleanup_ffmpeg(self):
-        with self.lock:
-            if self.ffmpeg_process is not None:
+        if self.ffmpeg_process is not None:
+            try:
+                self.ffmpeg_process.stdin.close()
+                self.ffmpeg_process.wait(timeout=5)
+            except Exception as e:
+                print(f"Error closing ffmpeg: {e}")
                 try:
-                    self.ffmpeg_process.stdin.close()
-                    self.ffmpeg_process.wait(timeout=5)
-                except Exception:
-                    try:
-                        self.ffmpeg_process.kill()
-                        self.ffmpeg_process.wait(timeout=2)
-                    except:
-                        pass
-                self.ffmpeg_process = None
+                    self.ffmpeg_process.kill()
+                except:
+                    pass
+            self.ffmpeg_process = None
 
     def stop(self):
-        print("Stopping stream controller...")
         self.running = False
-        
-        if hasattr(self, 'cap') and self.cap is not None:
+        if self.cap:
             self.cap.release()
-            
-        self._cleanup_ffmpeg()
-        print("Stream controller stopped")
+        self._cleanup_ffmpeg() 

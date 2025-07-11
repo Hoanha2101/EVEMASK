@@ -46,8 +46,7 @@ class AI:
                 if frames:
                     processed_batch = [frame.framePreprocessing() for frame in frames]
                     self.inference(processed_batch)
-            else:
-                time.sleep(0.01)
+            time.sleep(0.01)
 
     def inference(self, processed_batch):
         origin_imno255 = np.concatenate([item[4] for item in processed_batch], axis=0)
