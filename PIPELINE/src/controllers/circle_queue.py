@@ -13,6 +13,8 @@ class CircleQueue:
         self.frames: OrderedDict[int, Frame] = OrderedDict()
         self.first_frame_id = 0
         self.last_frame_id = 0
+        
+        self.last_seen_id = 0
 
     def add_frame(self, frame: Frame):
         assert isinstance(frame, Frame), "Input must be of type Frame"
@@ -20,7 +22,7 @@ class CircleQueue:
         self.last_frame_id = max(self.last_frame_id, frame.frame_id + 1)
 
         # Auto-remove old frames if buffer overflows
-        while self.queue_length() > self.buffer_size:
+        while self.queue_length() >= self.buffer_size:
             self.frames.popitem(last=False)
             self.first_frame_id += 1
 
@@ -31,19 +33,26 @@ class CircleQueue:
         return None
 
     def queue_length(self) -> int:
-        return self.last_frame_id - self.first_frame_id
+        return len(self.frames)
 
     def get_tail(self, count: int) -> List[Frame]:
         count = min(count, self.queue_length())
         return list(self.frames.values())[-count:]
 
-    def get_frame_non_processed(self, count: int) -> List[Frame]:
+    def get_frame_non_processed(self, count: int, n_skip: int = 0) -> List[Frame]:
         frames_list: List[Frame] = []
+        mask_n_skip = 1
         for frame in self.frames.values():
-            if not frame.processed and frame.frame_data is not None:
-                frames_list.append(frame)
-                if len(frames_list) >= count:
-                    break
+            if frame.frame_id > self.last_seen_id:
+                if not frame.processed and frame.frame_data is not None:
+                    if mask_n_skip <= n_skip:
+                        mask_n_skip += 1
+                        continue
+                    else:
+                        frames_list.append(frame)
+                        if len(frames_list) >= count:
+                            self.last_seen_id = frame.frame_id
+                            break
         return frames_list
         
 

@@ -6,9 +6,12 @@ import subprocess
 import threading
 import numpy as np
 
+
 class StreamController:
     def __init__(self, cfg):
         self.circle_queue = CircleQueue.get_instance()
+        from ..brain.AI import AI
+        self.ai_instance = AI.get_instance()
         self.cfg = cfg
         self.INPUT_SOURCE = cfg['INPUT_SOURCE']
         self.target_fps = cfg['TARGET_FPS']
@@ -19,6 +22,8 @@ class StreamController:
         self.cap = None
         self._frame_index = 0
         self._write_frame_index = 0
+        self._frame_times = []  # Store frame timestamps for FPS calculation
+        self._last_fps_calc = time.time()
         
         # Initialize capture
         self._init_capture()
@@ -109,6 +114,26 @@ class StreamController:
             print(f"Error starting FFmpeg: {e}")
             self.ffmpeg_process = None
 
+    def _calculate_input_fps(self):
+        """Tính toán input FPS dựa trên thời gian nhận frame"""
+        current_time = time.time()
+        self._frame_times.append(current_time)
+        
+        # Chỉ tính FPS mỗi 3 giây để tránh dao động
+        if current_time - self._last_fps_calc > 3.0:
+            if len(self._frame_times) > 1:
+                # Tính FPS dựa trên số frame trong khoảng thời gian
+                time_span = self._frame_times[-1] - self._frame_times[0]
+                if time_span > 0:
+                    input_fps = (len(self._frame_times) - 1) / time_span
+                    return input_fps
+            
+            # Reset tracking
+            self._frame_times = [current_time]
+            self._last_fps_calc = current_time
+        
+        return None
+
     def source_capture(self):
         print("Starting source capture...")
         
@@ -119,6 +144,16 @@ class StreamController:
                     frame = Frame(frame_id=self._frame_index, frame_data=data)
                     self.circle_queue.add_frame(frame=frame)
                     self._frame_index += 1
+                    
+                    # Tính toán và cập nhật input FPS
+                    input_fps = self._calculate_input_fps()
+                    if input_fps is not None:
+                        # Cập nhật AI FPS nếu có thể
+                        try:     
+                            if self.ai_instance:
+                                self.ai_instance.update_input_fps(input_fps)
+                        except Exception as e:
+                            print(f"Error updating AI FPS: {e}")
                 else:
                     time.sleep(0.01)  # Short sleep if no frame
             except Exception as e:
@@ -134,23 +169,24 @@ class StreamController:
             return
             
         while self.running:
-            try:
-                if self._write_frame_index in self.circle_queue.frames.keys():
-                    frame_out = self.circle_queue.get_by_id(self._write_frame_index)
-                    if frame_out is not None:
-                        if frame_out.processed:
-                            print("AI has processed")
-                        else:
-                            print("AI has not processed")
-                        frame_bytes = frame_out.frame_data.tobytes()
-                        self.ffmpeg_process.stdin.write(frame_bytes)
-                        frame_out.destroy()
-                    self._write_frame_index += 1
-                else:
-                    time.sleep(0.01)  # Reduced sleep time for better responsiveness
-            except Exception as e:
-                print(f"Error in output stream: {e}")
-                time.sleep(0.1)
+            # start = time.time()
+            if self._write_frame_index in self.circle_queue.frames.keys():
+                frame_out = self.circle_queue.get_by_id(self._write_frame_index)
+                if frame_out is not None:
+                    # if frame_out.processed:
+                    #     print("AI has processed")
+                    # else:
+                    #     print("AI has not processed")
+                    frame_bytes = frame_out.frame_data.tobytes()
+                    self.ffmpeg_process.stdin.write(frame_bytes)
+                    frame_out.destroy()
+                self._write_frame_index += 1
+                # print("lenght circle:", self.circle_queue.queue_length())
+                # sl = max(0,1/self.target_fps - time.time() + start - 0.001)
+                # time.sleep(sl)
+                time.sleep(0.01)
+            else:
+                time.sleep(0.1)  # Reduced sleep time for better responsiveness
                     
         print("Output stream stopped")
         self._cleanup_ffmpeg()

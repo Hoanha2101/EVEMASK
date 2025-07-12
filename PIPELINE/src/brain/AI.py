@@ -8,6 +8,13 @@ import time
 from ..controllers import CircleQueue
 
 class AI:
+    _instance = None
+    
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(AI, cls).__new__(cls)
+        return cls._instance
+    
     def __init__(self, cfg, blurPlot = True , boxPlot = False ,FEmodel = True):
         
         self.circle_queue = CircleQueue.get_instance()
@@ -26,6 +33,11 @@ class AI:
 
         self._instance_list_ = None
 
+        self._instream_fps_ = 25
+        self._ai_fps_ = 10  # Default AI FPS
+        self._processing_times = []  # Store processing times for FPS calculation
+        self._last_fps_update = time.time()
+
         if FEmodel:
             from ..models.initNet import net2
             self.net2 = net2
@@ -35,7 +47,17 @@ class AI:
 
     def _get_frames_from_queue(self):
         use_count = min(self.batch_size, self.circle_queue.queue_length())
-        frames = self.circle_queue.get_frame_non_processed(use_count)
+        
+        # Tính toán skip frame dựa trên tỷ lệ FPS
+        # Công thức: n_skip = max(0, int((instream_fps / ai_fps) - 1))
+        # Nếu AI FPS = 10, Input FPS = 25 -> n_skip = 1 (lấy 1 frame, bỏ 1 frame)
+        # Nếu AI FPS = 5, Input FPS = 25 -> n_skip = 4 (lấy 1 frame, bỏ 4 frame)
+        if self._ai_fps_ > 0:
+            n_skip = max(0, int(((self._instream_fps_ / self._ai_fps_)* self.batch_size) - self.batch_size))
+        else:
+            n_skip = 0
+        # print("n_skip", n_skip)
+        frames = self.circle_queue.get_frame_non_processed(use_count, n_skip)
         self._instance_list_ = frames
         return frames
 
@@ -48,7 +70,26 @@ class AI:
                     self.inference(processed_batch)
             time.sleep(0.01)
 
+    def _update_ai_fps(self, processing_time):
+        """Cập nhật AI FPS dựa trên thời gian xử lý thực tế"""
+        self._processing_times.append(processing_time)
+        
+        # Chỉ cập nhật FPS mỗi 5 giây để tránh dao động
+        current_time = time.time()
+        if current_time - self._last_fps_update > 5.0:
+            if len(self._processing_times) > 0:
+                avg_processing_time = sum(self._processing_times) / len(self._processing_times)
+                if avg_processing_time > 0:
+                    self._ai_fps_ = 1.0 / avg_processing_time
+                    print(f"AI FPS updated: {self._ai_fps_:.2f} (avg processing time: {avg_processing_time:.3f}s)")
+            
+            # Reset tracking
+            self._processing_times = []
+            self._last_fps_update = current_time
+
     def inference(self, processed_batch):
+        start_time = time.time()
+        
         origin_imno255 = np.concatenate([item[4] for item in processed_batch], axis=0)
         batch_tensor = np.concatenate([item[1] for item in processed_batch], axis=0)
         x = torch.from_numpy(origin_imno255).to(device='cuda', dtype=torch.float16)
@@ -198,3 +239,35 @@ class AI:
                     
             self._instance_list_[b].frame_data = current_frame
             self._instance_list_[b].processed = True
+        
+        # Tính toán thời gian xử lý và cập nhật AI FPS
+        processing_time = time.time() - start_time
+        self._update_ai_fps(processing_time)
+
+    def get_skip_frame_info(self):
+        """Trả về thông tin về skip frame strategy"""
+        if self._ai_fps_ > 0:
+            n_skip = max(0, int((self._instream_fps_ / self._ai_fps_) - 1))
+            return {
+                'input_fps': self._instream_fps_,
+                'ai_fps': self._ai_fps_,
+                'skip_frames': n_skip,
+                'ratio': self._instream_fps_ / self._ai_fps_,
+                'strategy': f"Lấy 1 frame, bỏ {n_skip} frame" if n_skip > 0 else "Lấy tất cả frame"
+            }
+        return {
+            'input_fps': self._instream_fps_,
+            'ai_fps': self._ai_fps_,
+            'skip_frames': 0,
+            'ratio': 0,
+            'strategy': "Chưa có dữ liệu FPS"
+        }
+
+    def update_input_fps(self, input_fps):
+        """Cập nhật input FPS từ stream controller"""
+        self._instream_fps_ = input_fps
+
+    @classmethod
+    def get_instance(cls):
+        """Lấy instance của AI singleton"""
+        return cls._instance
