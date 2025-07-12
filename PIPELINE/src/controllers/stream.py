@@ -139,8 +139,11 @@ class StreamController:
                     frame_out = self.circle_queue.get_by_id(self._write_frame_index)
                     if frame_out is not None:
                         if frame_out.processed:
-                            frame_bytes = frame_out.frame_data.tobytes()
-                            self.ffmpeg_process.stdin.write(frame_bytes)
+                            print("AI has processed")
+                        else:
+                            print("AI has not processed")
+                        frame_bytes = frame_out.frame_data.tobytes()
+                        self.ffmpeg_process.stdin.write(frame_bytes)
                         frame_out.destroy()
                     self._write_frame_index += 1
                 else:
