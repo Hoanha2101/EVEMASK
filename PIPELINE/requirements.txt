@@ -1,5 +1,6 @@
 faiss_cpu==1.9.0
 NeighborBlend==0.3.0
+colorama==0.4.6
 numpy==1.23.0
 onnx_graphsurgeon==0.5.8
 opencv_contrib_python==4.6.0.66

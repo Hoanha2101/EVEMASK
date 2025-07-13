@@ -33,3 +33,6 @@ block/
 *.log
 __pycache__/
 *.pyc
+
+# Ignore file
+monitor.log
