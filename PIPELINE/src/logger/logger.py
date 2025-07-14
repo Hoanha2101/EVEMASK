@@ -23,6 +23,9 @@ import os
 import sys
 import time
 from datetime import datetime
+from rich.console import Console
+from rich.table import Table
+from rich.live import Live
 
 class EveMaskLogger:
     """
@@ -161,27 +164,77 @@ class EveMaskLogger:
         
         print()  # new line after complete
         
-    def display_stream(self):
+    def display_stream(self, cfg: dict):
         """
         Display real-time stream statistics in a formatted box.
-        
+
         This method clears the screen and displays current FPS and frame
         statistics in a visually appealing ASCII box format.
         """
         # Clear screen and move cursor to top-left
         sys.stdout.write("\033[2J\033[H")
         
-        # Display statistics in formatted box
-        print("╔══════════════════════════════════════╗")
-        print(f"║       🚀 EVEMASK STREAM LOGGER       ║")
-        print("╠══════════════════════════════════════╣")
-        print(f"║ 🎥 Input Stream FPS     : {self.in_stream_fps:6.0f}     ║")
-        print(f"║ 📤 Output Stream FPS    : {self.out_stream_fps:6.0f}     ║")
-        print(f"║ 🧠 AI Processing FPS    : {self.ai_fps:6.0f}     ║")
-        print(f"║ 🖼️  Output Frames Count  : {self.number_out_frames:6d}     ║")
-        print(f"║ 🕳️  Skipped Frames Count : {self.n_skip_frames:6d}     ║")
-        print("╚══════════════════════════════════════╝")
+        # Handle None values for FPS by providing defaults
+        in_fps = self.in_stream_fps or 0.0
+        out_fps = self.out_stream_fps or 0.0
+        ai_fps = self.ai_fps or 0.0
+
+        # Define frame stats
+        print("╔════════════════════════════════════════════════════╗")
+        print("║           🚀  EVEMASK STREAM LOGGER v2.0           ║")
+        print("╠════════════════════════════════════════════════════╣")
+        print(f"║ 🎥 Input Stream FPS       : {in_fps:>6.0f} FPS             ║")
+        print(f"║ 📤 Output Stream FPS      : {out_fps:>6.0f} FPS             ║")
+        print(f"║ 🧠 AI Processing FPS      : {ai_fps:>6.0f} FPS             ║")
+        print(f"║ 🖼️  Output Frames Count    : {self.number_out_frames:>6d} frames          ║")
+        print(f"║ 🕳️  Skipped Frames Count   : {self.n_skip_frames:>6d} frames          ║")
+        print("╠════════════════════════════════════════════════════╣")
+        print("║                  🌐 Output Stream URLs             ║")
+        print("╠════════════════════════════════════════════════════╣")
+        print(f"║ 📡 UDP  : {cfg.get('OUTPUT_STREAM_URL_UDP', 'Not specified'):<41}║")
+        print(f"║ 🌍 RTSP : {cfg.get('OUTPUT_STREAM_URL_RTSP', 'Not specified'):<41}║")
+        print(f"║ 📺 RTMP : {cfg.get('OUTPUT_STREAM_URL_RTMP', 'Not specified'):<41}║")
+        print("╚════════════════════════════════════════════════════╝")
+
         sys.stdout.flush()
+    
+    def create_rich_table(self, cfg: dict):
+        table = Table(title="🚀 EVEMASK STREAM LOGGER", expand=True)
+        table.add_column("Metric", justify="left", style="cyan", no_wrap=True)
+        table.add_column("Value", style="magenta")
+
+        # --- Main stats ---
+        table.add_row("🎥 Input FPS", f"{self.in_stream_fps:.1f}")
+        table.add_row("📤 Output FPS", f"{self.out_stream_fps:.1f}")
+        table.add_row("🧠 AI FPS", f"{self.ai_fps:.1f}")
+        table.add_row("🖼️ Frames Output", str(self.number_out_frames))
+        table.add_row("🕳️ Skipped Frames", str(self.n_skip_frames))
+
+        # --- Input source section ---
+        table.add_section()
+        table.add_row("[bold yellow]🎥 Input Source[/]", cfg.get("INPUT_SOURCE", "N/A"))
+
+        # --- Output URLs section ---
+        table.add_section()
+        table.add_row("[bold green]📡 UDP[/]", cfg.get("OUTPUT_STREAM_URL_UDP", "N/A"))
+        table.add_row("[bold green]🌍 RTSP[/]", cfg.get("OUTPUT_STREAM_URL_RTSP", "N/A"))
+        table.add_row("[bold green]📺 RTMP[/]", cfg.get("OUTPUT_STREAM_URL_RTMP", "N/A"))
+
+        return table
+
+    def start_live_display(self, cfg: dict):
+        from rich.live import Live
+        self.live = Live(self.create_rich_table(cfg), refresh_per_second=4)
+        self.live.start()
+
+    def update_live_display(self, cfg: dict):
+        if self.live:
+            self.live.update(self.create_rich_table(cfg))
+
+    def stop_live_display(self):
+        if self.live:
+            self.live.stop()
+
     
     def display_logo(self):
         """

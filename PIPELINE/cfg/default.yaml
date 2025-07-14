@@ -6,7 +6,7 @@ OUTPUT_STREAM_URL_RTMP: None
 OUTPUT_STREAM_URL_RTSP: None
 OUTPUT_STREAM_URL_UDP: udp://@225.1.9.254:30133?pkt_size=1316
 OUTPUT_TYPE: udp
-TARGET_FPS: 25
+TARGET_FPS: 30
 batch_size: 3
 conf_threshold: 0.5
 extract_model:

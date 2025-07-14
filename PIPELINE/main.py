@@ -73,7 +73,15 @@ if __name__ == "__main__":
     # ========================================================================
     # MAIN MONITORING LOOP
     # ========================================================================
+    logger.start_live_display(cfg)
+    try:
+        while True:
+            logger.update_live_display(cfg)
+            time.sleep(0.25)
+    except KeyboardInterrupt:
+        logger.stop_live_display()
+        
     while True:
-        logger.display_stream()
+        # logger.display_stream(cfg)
         time.sleep(1)
 
