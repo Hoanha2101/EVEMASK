@@ -44,6 +44,7 @@ class StreamController:
         ffmpeg_process: FFmpeg subprocess handle
         cap: OpenCV video capture object
     """
+    _global_instance: "StreamController" = None
     
     def __init__(self, cfg):
         """
@@ -57,12 +58,13 @@ class StreamController:
         from ..brain.AI import AI
         from ..logger import EveMaskLogger
         self.logger = EveMaskLogger.get_instance()
-        self.ai_instance = AI.get_instance()
+        self.ai_instance = AI.get_instance(cfg=cfg)
         
         # Store configuration
         self.cfg = cfg
         self.INPUT_SOURCE = cfg['INPUT_SOURCE']
         self.target_fps = cfg['TARGET_FPS']
+        self.batch_size = cfg['batch_size']
         
         # Video properties
         self.width = None
@@ -291,7 +293,8 @@ class StreamController:
             
         while self.running:
             # Check if frame is available for output
-            if self._write_frame_index in self.circle_queue.frames.keys():
+            start = time.time()
+            if (self._write_frame_index in self.circle_queue.frames.keys()) and (self.ai_instance.mooc_processed_frames >= self._write_frame_index):
                 # Get frame from queue
                 frame_out = self.circle_queue.get_by_id(self._write_frame_index)
                 self.logger.update_number_out_frames(self._write_frame_index)
@@ -304,14 +307,16 @@ class StreamController:
                     frame_out.destroy()
                     # Update timestamp
                     self.out_timestamps.append(time.time())
-                # Move to next frame
-                self._write_frame_index += 1
+                    # Move to next frame
+                    self._write_frame_index += 1
                 
                 # Control output rate
                 time.sleep(0.01)
+                # time.sleep(max(0,1/self.target_fps - time.time() + start - 0.001))
             else:
+                time.sleep(0.01)
                 # Wait if frame not available
-                time.sleep(0.1)
+                # time.sleep(max(0,1/self.target_fps - time.time() + start - 0.001))
             
             # Calculate output FPS
             now = time.time()
@@ -358,3 +363,12 @@ class StreamController:
         if self.cap:
             self.cap.release()
         self._cleanup_ffmpeg() 
+    
+    @classmethod
+    def get_instance(cls) -> "StreamController":
+        """
+        Get the singleton instance of StreamController.
+        """
+        if cls._global_instance is None:
+            cls._global_instance = StreamController(cfg=cfg)
+        return cls._global_instance

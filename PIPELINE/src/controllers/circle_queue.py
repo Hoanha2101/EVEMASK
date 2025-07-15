@@ -134,13 +134,12 @@ class CircleQueue:
         frames_list: List[Frame] = []
         mask_n_skip = 1  # Counter for skip logic
         
-        # Iterate through frames in order
-        for frame in self.frames.values():
-            # Only process frames newer than last seen
-            if frame.frame_id > self.last_seen_id:
-                # Check if frame is unprocessed and has data
+        mooc_last_seen_id = self.last_seen_id
+        
+        for i in range(mooc_last_seen_id, self.last_frame_id + 1):
+            frame = self.frames.get(i)
+            if frame:
                 if not frame.processed and frame.frame_data is not None:
-                    # Apply frame skipping logic
                     if mask_n_skip <= n_skip:
                         mask_n_skip += 1
                         continue  # Skip this frame
@@ -151,7 +150,28 @@ class CircleQueue:
                             # Update last seen ID and stop
                             self.last_seen_id = frame.frame_id
                             break
+                    if len(frames_list) >= count:
+                        break
         return frames_list
+    
+        # # Iterate through frames in order
+        # for frame in self.frames.values():
+        #     # Only process frames newer than last seen
+        #     if frame.frame_id > self.last_seen_id:
+        #         # Check if frame is unprocessed and has data
+        #         if not frame.processed and frame.frame_data is not None:
+        #             # Apply frame skipping logic
+        #             if mask_n_skip <= n_skip:
+        #                 mask_n_skip += 1
+        #                 continue  # Skip this frame
+        #             else:
+        #                 # Add frame to result list
+        #                 frames_list.append(frame)
+        #                 if len(frames_list) >= count:
+        #                     # Update last seen ID and stop
+        #                     self.last_seen_id = frame.frame_id
+        #                     break
+        # return frames_list
         
 
     def get_range(self, start_id: int, count: int) -> (int, List[Frame]):

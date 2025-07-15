@@ -96,6 +96,9 @@ class AI:
         self._ai_fps_ = 10  # Default AI processing FPS
         self._processing_times = []  # Store processing times for FPS calculation
         self._last_fps_update = time.time()
+        
+        # Frame marking completed by AI
+        self.mooc_processed_frames = 0
 
         # Initialize feature extraction if enabled
         if FEmodel:
@@ -323,7 +326,7 @@ class AI:
 
                                 # Check for NaN values in outputs
                                 if np.isnan(outputs).any():
-                                    print("[Warning] NaN detected in net2 outputs. Skipping similarity matching.")
+                                    # print("[Warning] NaN detected in net2 outputs. Skipping similarity matching.")
                                     continue
 
                                 # Prepare reference data for similarity matching
@@ -365,6 +368,7 @@ class AI:
             # Update frame data and mark as processed
             self._instance_list_[b].frame_data = current_frame
             self._instance_list_[b].processed = True
+            self.mooc_processed_frames = self._instance_list_[b].frame_id
         
         # Calculate processing time and update AI FPS
         processing_time = time.time() - start_time
@@ -404,11 +408,9 @@ class AI:
         self._instream_fps_ = input_fps
 
     @classmethod
-    def get_instance(cls):
-        """
-        Get singleton instance of AI class.
-        
-        Returns:
-            AI: Singleton instance
-        """
+    def get_instance(cls, cfg=None, **kwargs):
+        if cls._instance is None:
+            if cfg is None:
+                raise ValueError("AI instance not created yet. Provide `cfg` to initialize.")
+            cls._instance = cls(cfg, **kwargs)
         return cls._instance

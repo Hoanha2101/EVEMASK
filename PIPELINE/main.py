@@ -41,7 +41,7 @@ if __name__ == "__main__":
     # ========================================================================
     print("⚙️  Initializing pipeline components...")
     streamController = StreamController(cfg)
-    useAI = AI(cfg, FEmodel=False)
+    useAI = AI(cfg, FEmodel=True)
     print("✅ Components initialized successfully.\n")
 
     # ========================================================================
@@ -73,15 +73,18 @@ if __name__ == "__main__":
     # ========================================================================
     # MAIN MONITORING LOOP
     # ========================================================================
-    logger.start_live_display(cfg)
+    
+    logger.start_live_display(cfg, capture_thread.is_alive(), output_thread.is_alive(), ai_thread.is_alive())
     try:
         while True:
-            logger.update_live_display(cfg)
+            input_alive = capture_thread.is_alive()
+            output_alive = output_thread.is_alive()
+            ai_alive = ai_thread.is_alive()
+            
+            logger.update_live_display(cfg, input_alive, output_alive, ai_alive)
             time.sleep(0.25)
     except KeyboardInterrupt:
         logger.stop_live_display()
         
     while True:
-        # logger.display_stream(cfg)
         time.sleep(1)
-

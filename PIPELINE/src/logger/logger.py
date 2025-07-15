@@ -163,52 +163,28 @@ class EveMaskLogger:
             time.sleep(duration / steps)
         
         print()  # new line after complete
-        
-    def display_stream(self, cfg: dict):
-        """
-        Display real-time stream statistics in a formatted box.
-
-        This method clears the screen and displays current FPS and frame
-        statistics in a visually appealing ASCII box format.
-        """
-        # Clear screen and move cursor to top-left
-        sys.stdout.write("\033[2J\033[H")
-        
-        # Handle None values for FPS by providing defaults
-        in_fps = self.in_stream_fps or 0.0
-        out_fps = self.out_stream_fps or 0.0
-        ai_fps = self.ai_fps or 0.0
-
-        # Define frame stats
-        print("╔════════════════════════════════════════════════════╗")
-        print("║           🚀  EVEMASK STREAM LOGGER v2.0           ║")
-        print("╠════════════════════════════════════════════════════╣")
-        print(f"║ 🎥 Input Stream FPS       : {in_fps:>6.0f} FPS             ║")
-        print(f"║ 📤 Output Stream FPS      : {out_fps:>6.0f} FPS             ║")
-        print(f"║ 🧠 AI Processing FPS      : {ai_fps:>6.0f} FPS             ║")
-        print(f"║ 🖼️  Output Frames Count    : {self.number_out_frames:>6d} frames          ║")
-        print(f"║ 🕳️  Skipped Frames Count   : {self.n_skip_frames:>6d} frames          ║")
-        print("╠════════════════════════════════════════════════════╣")
-        print("║                  🌐 Output Stream URLs             ║")
-        print("╠════════════════════════════════════════════════════╣")
-        print(f"║ 📡 UDP  : {cfg.get('OUTPUT_STREAM_URL_UDP', 'Not specified'):<41}║")
-        print(f"║ 🌍 RTSP : {cfg.get('OUTPUT_STREAM_URL_RTSP', 'Not specified'):<41}║")
-        print(f"║ 📺 RTMP : {cfg.get('OUTPUT_STREAM_URL_RTMP', 'Not specified'):<41}║")
-        print("╚════════════════════════════════════════════════════╝")
-
-        sys.stdout.flush()
     
-    def create_rich_table(self, cfg: dict):
+    def display_stream(self, cfg: dict, input_alive: bool, output_alive: bool, ai_alive: bool):
         table = Table(title="🚀 EVEMASK STREAM LOGGER", expand=True)
         table.add_column("Metric", justify="left", style="cyan", no_wrap=True)
         table.add_column("Value", style="magenta")
-
+        
+        self.in_stream_fps = self.in_stream_fps if self.in_stream_fps else 0
+        self.out_stream_fps = self.out_stream_fps if self.out_stream_fps else 0
+        self.ai_fps = self.ai_fps if self.ai_fps else 0
+        
         # --- Main stats ---
         table.add_row("🎥 Input FPS", f"{self.in_stream_fps:.1f}")
         table.add_row("📤 Output FPS", f"{self.out_stream_fps:.1f}")
         table.add_row("🧠 AI FPS", f"{self.ai_fps:.1f}")
         table.add_row("🖼️ Frames Output", str(self.number_out_frames))
         table.add_row("🕳️ Skipped Frames", str(self.n_skip_frames))
+        
+        # --- Thread/Stream status ---
+        table.add_section()
+        table.add_row("🟢 Input Stream Alive", "🟢 Alive" if input_alive else "🔴 Dead")
+        table.add_row("🟢 Output Stream Alive", "🟢 Alive" if output_alive else "🔴 Dead")
+        table.add_row("🟢 AI Alive", "🟢 Alive" if ai_alive else "🔴 Dead")
 
         # --- Input source section ---
         table.add_section()
@@ -222,14 +198,14 @@ class EveMaskLogger:
 
         return table
 
-    def start_live_display(self, cfg: dict):
+    def start_live_display(self, cfg: dict, input_alive: bool, output_alive: bool, ai_alive: bool):
         from rich.live import Live
-        self.live = Live(self.create_rich_table(cfg), refresh_per_second=4)
+        self.live = Live(self.display_stream(cfg, input_alive, output_alive, ai_alive), refresh_per_second=4)
         self.live.start()
 
-    def update_live_display(self, cfg: dict):
+    def update_live_display(self, cfg: dict, input_alive: bool, output_alive: bool, ai_alive: bool):
         if self.live:
-            self.live.update(self.create_rich_table(cfg))
+            self.live.update(self.display_stream(cfg, input_alive, output_alive, ai_alive))
 
     def stop_live_display(self):
         if self.live:
