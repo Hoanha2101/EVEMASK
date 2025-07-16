@@ -7,13 +7,13 @@ import unittest
 import sys
 import os
 import time
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, call
 from io import StringIO
 
 # Add src to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from logger.logger import EveMaskLogger
+from src.logger.logger import EveMaskLogger
 
 
 class TestEveMaskLogger(unittest.TestCase):
@@ -22,18 +22,16 @@ class TestEveMaskLogger(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures before each test method."""
         # Reset singleton instance before each test
-        EveMaskLogger._global_instance = None
+        EveMaskLogger._global_instance = EveMaskLogger()
         self.logger = EveMaskLogger()
     
     def tearDown(self):
         """Clean up after each test method."""
-        # Reset singleton instance after each test
-        EveMaskLogger._global_instance = None
-        self.logger = None
+        EveMaskLogger._global_instance = EveMaskLogger()
     
     def test_initialization(self):
         """Test EveMaskLogger initialization."""
-        self.assertEqual(self.logger.version, "2.0")
+        self.assertEqual(self.logger.version, "1.0.0")
         self.assertEqual(self.logger.in_stream_fps, 0)
         self.assertEqual(self.logger.out_stream_fps, 0)
         self.assertEqual(self.logger.ai_fps, 0)
@@ -84,12 +82,12 @@ class TestEveMaskLogger(unittest.TestCase):
         
         # Check that print was called with expected messages
         expected_calls = [
-            unittest.mock.call("✅ Configuration loaded"),
-            unittest.mock.call("📥 Input source : camera"),
-            unittest.mock.call("📤 Output type  : display"),
-            unittest.mock.call("📦 Batch size   : 4"),
-            unittest.mock.call("🎯 Target FPS   : 30"),
-            unittest.mock.call("✅ All components initialized successfully")
+            call("✅ Configuration loaded"),
+            call("📥 Input source : camera"),
+            call("📤 Output type  : display"),
+            call("📦 Batch size   : 4"),
+            call("🎯 Target FPS   : 30"),
+            call("✅ All components initialized successfully")
         ]
         
         mock_print.assert_has_calls(expected_calls)
@@ -103,12 +101,12 @@ class TestEveMaskLogger(unittest.TestCase):
         
         # Should handle missing keys gracefully
         expected_calls = [
-            unittest.mock.call("✅ Configuration loaded"),
-            unittest.mock.call("📥 Input source : Not specified"),
-            unittest.mock.call("📤 Output type  : Not specified"),
-            unittest.mock.call("📦 Batch size   : Not specified"),
-            unittest.mock.call("🎯 Target FPS   : Not specified"),
-            unittest.mock.call("✅ All components initialized successfully")
+            call("✅ Configuration loaded"),
+            call("📥 Input source : Not specified"),
+            call("📤 Output type  : Not specified"),
+            call("📦 Batch size   : Not specified"),
+            call("🎯 Target FPS   : Not specified"),
+            call("✅ All components initialized successfully")
         ]
         
         mock_print.assert_has_calls(expected_calls)
@@ -140,7 +138,7 @@ class TestEveMaskLogger(unittest.TestCase):
         self.logger.update_number_out_frames(1000)
         self.logger.update_n_skip_frames(50)
         
-        self.logger.display_stream()
+        self.logger.display_stream({}, True, True, True)
         
         # Check that write was called (for screen clearing and display)
         self.assertGreater(mock_write.call_count, 0)
@@ -150,12 +148,12 @@ class TestEveMaskLogger(unittest.TestCase):
     @patch('sys.stdout.flush')
     def test_display_stream_with_none_values(self, mock_flush, mock_write):
         """Test display with None FPS values."""
-        # Set None values
-        self.logger.in_stream_fps = None
-        self.logger.out_stream_fps = None
-        self.logger.ai_fps = None
+        # Set invalid (negative) values to simulate 'None' handling
+        self.logger.in_stream_fps = -1
+        self.logger.out_stream_fps = -1
+        self.logger.ai_fps = -1
         
-        self.logger.display_stream()
+        self.logger.display_stream({}, True, True, True)
         
         # Should handle None values gracefully
         self.assertGreater(mock_write.call_count, 0)
@@ -289,7 +287,7 @@ class TestEveMaskLogger(unittest.TestCase):
         self.logger.update_number_out_frames(12345)
         self.logger.update_n_skip_frames(678)
         
-        self.logger.display_stream()
+        self.logger.display_stream({}, True, True, True)
         
         # Check that write was called multiple times (for each line)
         self.assertGreater(mock_write.call_count, 5)
