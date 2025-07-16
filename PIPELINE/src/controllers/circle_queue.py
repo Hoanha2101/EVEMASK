@@ -79,7 +79,7 @@ class CircleQueue:
 
         # Auto-remove old frames if buffer overflows
         # This maintains constant memory usage
-        while self.queue_length() >= self.buffer_size:
+        while self.queue_length() > self.buffer_size:
             self.frames.popitem(last=False)  # Remove oldest frame
             self.first_frame_id += 1
 
@@ -102,6 +102,7 @@ class CircleQueue:
         Returns:
             int: Number of frames currently stored
         """
+        # return self.last_frame_id - self.first_frame_id
         return len(self.frames)
 
     def get_tail(self, count: int) -> List[Frame]:

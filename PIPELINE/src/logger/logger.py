@@ -47,7 +47,7 @@ class EveMaskLogger:
     
     _global_instance: "EveMaskLogger" = None
     
-    def __init__(self, version: str = "2.0", year: int = datetime.now().year):
+    def __init__(self, version: str = "1.0.0", year: int = datetime.now().year):
         """
         Initialize the EVEMASK logger with version information.
         
@@ -234,14 +234,14 @@ class EveMaskLogger:
         ║                                                                                    ║
         ║                                                                                    ║
         ║                ╔══════════════════════════════════════════════════╗                ║
-        ║                ║                   EVEMASK v{self.version}                   ║                ║
+        ║                ║                   EVEMASK v{self.version}                 ║                ║
         ║                ║        Real-time AI Video Processing System      ║                ║
         ║                ╚══════════════════════════════════════════════════╝                ║
         ║                                                                                    ║
         ║            🚀High-Performance • 🎯Intelligent • ⚡Real-time • 🔒Secure             ║
         ║                                                                                    ║
         ║    Developed by: EVEMASK Team                                                      ║
-        ║    Version: {self.version} | {self.year}                                                             ║
+        ║    Version: {self.version} | {self.year}                                                           ║
         ║                                                                                    ║
         ╚════════════════════════════════════════════════════════════════════════════════════╝
         """

@@ -1,23 +1,41 @@
+# =========================
+# Default Configuration File for EVEMASK Pipeline
+# =========================
+
+# List of class indices that are considered "no blur" (possibly for filtering or post-processing)
 CLASSES_NO_BLUR:
 - 0
+
+# Delay time in seconds (could be used for buffering or processing delay)
 DELAY_TIME: 5
+
+# Input video stream source (UDP multicast address with packet size)
 INPUT_SOURCE: udp://224.1.1.1:30122?pkt_size=1316
+
+# Output stream URLs for different protocols (set to None if not used)
 OUTPUT_STREAM_URL_RTMP: None
 OUTPUT_STREAM_URL_RTSP: None
 OUTPUT_STREAM_URL_UDP: udp://@225.1.9.254:30133?pkt_size=1316
+
+# Output stream type (e.g., udp, rtmp, rtsp)
 OUTPUT_TYPE: udp
-TARGET_FPS: 30
+
+# Target frames per second for processing/output
+TARGET_FPS: 10
+
+# Batch size for model inference or processing
 batch_size: 3
+
+# Confidence threshold for detection (e.g., for object detection models)
 conf_threshold: 0.5
-extract_model:
-  input_names:
-  - input
-  len_emb: 256
-  max_batch_size: 32
-  output_names:
-  - output
-  path: weights/trtPlans/SupConLoss_BBVGG16.trt
+
+# Intersection-over-union threshold for filtering detections (e.g., NMS)
 iou_threshold: 0.7
+
+# Number of classes for detection/segmentation
+nc: 14
+
+# Mapping of class indices to class names
 names:
   0: unbet
   1: betrivers
@@ -33,9 +51,13 @@ names:
   11: betmgm
   12: gilariver
   13: casino
-nc: 14
+
+# Path to directory containing recognition data
 recognizeData_path: recognizeData
+
+# Configuration for the segmentation model
 segment_model:
+  # List of all output tensor names from the model
   all_output_names:
   - pred0
   - pred1_0_0
@@ -43,9 +65,29 @@ segment_model:
   - pred1_0_2
   - pred1_1
   - pred1_2
+  # Dynamic factor (could relate to model input scaling or batching)
   dynamic_factor: 3
+  # Device to run the model on (e.g., cuda for GPU)
   get_to: cuda
+  # List of input tensor names for the model
   input_names:
   - input
+  # Maximum batch size supported by the model
   max_batch_size: 3
+  # Path to the model weights/plan file
   path: weights/trtPlans/yolov8_seg_aug_best_l_trimmed.trt
+
+# Configuration for the feature extraction model
+extract_model:
+  # List of input tensor names for the model
+  input_names:
+  - input
+  # Length of the embedding vector output by the model
+  len_emb: 256
+  # Maximum batch size supported by the model
+  max_batch_size: 32
+  # List of output tensor names for the model
+  output_names:
+  - output
+  # Path to the model weights/plan file
+  path: weights/trtPlans/SupConLoss_BBVGG16.trt
