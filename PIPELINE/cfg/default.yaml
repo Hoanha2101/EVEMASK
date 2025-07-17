@@ -7,24 +7,24 @@ CLASSES_NO_BLUR:
 - 0
 
 # Delay time in seconds (could be used for buffering or processing delay)
-DELAY_TIME: 5
-
-# Input video stream source (UDP multicast address with packet size)
-INPUT_SOURCE: udp://224.1.1.1:30122?pkt_size=1316
-
-# Output stream URLs for different protocols (set to None if not used)
-OUTPUT_STREAM_URL_RTMP: None
-OUTPUT_STREAM_URL_RTSP: None
-OUTPUT_STREAM_URL_UDP: udp://@225.1.9.254:30133?pkt_size=1316
-
-# Output stream type (e.g., udp, rtmp, rtsp)
-OUTPUT_TYPE: udp
+DELAY_TIME: 2
 
 # Target frames per second for processing/output
 TARGET_FPS: 10
 
 # Batch size for model inference or processing
-batch_size: 3
+batch_size: 1
+
+# Input video stream source (UDP multicast address with packet size)
+INPUT_SOURCE: udp://224.1.1.1:30122?pkt_size=1316
+
+# Output stream type (e.g., udp, rtmp, rtsp)
+OUTPUT_TYPE: udp
+
+# Output stream URLs for different protocols (set to None if not used)
+OUTPUT_STREAM_URL_RTMP: None
+OUTPUT_STREAM_URL_RTSP: None
+OUTPUT_STREAM_URL_UDP: udp://@225.1.9.254:30133?pkt_size=1316
 
 # Confidence threshold for detection (e.g., for object detection models)
 conf_threshold: 0.5

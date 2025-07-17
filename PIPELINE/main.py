@@ -4,7 +4,7 @@ This system processes video streams in real-time using AI models for object dete
 The pipeline consists of three main threads: capture, AI processing, and output streaming.
 
 Author: EVEMASK Team
-Version: 2.0
+Version: 1.0.0
 """
 
 import yaml

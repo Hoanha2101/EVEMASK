@@ -12,10 +12,10 @@ from unittest.mock import patch, MagicMock, Mock
 import numpy as np
 
 # Add src to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from controllers.stream import StreamController
-from controllers.frame import Frame
+from src.controllers.stream import StreamController
+from src.controllers.frame import Frame
 
 
 class TestStreamController(unittest.TestCase):

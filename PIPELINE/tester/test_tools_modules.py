@@ -10,9 +10,9 @@ import numpy as np
 from unittest.mock import patch, MagicMock
 
 # Add src to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from tools import NB_search, similarityBlock, vectorPrepare
+from src.tools import NB_search, similarityBlock, vectorPrepare
 
 
 class TestNBSearch(unittest.TestCase):

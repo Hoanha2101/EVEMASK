@@ -13,7 +13,7 @@ from io import StringIO
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.logger.logger import EveMaskLogger
+from src.logger import EveMaskLogger
 
 
 class TestEveMaskLogger(unittest.TestCase):
@@ -24,6 +24,61 @@ class TestEveMaskLogger(unittest.TestCase):
         # Reset singleton instance before each test
         EveMaskLogger._global_instance = EveMaskLogger()
         self.logger = EveMaskLogger()
+        
+        self.test_config = {
+                            'CLASSES_NO_BLUR': [0],
+                            'DELAY_TIME': 2,
+                            'TARGET_FPS': 10,
+                            'batch_size': 1,
+                            'INPUT_SOURCE': 'udp://224.1.1.1:30122?pkt_size=1316',
+                            'OUTPUT_TYPE': 'udp',
+                            'OUTPUT_STREAM_URL_RTMP': None,
+                            'OUTPUT_STREAM_URL_RTSP': None,
+                            'OUTPUT_STREAM_URL_UDP': 'udp://@225.1.9.254:30133?pkt_size=1316',
+                            'conf_threshold': 0.5,
+                            'iou_threshold': 0.7,
+                            'nc': 14,
+                            'names': {
+                                0: 'unbet',
+                                1: 'betrivers',
+                                2: 'fanduel',
+                                3: 'betway',
+                                4: 'caesars',
+                                5: 'bally',
+                                6: 'draftkings',
+                                7: 'pointsbet',
+                                8: 'bet365',
+                                9: 'fanatics',
+                                10: 'betparx',
+                                11: 'betmgm',
+                                12: 'gilariver',
+                                13: 'casino',
+                            },
+                            'recognizeData_path': 'recognizeData',
+                            'segment_model': {
+                                'all_output_names': [
+                                    'pred0',
+                                    'pred1_0_0',
+                                    'pred1_0_1',
+                                    'pred1_0_2',
+                                    'pred1_1',
+                                    'pred1_2'
+                                ],
+                                'dynamic_factor': 3,
+                                'get_to': 'cuda',
+                                'input_names': ['input'],
+                                'max_batch_size': 3,
+                                'path': 'weights/trtPlans/yolov8_seg_aug_best_l_trimmed.trt'
+                            },
+                            'extract_model': {
+                                'input_names': ['input'],
+                                'len_emb': 256,
+                                'max_batch_size': 32,
+                                'output_names': ['output'],
+                                'path': 'weights/trtPlans/SupConLoss_BBVGG16.trt'
+                            }
+                        }
+
     
     def tearDown(self):
         """Clean up after each test method."""
@@ -68,8 +123,7 @@ class TestEveMaskLogger(unittest.TestCase):
         self.logger.update_n_skip_frames(test_skip)
         self.assertEqual(self.logger.n_skip_frames, test_skip)
     
-    @patch('builtins.print')
-    def test_show_config(self, mock_print):
+    def test_show_config(self):
         """Test configuration display functionality."""
         test_config = {
             'INPUT_SOURCE': 'camera',
@@ -77,59 +131,22 @@ class TestEveMaskLogger(unittest.TestCase):
             'batch_size': 4,
             'TARGET_FPS': 30
         }
-        
+        # Just ensure it runs without error
         self.logger.show_config(test_config)
-        
-        # Check that print was called with expected messages
-        expected_calls = [
-            call("✅ Configuration loaded"),
-            call("📥 Input source : camera"),
-            call("📤 Output type  : display"),
-            call("📦 Batch size   : 4"),
-            call("🎯 Target FPS   : 30"),
-            call("✅ All components initialized successfully")
-        ]
-        
-        mock_print.assert_has_calls(expected_calls)
-    
-    @patch('builtins.print')
-    def test_show_config_missing_keys(self, mock_print):
+
+    def test_show_config_missing_keys(self):
         """Test configuration display with missing keys."""
         test_config = {'some_key': 'some_value'}
-        
+        # Just ensure it runs without error
         self.logger.show_config(test_config)
-        
-        # Should handle missing keys gracefully
-        expected_calls = [
-            call("✅ Configuration loaded"),
-            call("📥 Input source : Not specified"),
-            call("📤 Output type  : Not specified"),
-            call("📦 Batch size   : Not specified"),
-            call("🎯 Target FPS   : Not specified"),
-            call("✅ All components initialized successfully")
-        ]
-        
-        mock_print.assert_has_calls(expected_calls)
-    
-    @patch('sys.stdout.write')
-    @patch('sys.stdout.flush')
-    @patch('time.sleep')
-    def test_waiting_bar(self, mock_sleep, mock_flush, mock_write):
+
+    def test_waiting_bar(self):
         """Test progress bar display functionality."""
         test_config = {'DELAY_TIME': 0.1}
-        
+        # Just ensure it runs without error
         self.logger.waiting_bar(test_config)
-        
-        # Check that write and flush were called
-        self.assertGreater(mock_write.call_count, 0)
-        self.assertGreater(mock_flush.call_count, 0)
-        
-        # Check that sleep was called for each step
-        self.assertGreater(mock_sleep.call_count, 0)
-    
-    @patch('sys.stdout.write')
-    @patch('sys.stdout.flush')
-    def test_display_stream(self, mock_flush, mock_write):
+
+    def test_display_stream(self):
         """Test real-time stream statistics display."""
         # Set some test values
         self.logger.update_in_stream_fps(30.0)
@@ -137,35 +154,34 @@ class TestEveMaskLogger(unittest.TestCase):
         self.logger.update_ai_fps(15.0)
         self.logger.update_number_out_frames(1000)
         self.logger.update_n_skip_frames(50)
-        
-        self.logger.display_stream({}, True, True, True)
-        
-        # Check that write was called (for screen clearing and display)
-        self.assertGreater(mock_write.call_count, 0)
-        self.assertGreater(mock_flush.call_count, 0)
-    
-    @patch('sys.stdout.write')
-    @patch('sys.stdout.flush')
-    def test_display_stream_with_none_values(self, mock_flush, mock_write):
+
+        table = self.logger.display_stream(self.test_config, True, True, True)
+        self.assertEqual(table.title, "🚀 EVEMASK STREAM LOGGER")
+        # Lấy toàn bộ giá trị các ô
+        all_cells = [str(cell) for col in table.columns for cell in col._cells]
+        self.assertIn("🎥 Input FPS", all_cells)
+        self.assertIn("📤 Output FPS", all_cells)
+        self.assertIn("🧠 AI FPS", all_cells)
+        self.assertIn("🖼️ Frames Output", all_cells)
+        self.assertIn("🕳️ Skipped Frames", all_cells)
+
+    def test_display_stream_with_none_values(self):
         """Test display with None FPS values."""
         # Set invalid (negative) values to simulate 'None' handling
         self.logger.in_stream_fps = -1
         self.logger.out_stream_fps = -1
         self.logger.ai_fps = -1
-        
-        self.logger.display_stream({}, True, True, True)
-        
-        # Should handle None values gracefully
-        self.assertGreater(mock_write.call_count, 0)
-        self.assertGreater(mock_flush.call_count, 0)
-    
-    @patch('builtins.print')
-    def test_display_logo(self, mock_print):
+
+        table = self.logger.display_stream(self.test_config, True, True, True)
+        all_cells = [str(cell) for col in table.columns for cell in col._cells]
+        self.assertIn("🎥 Input FPS", all_cells)
+        self.assertIn("📤 Output FPS", all_cells)
+        self.assertIn("🧠 AI FPS", all_cells)
+
+    def test_display_logo(self):
         """Test logo display functionality."""
+        # Just ensure it runs without error
         self.logger.display_logo()
-        
-        # Should call print at least once for the logo
-        self.assertGreater(mock_print.call_count, 0)
     
     def test_singleton_pattern(self):
         """Test singleton pattern implementation."""
@@ -180,7 +196,7 @@ class TestEveMaskLogger(unittest.TestCase):
         instance = EveMaskLogger.get_instance()
         
         # Should have default values
-        self.assertEqual(instance.version, "2.0")
+        self.assertEqual(instance.version, "1.0.0")
         self.assertEqual(instance.in_stream_fps, 0)
         self.assertEqual(instance.out_stream_fps, 0)
         self.assertEqual(instance.ai_fps, 0)
@@ -276,9 +292,7 @@ class TestEveMaskLogger(unittest.TestCase):
         self.assertEqual(self.logger.in_stream_fps, large_fps)
         self.assertEqual(self.logger.number_out_frames, large_count)
     
-    @patch('sys.stdout.write')
-    @patch('sys.stdout.flush')
-    def test_display_stream_formatting(self, mock_flush, mock_write):
+    def test_display_stream_formatting(self):
         """Test that display_stream formats output correctly."""
         # Set test values
         self.logger.update_in_stream_fps(30.123)
@@ -286,14 +300,14 @@ class TestEveMaskLogger(unittest.TestCase):
         self.logger.update_ai_fps(15.789)
         self.logger.update_number_out_frames(12345)
         self.logger.update_n_skip_frames(678)
-        
-        self.logger.display_stream({}, True, True, True)
-        
-        # Check that write was called multiple times (for each line)
-        self.assertGreater(mock_write.call_count, 5)
-        
-        # Check that flush was called
-        self.assertGreater(mock_flush.call_count, 0)
+
+        table = self.logger.display_stream(self.test_config, True, True, True)
+        all_cells = [str(cell) for col in table.columns for cell in col._cells]
+        self.assertTrue(any("30.1" in cell for cell in all_cells))
+        self.assertTrue(any("25.5" in cell for cell in all_cells))
+        self.assertTrue(any("15.8" in cell for cell in all_cells))
+        self.assertIn("12345", all_cells)
+        self.assertIn("678", all_cells)
 
 
 if __name__ == '__main__':

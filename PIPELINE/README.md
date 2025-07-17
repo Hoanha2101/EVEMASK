@@ -1,8 +1,8 @@
-# EVEMASK Pipeline v2.0
+# EVEMASK Pipeline v1.0.0
 
 <div align="center">
 
-![EVEMASK Logo](https://img.shields.io/badge/EVEMASK-Pipeline%20v2.0-blue?style=for-the-badge&logo=python)
+![EVEMASK Logo](https://img.shields.io/badge/EVEMASK-Pipeline%20v1.0.0-blue?style=for-the-badge&logo=python)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-green?style=for-the-badge&logo=python)
 ![TensorRT](https://img.shields.io/badge/TensorRT-8.6.1-orange?style=for-the-badge&logo=nvidia)
 ![YOLOv8](https://img.shields.io/badge/YOLOv8-Segmentation-red?style=for-the-badge&logo=ultralytics)
@@ -34,7 +34,7 @@
 
 ## 🎯 About
 
-**EVEMASK Pipeline v2.0** is a high-performance, real-time video processing system designed for intelligent content analysis and automated content moderation. The system combines state-of-the-art AI models to detect, segment, and classify objects in video streams with exceptional accuracy and speed.
+**EVEMASK Pipeline v1.0.0** is a high-performance, real-time video processing system designed for intelligent content analysis and automated content moderation. The system combines state-of-the-art AI models to detect, segment, and classify objects in video streams with exceptional accuracy and speed.
 
 ### Key Capabilities
 
@@ -87,8 +87,8 @@
 **EVEMASK Team** - AI Research & Development Group
 
 ### Project Information
-- **Project Name**: EVEMASK Pipeline v2.0
-- **Version**: 2.0
+- **Project Name**: EVEMASK Pipeline v1.0.0
+- **Version**: 1.0.0
 - **Development Period**: 2024
 - **Technology Stack**: Python, PyTorch, TensorRT, OpenCV, YOLOv8
 
