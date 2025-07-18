@@ -1,6 +1,9 @@
 """
-Unit tests for CircleQueue module.
-Tests thread-safe circular buffer implementation for frame management.
+Unit tests for CircleQueue module in the EVEMASK Pipeline system.
+
+This module provides comprehensive tests for the thread-safe circular buffer implementation, including frame management, buffer overflow, and singleton pattern.
+
+Author: EVEMASK Team
 """
 
 import unittest

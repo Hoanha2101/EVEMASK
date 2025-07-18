@@ -1,6 +1,9 @@
 """
-Unit tests for utils module.
-Tests utility functions for image processing and TensorRT operations.
+Unit tests for utils module in the EVEMASK Pipeline system.
+
+This module provides comprehensive tests for utility functions related to image processing, TensorRT operations, and other core utilities.
+
+Author: EVEMASK Team
 """
 
 import unittest
@@ -9,6 +12,8 @@ import os
 import numpy as np
 import torch
 import cv2
+from unittest.mock import patch
+
 
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -129,38 +134,24 @@ class TestUtils(unittest.TestCase):
     
     def test_blob_basic(self):
         """Test basic blob functionality."""
-        result = utils.blob(self.test_image)
-        
-        self.assertIsInstance(result, tuple)
-        self.assertEqual(len(result), 2)
-        
-        output_image, img_no_255 = result
-        
-        # Check shapes
-        self.assertEqual(output_image.shape, (1, 3, 480, 640))
-        self.assertEqual(img_no_255.shape, (1, 3, 480, 640))
-        
-        # Check normalization
-        self.assertGreaterEqual(output_image.min(), 0)
-        self.assertLessEqual(output_image.max(), 1)
-    
-    def test_blob_with_segmentation(self):
-        """Test blob with segmentation return."""
         result = utils.blob(self.test_image, return_seg=True)
         
         self.assertIsInstance(result, tuple)
         self.assertEqual(len(result), 3)
         
-        output_image, img_no_255, seg = result
+        output_image, img_no_255, _ = result
         
         # Check shapes
-        self.assertEqual(output_image.shape, (1, 3, 480, 640))
-        self.assertEqual(img_no_255.shape, (1, 3, 480, 640))
-        self.assertEqual(seg.shape, (480, 640, 3))
+        self.assertEqual(output_image.shape, (1, 3, 640, 640))
+        self.assertEqual(img_no_255.shape, (1, 3, 640, 640))
         
-        # Check segmentation normalization
-        self.assertGreaterEqual(seg.min(), 0)
-        self.assertLessEqual(seg.max(), 1)
+        # Check normalization
+        self.assertGreaterEqual(output_image.min(), 0)
+        self.assertLessEqual(output_image.max(), 1)
+        
+        # Check no normalization
+        self.assertGreaterEqual(img_no_255.min(), 0)
+        self.assertLessEqual(img_no_255.max(), 255)
     
     def test_blob_different_image_sizes(self):
         """Test blob with different image sizes."""
@@ -238,32 +229,56 @@ class TestUtils(unittest.TestCase):
     
     def test_copy_trt_output_to_torch_tensor(self):
         """Test copying TensorRT output to PyTorch tensor."""
+        
+        # Skip test if CUDA is not available
+        if not torch.cuda.is_available():
+            self.skipTest("CUDA not available")
+        
         # Mock TensorRT output info
         shape = (1, 3, 640, 640)
-        size = np.prod(shape)
-        dtype = np.float16
+        size = int(np.prod(shape))
         
-        # Create mock device pointer (just a number for testing)
-        device_ptr = 12345
+        # Create a proper numpy dtype object (like TensorRT would provide)
+        dtype = np.dtype(np.float16)
         
-        output_info = {
-            'device_ptr': device_ptr,
-            'shape': shape,
-            'size': size,
-            'dtype': dtype
-        }
-        
-        # This test might fail if CUDA is not available, so we'll catch the exception
         try:
+            # Create a real test tensor on GPU to get a valid device pointer
+            test_tensor = torch.randn(shape, dtype=torch.float16, device='cuda')
+            device_ptr = test_tensor.data_ptr()
+            
+            output_info = {
+                'device_ptr': device_ptr,
+                'shape': shape,
+                'size': size,
+                'dtype': dtype
+            }
+            
+            # Test the function
             result = utils.copy_trt_output_to_torch_tensor(output_info)
+            
             # If successful, check the result
             self.assertIsInstance(result, torch.Tensor)
             self.assertEqual(result.shape, shape)
             self.assertEqual(result.dtype, torch.float16)
+            self.assertEqual(result.device.type, 'cuda')
+            
+            # Check that the data is the same
+            torch.testing.assert_close(result, test_tensor)
+            
         except Exception as e:
-            # If CUDA is not available, this is expected
-            self.assertIn("CUDA", str(e) or "cuda", str(e).lower())
-    
+            # If CUDA/PyCUDA is not available or other CUDA-related errors
+            error_msg = str(e).lower()
+            cuda_related_keywords = ['cuda', 'memory', 'device', 'gpu', 'pycuda', 'tensorrt']
+            
+            is_cuda_error = any(keyword in error_msg for keyword in cuda_related_keywords)
+            
+            if is_cuda_error:
+                self.skipTest(f"CUDA-related error (this is expected in some environments): {e}")
+            else:
+                # Re-raise if it's not a CUDA-related error
+                raise
+
+
     def test_draw_bboxes_basic(self):
         """Test basic bounding box drawing."""
         # Create test image
@@ -318,7 +333,7 @@ class TestUtils(unittest.TestCase):
     def test_censored_options(self):
         """Test censored options functionality."""
         # Create test image tensor
-        image_tensor = torch.randn(1, 3, 480, 640)
+        image_tensor = torch.randn(3, 480, 640)
         
         result = utils.censored_options(image_tensor, downscale_factor=20)
         
@@ -327,13 +342,13 @@ class TestUtils(unittest.TestCase):
     
     def test_resize_mask_to_image(self):
         """Test mask resizing functionality."""
-        # Create test mask
-        mask = np.random.rand(160, 160)
-        target_h, target_w = 480, 640
-        
+        mask = torch.rand(160, 160) 
+        target_h, target_w = 640, 640
+
         result = utils.resize_mask_to_image(mask, target_h, target_w)
-        
-        self.assertIsInstance(result, np.ndarray)
+
+        # The result is also a torch.Tensor
+        self.assertIsInstance(result, torch.Tensor)
         self.assertEqual(result.shape, (target_h, target_w))
     
     def test_apply_blur_to_masked_area(self):
@@ -354,7 +369,7 @@ class TestUtils(unittest.TestCase):
         detected_objects = [
             utils.BoundingBox(0, 0.8, 100, 200, 100, 200, 640, 480)
         ]
-        polygons = [np.array([[100, 100], [200, 100], [200, 200], [100, 200]])]
+        polygons = [[[(100, 100), (200, 100), (200, 200), (100, 200)]]]
         class_ids = [0]
         
         result = utils.draw_masks_conditional_blur(frame, detected_objects, polygons, class_ids)

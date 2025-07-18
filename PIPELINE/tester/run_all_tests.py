@@ -1,5 +1,9 @@
 """
-Script to run all unit tests for EVEMASK Pipeline system.
+Script to run all unit tests for the EVEMASK Pipeline system.
+
+This script discovers and executes all test modules in the tester package, providing a unified test entry point for the entire system.
+
+Author: EVEMASK Team
 """
 
 import unittest

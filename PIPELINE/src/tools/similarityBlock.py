@@ -42,10 +42,9 @@ class SimilarityBlock:
             query_vector = outputs[i].reshape(1, -1)
             # Compute cosine similarity between query and all reference vectors
             cos_sims = cosine_similarity(query_vector, recognizeDataVector_array).flatten()
-            
             # Check if any reference vector has sufficient similarity
             for idx, sim in enumerate(cos_sims):
-                if sim >= 0.7:  # Similarity threshold for positive match
+                if sim >= 0.9:  # Similarity threshold for positive match
                     # Reclassify from class 0 to class 1 (known class)
                     final_class_ids[class_0_indices[i].item()] = 1
                     break  # Stop after first match above threshold

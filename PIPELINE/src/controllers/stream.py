@@ -311,10 +311,10 @@ class StreamController:
                     self._write_frame_index += 1
                 
                 # Control output rate
-                time.sleep(0.01)
+                time.sleep(0.001)
                 # time.sleep(max(0,1/self.target_fps - time.time() + start - 0.001))
             else:
-                time.sleep(0.01)
+                time.sleep(0.001)
                 # Wait if frame not available
                 # time.sleep(max(0,1/self.target_fps - time.time() + start - 0.001))
             

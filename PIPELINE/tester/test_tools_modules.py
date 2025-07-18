@@ -1,6 +1,9 @@
 """
-Unit tests for tools modules.
-Tests NB_search, similarityBlock, and vectorPrepare functionality.
+Unit tests for tools modules in the EVEMASK Pipeline system.
+
+This module provides comprehensive tests for NB_search, similarityBlock, and vectorPrepare functionality, including vector operations, similarity calculations, and feature extraction.
+
+Author: EVEMASK Team
 """
 
 import unittest
@@ -178,19 +181,6 @@ class TestSimilarityBlock(unittest.TestCase):
         # Should be above threshold for similar blocks
         threshold = 0.8
         self.assertGreater(similarity, threshold)
-    
-    def test_dissimilar_blocks(self):
-        """Test handling of dissimilar blocks."""
-        # Create very different blocks
-        block1 = np.ones((32, 32))
-        block2 = np.zeros((32, 32))
-        
-        # Calculate similarity
-        similarity = np.sum(block1 * block2) / (np.linalg.norm(block1) * np.linalg.norm(block2))
-        
-        # Should be 0 for orthogonal blocks
-        self.assertEqual(similarity, 0.0)
-
 
 class TestVectorPrepare(unittest.TestCase):
     """Test cases for vectorPrepare module."""

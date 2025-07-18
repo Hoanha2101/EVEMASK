@@ -1,6 +1,9 @@
 """
-Unit tests for Frame module.
-Tests frame data encapsulation and preprocessing functionality.
+Unit tests for Frame module in the EVEMASK Pipeline system.
+
+This module provides comprehensive tests for frame data encapsulation, preprocessing, and memory management.
+
+Author: EVEMASK Team
 """
 
 import unittest

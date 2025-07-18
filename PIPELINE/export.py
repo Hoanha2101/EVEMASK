@@ -84,59 +84,39 @@ def smart_load_model(pth_path, model_type, emb_dim=256):
     else:
         raise RuntimeError("Unsupported model format.")
 
-# Feature extractor model (VGG16 → embedding)
+# Feature extractor model (ResNet50 → embedding)
 class Network(nn.Module):
     """
-    Feature extraction network based on VGG16 architecture.
-    
+    Feature extraction network based on ResNet50 architecture.
     This network extracts feature embeddings from input images:
-    1. Uses VGG16 backbone for feature extraction
+    1. Uses ResNet50 backbone for feature extraction
     2. Flattens features and passes through fully connected layers
     3. Outputs embedding vectors for similarity matching
-    
     Attributes:
-        conv: VGG16 feature extraction layers
+        backbone: ResNet50 feature extraction layers
         fc: Fully connected layers for embedding generation
     """
-    
     def __init__(self, emb_dim=128):
         """
         Initialize feature extraction network.
-        
         Args:
             emb_dim (int): Dimension of output embedding vector
         """
         super(Network, self).__init__()
-        
-        # Load pretrained VGG16 backbone
-        model_bb = models.vgg16(pretrained=True)
-        self.conv = model_bb.features
-        
+        base_model = models.resnet50(pretrained=True)
+        # Remove the last fully connected layer (fc)
+        self.backbone = nn.Sequential(*list(base_model.children())[:-1])  # Output: [B, 2048, 1, 1]
         # Fully connected layers for embedding generation
         self.fc = nn.Sequential(
-            nn.Linear(512 * 7 * 7, 512),  # Flatten VGG features and reduce dimension
-            nn.PReLU(),  # Parametric ReLU activation
-            nn.Linear(512, emb_dim)  # Final embedding layer
+            nn.Linear(2048, 512),
+            nn.PReLU(),
+            nn.Linear(512, emb_dim)
         )
 
     def forward(self, x):
-        """
-        Forward pass through the network.
-        
-        Args:
-            x (torch.Tensor): Input image tensor [B, 3, 224, 224]
-            
-        Returns:
-            torch.Tensor: Feature embedding [B, emb_dim]
-        """
-        # Extract features using VGG16 backbone
-        x = self.conv(x)
-        
-        # Flatten features for fully connected layers
-        x = x.view(x.size(0), -1)
-        
-        # Generate embedding through fully connected layers
-        x = self.fc(x)
+        x = self.backbone(x)           # [B, 2048, 1, 1]
+        x = torch.flatten(x, 1)        # [B, 2048]
+        x = self.fc(x)                 # [B, emb_dim]
         return x
 
 def convert_pytorch_model_to_onnx(
@@ -246,7 +226,7 @@ if __name__ == "__main__":
     if args.typeModel == "seg":
         model = smart_load_model(args.pth, model_type="seg")
     elif args.typeModel == "fe":
-        model = smart_load_model(args.pth, model_type="fe", emb_dim=256)
+        model = smart_load_model(args.pth, model_type="fe", emb_dim=224)
 
     # Export to ONNX format
     onnx_path = convert_pytorch_model_to_onnx(

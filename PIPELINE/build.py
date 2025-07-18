@@ -117,10 +117,6 @@ def build_trt_engine(
         with open(engine_file_path, "wb") as f:
             f.write(serialized_engine)
         print(f"Engine saved at: {engine_file_path}")
-        
-        # Print engine size information
-        engine_size = len(serialized_engine) / (1024 * 1024)  # Convert to MB
-        print(f"Engine size: {engine_size:.2f} MB")
     else:
         print("Failed to build engine")
 

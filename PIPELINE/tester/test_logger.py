@@ -1,6 +1,9 @@
 """
-Unit tests for EveMaskLogger module.
-Tests logging and display functionality for EVEMASK pipeline.
+Unit tests for EveMaskLogger module in the EVEMASK Pipeline system.
+
+This module provides comprehensive tests for logging and display functionality, including FPS tracking, configuration display, and singleton pattern validation.
+
+Author: EVEMASK Team
 """
 
 import unittest
@@ -157,7 +160,7 @@ class TestEveMaskLogger(unittest.TestCase):
 
         table = self.logger.display_stream(self.test_config, True, True, True)
         self.assertEqual(table.title, "🚀 EVEMASK STREAM LOGGER")
-        # Lấy toàn bộ giá trị các ô
+        # Get all cell values
         all_cells = [str(cell) for col in table.columns for cell in col._cells]
         self.assertIn("🎥 Input FPS", all_cells)
         self.assertIn("📤 Output FPS", all_cells)

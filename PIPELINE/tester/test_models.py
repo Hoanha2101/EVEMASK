@@ -1,6 +1,9 @@
 """
-Unit tests for models modules.
-Tests engine and initNet functionality.
+Unit tests for models modules in the EVEMASK Pipeline system.
+
+This module provides comprehensive tests for engine and initNet functionality, including initialization, inference, and error handling.
+
+Author: EVEMASK Team
 """
 
 import unittest
