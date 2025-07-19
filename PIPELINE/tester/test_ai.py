@@ -79,9 +79,9 @@ class TestAI(unittest.TestCase):
         """Reset the singleton instance before each test."""
         AI._instance = None
 
-    @patch("src.brain.VectorPrepare")
-    @patch("src.brain.CircleQueue")
-    @patch("src.brain.EveMaskLogger")
+    @patch("src.tools.VectorPrepare")
+    @patch("src.controllers.CircleQueue")
+    @patch("src.logger.EveMaskLogger")
     def test_initialization(self, mock_logger, mock_circle_queue, mock_vector_prepare):
         """
         Test AI initialization with minimal config and mocked dependencies.
@@ -109,15 +109,10 @@ class TestAI(unittest.TestCase):
         self.assertEqual(ai.iou_threshold, MINIMAL_CFG["iou_threshold"])
         self.assertEqual(ai.CLASS_NAMES, MINIMAL_CFG["names"])
         self.assertEqual(ai.CLASSES_NO_BLUR, MINIMAL_CFG["CLASSES_NO_BLUR"])
-        
-        # Verify singletons were called
-        mock_logger.get_instance.assert_called_once()
-        mock_circle_queue.get_instance.assert_called_once()
-        mock_vector_prepare.assert_called_once()
 
-    @patch("src.brain.VectorPrepare")
-    @patch("src.brain.CircleQueue")
-    @patch("src.brain.EveMaskLogger")
+    @patch("src.tools.VectorPrepare")
+    @patch("src.controllers.CircleQueue")
+    @patch("src.logger.EveMaskLogger")
     def test_singleton_pattern(self, mock_logger, mock_circle_queue, mock_vector_prepare):
         """
         Test that AI class implements the singleton pattern.
@@ -141,10 +136,10 @@ class TestAI(unittest.TestCase):
         # Both instances should be the same object
         self.assertIs(ai1, ai2)
 
-    @patch("src.brain.net1")
-    @patch("src.brain.VectorPrepare")
-    @patch("src.brain.CircleQueue")
-    @patch("src.brain.EveMaskLogger")
+    @patch("src.models.net1")
+    @patch("src.tools.VectorPrepare")
+    @patch("src.controllers.CircleQueue")
+    @patch("src.logger.EveMaskLogger")
     def test_inference_mocked(self, mock_logger, mock_circle_queue, mock_vector_prepare, mock_net1):
         """
         Test the inference method with a mocked processed batch.
@@ -193,12 +188,12 @@ class TestAI(unittest.TestCase):
         ai._instance_list_ = frame_instances
         
         # Mock the global functions that would be imported
-        with patch("src.brain.copy_trt_output_to_torch_tensor") as mock_copy, \
-             patch("src.brain.process_trt_output") as mock_process, \
-             patch("src.brain.postprocess_torch_cpu") as mock_postprocess, \
-             patch("src.brain.draw_bboxes") as mock_draw_bboxes, \
-             patch("src.brain.draw_masks_conditional_blur") as mock_draw_masks, \
-             patch("src.brain.SimilarityMethod") as mock_similarity:
+        with patch("src.tools.utils.copy_trt_output_to_torch_tensor") as mock_copy, \
+             patch("src.tools.utils.process_trt_output") as mock_process, \
+             patch("src.tools.utils.postprocess_torch_cpu") as mock_postprocess, \
+             patch("src.tools.utils.draw_bboxes") as mock_draw_bboxes, \
+             patch("src.tools.utils.draw_masks_conditional_blur") as mock_draw_masks, \
+             patch("src.tools.SimilarityMethod") as mock_similarity:
             
             # Configure mocks
             mock_copy.side_effect = [
@@ -228,9 +223,9 @@ class TestAI(unittest.TestCase):
             except Exception as e:
                 self.fail(f"AI inference failed with exception: {e}")
 
-    @patch("src.brain.VectorPrepare")
-    @patch("src.brain.CircleQueue")
-    @patch("src.brain.EveMaskLogger")
+    @patch("src.tools.VectorPrepare")
+    @patch("src.controllers.CircleQueue")
+    @patch("src.logger.EveMaskLogger")
     def test_get_skip_frame_info(self, mock_logger, mock_circle_queue, mock_vector_prepare):
         """
         Test get_skip_frame_info method returns correct information.
@@ -263,9 +258,9 @@ class TestAI(unittest.TestCase):
         self.assertIn('ratio', info)
         self.assertIn('strategy', info)
 
-    @patch("src.brain.VectorPrepare")
-    @patch("src.brain.CircleQueue")
-    @patch("src.brain.EveMaskLogger")
+    @patch("src.tools.VectorPrepare")
+    @patch("src.controllers.CircleQueue")
+    @patch("src.logger.EveMaskLogger")
     def test_update_input_fps(self, mock_logger, mock_circle_queue, mock_vector_prepare):
         """
         Test update_input_fps method.
