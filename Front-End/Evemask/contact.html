@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact Us - EVEMASK</title>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,0,1;wght@100;300;400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Contact Page Specific Styles */
+      .contact-hero {
+        text-align: center;
+        background-color: var(--color-scheme-1-background);
+        padding: var(--section-padding-padding-section-large)
+          var(--page-padding-padding-global) 40px;
+      }
+
+      .contact-form-section {
+        background-color: #f8f9fa;
+      }
+
+      .contact-form-container {
+        display: flex;
+        gap: 80px;
+        align-items: start;
+        flex-wrap: wrap;
+      }
+
+      .contact-form {
+        flex: 1;
+        min-width: 400px;
+        background: white;
+        padding: 40px;
+        border: 1px solid var(--color-scheme-1-border);
+      }
+
+      .form-section {
+        margin-bottom: 32px;
+      }
+
+      .form-section:last-child {
+        margin-bottom: 0;
+      }
+
+      .form-label {
+        display: block;
+        font-weight: 600;
+        font-size: var(--text-sizes-text-regular);
+        color: var(--color-scheme-1-text);
+        margin-bottom: 8px;
+      }
+
+      .form-input-full {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--color-scheme-1-border);
+        font-size: var(--text-sizes-text-regular);
+        font-family: inherit;
+        background: white;
+      }
+
+      .form-input-full:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .form-select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--color-scheme-1-border);
+        font-size: var(--text-sizes-text-regular);
+        font-family: inherit;
+        background: white;
+        cursor: pointer;
+      }
+
+      .contact-info-expanded {
+        flex: 1;
+        min-width: 300px;
+      }
+
+      .info-card {
+        background: white;
+        padding: 32px;
+        border: 1px solid var(--color-scheme-1-border);
+        margin-bottom: 24px;
+      }
+
+      .info-card:last-child {
+        margin-bottom: 0;
+      }
+
+      .info-card-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .info-card-icon {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+      }
+
+      .info-card-title {
+        font-size: var(--text-sizes-heading-6);
+        font-weight: 700;
+        color: var(--color-scheme-1-text);
+      }
+
+      .info-card-content {
+        color: var(--color-scheme-1-text);
+        line-height: 1.6;
+      }
+
+      .info-card-link {
+        color: var(--color-scheme-1-text);
+        text-decoration: underline;
+      }
+
+      .office-hours {
+        margin-top: 16px;
+      }
+
+      .office-hours-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 0;
+      }
+
+      @media (max-width: 991px) {
+        .contact-form-container {
+          gap: 40px;
+        }
+
+        .contact-form {
+          min-width: 280px;
+          padding: 24px;
+        }
+
+        .contact-hero {
+          padding: 100px 20px 40px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="navbar-container">
+        <div class="navbar-logo">
+          <img
+            src="assets/images/EveMask-logo.png"
+            alt="EVEMASK Logo"
+          />
+        </div>
+        <div class="navbar-content">
+          <div class="nav-links">
+            <a href="index.html#solution" class="nav-link">
+              <span>Solution</span>
+            </a>
+            <a href="index.html#how-it-works" class="nav-link">
+              <span>How It Works</span>
+            </a>
+            <a href="index.html#about" class="nav-link">
+              <span>About Us</span>
+            </a>
+            <a href="#more" class="nav-link">
+              <div class="nav-link-dropdown">
+                <span>More Info</span>
+              </div>
+            </a>
+          </div>
+          <div class="navbar-actions">
+            <a href="#demo" class="btn btn-secondary">
+              <span>Demo</span>
+            </a>
+            <a href="contact.html" class="btn btn-primary">
+              <span>Contact</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Contact Hero -->
+    <section class="contact-hero">
+      <div class="container">
+        <div class="section-title section-title-center">
+          <div class="tagline-wrapper tagline-wrapper-center">
+            <span class="tagline">Contact</span>
+          </div>
+          <div class="section-content">
+            <h1 class="section-heading">Get in Touch</h1>
+            <p class="section-text">
+              We're here to help you secure your broadcasts. Reach out for a
+              personalized demo today! Our team of experts is ready to answer
+              your questions and show you how EVEMASK can protect your content.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Form Section -->
+    <section class="section contact-form-section">
+      <div class="container">
+        <div class="contact-form-container">
+          <!-- Contact Form -->
+          <div class="contact-form">
+            <h2
+              style="
+                font-size: var(--text-sizes-heading-4);
+                font-weight: 700;
+                margin-bottom: 24px;
+                color: var(--color-scheme-1-text);
+              "
+            >
+              Send us a Message
+            </h2>
+            <form>
+              <div class="form-section">
+                <label for="name" class="form-label">Full Name *</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  class="form-input-full"
+                  required
+                />
+              </div>
+
+              <div class="form-section">
+                <label for="email" class="form-label">Email Address *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-input-full"
+                  required
+                />
+              </div>
+
+              <div class="form-section">
+                <label for="company" class="form-label">Company</label>
+                <input
+                  type="text"
+                  id="company"
+                  name="company"
+                  class="form-input-full"
+                />
+              </div>
+
+              <div class="form-section">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  class="form-input-full"
+                />
+              </div>
+
+              <div class="form-section">
+                <label for="subject" class="form-label">Subject *</label>
+                <select
+                  id="subject"
+                  name="subject"
+                  class="form-select"
+                  required
+                >
+                  <option value="">Please select...</option>
+                  <option value="demo">Request Demo</option>
+                  <option value="pricing">Pricing Information</option>
+                  <option value="technical">Technical Support</option>
+                  <option value="partnership">Partnership Inquiry</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div class="form-section">
+                <label for="message" class="form-label">Message *</label>
+                <textarea
+                  id="message"
+                  name="message"
+                  class="form-input-full form-textarea"
+                  placeholder="Tell us about your broadcasting needs and how we can help..."
+                  required
+                ></textarea>
+              </div>
+
+              <div class="form-section">
+                <button
+                  type="submit"
+                  class="btn btn-primary btn-large"
+                  style="width: 100%"
+                >
+                  <span>Send Message</span>
+                </button>
+              </div>
+
+              <p
+                style="
+                  font-size: var(--text-sizes-text-small);
+                  color: var(--color-scheme-1-text);
+                  margin-top: 16px;
+                "
+              >
+                * Required fields. By submitting this form, you agree to our
+                Privacy Policy.
+              </p>
+            </form>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="contact-info-expanded">
+            <div class="info-card">
+              <div class="info-card-header">
+                <img
+                  src="https://raw.githubusercontent.com/tailwindlabs/heroicons/master/src/solid/mail.svg"
+                  alt="Email Icon"
+                  class="info-card-icon"
+                />
+                <h3 class="info-card-title">Email Us</h3>
+              </div>
+              <div class="info-card-content">
+                <p>General Inquiries:</p>
+                <a href="mailto:info@evemask.com" class="info-card-link"
+                  >info@evemask.com</a
+                >
+                <br /><br />
+                <p>Technical Support:</p>
+                <a href="mailto:support@evemask.com" class="info-card-link"
+                  >support@evemask.com</a
+                >
+                <br /><br />
+                <p>Sales Team:</p>
+                <a href="mailto:sales@evemask.com" class="info-card-link"
+                  >sales@evemask.com</a
+                >
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-header">
+                <img
+                  src="https://raw.githubusercontent.com/tailwindlabs/heroicons/master/src/solid/phone.svg"
+                  alt="Phone Icon"
+                  class="info-card-icon"
+                />
+                <h3 class="info-card-title">Call Us</h3>
+              </div>
+              <div class="info-card-content">
+                <p>Main Office:</p>
+                <a href="tel:+15551234567" class="info-card-link"
+                  >+1 (555) 123-4567</a
+                >
+                <br /><br />
+                <p>Support Hotline:</p>
+                <a href="tel:+15551234568" class="info-card-link"
+                  >+1 (555) 123-4568</a
+                >
+
+                <div class="office-hours">
+                  <h4 style="font-weight: 600; margin-bottom: 8px">
+                    Office Hours:
+                  </h4>
+                  <div class="office-hours-item">
+                    <span>Monday - Friday:</span>
+                    <span>9:00 AM - 6:00 PM</span>
+                  </div>
+                  <div class="office-hours-item">
+                    <span>Saturday:</span>
+                    <span>10:00 AM - 4:00 PM</span>
+                  </div>
+                  <div class="office-hours-item">
+                    <span>Sunday:</span>
+                    <span>Closed</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-header">
+                <img
+                  src="https://raw.githubusercontent.com/tailwindlabs/heroicons/master/src/solid/location-marker.svg"
+                  alt="Location Icon"
+                  class="info-card-icon"
+                />
+                <h3 class="info-card-title">Visit Us</h3>
+              </div>
+              <div class="info-card-content">
+                <p><strong>EVEMASK Headquarters</strong></p>
+                <p>
+                  456 Broadcast Avenue<br />
+                  Tech District<br />
+                  Hanoi, Vietnam 100000
+                </p>
+                <br />
+                <p>
+                  Our office is located in the heart of Hanoi's technology
+                  district, easily accessible by public transportation. Visitor
+                  parking is available.
+                </p>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-header">
+                <img
+                  src="https://raw.githubusercontent.com/tailwindlabs/heroicons/master/src/solid/globe.svg"
+                  alt="Social Icon"
+                  class="info-card-icon"
+                />
+                <h3 class="info-card-title">Follow Us</h3>
+              </div>
+              <div class="info-card-content">
+                <p>Stay connected with the latest updates:</p>
+                <div
+                  style="
+                    margin-top: 16px;
+                    display: flex;
+                    gap: 16px;
+                    flex-wrap: wrap;
+                  "
+                >
+                  <a href="#" class="info-card-link">LinkedIn</a>
+                  <a href="#" class="info-card-link">Twitter</a>
+                  <a href="#" class="info-card-link">Facebook</a>
+                  <a href="#" class="info-card-link">YouTube</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Office Map Section -->
+    <section class="section">
+      <div class="container">
+        <div
+          class="section-title section-title-center"
+          style="margin-bottom: 40px"
+        >
+          <h2 class="section-heading">Find Our Office</h2>
+          <p class="section-text">
+            Located in the vibrant tech district of Hanoi, our office is
+            designed to foster innovation and collaboration.
+          </p>
+        </div>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3873.08943300018!2d109.2191454!3d13.8038844!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x316f6bf778c80973%3A0x8a7d0b5aa0af29c7!2sFPT%20University%20Quy%20Nhon%20AI%20Campus!5e0!3m2!1sen!2s!4v1678886700006!5m2!1sen!2s" width="100%" height="600" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="contact-map"></iframe>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section" style="background-color: #f8f9fa">
+      <div class="container">
+        <div
+          class="section-title section-title-center"
+          style="margin-bottom: 60px"
+        >
+          <div class="tagline-wrapper tagline-wrapper-center">
+            <span class="tagline">FAQ</span>
+          </div>
+          <div class="section-content">
+            <h2 class="section-heading">Frequently Asked Questions</h2>
+            <p class="section-text">
+              Common questions about EVEMASK and how we can help secure your
+              broadcasts.
+            </p>
+          </div>
+        </div>
+
+        <div style="max-width: 800px; margin: 0 auto">
+          <div class="info-card" style="margin-bottom: 16px">
+            <h3
+              style="
+                font-size: var(--text-sizes-heading-6);
+                font-weight: 700;
+                margin-bottom: 12px;
+                color: var(--color-scheme-1-text);
+              "
+            >
+              How quickly can EVEMASK be integrated into our existing workflow?
+            </h3>
+            <p style="color: var(--color-scheme-1-text); line-height: 1.6">
+              EVEMASK can typically be integrated within 24-48 hours, depending
+              on your current setup. Our team provides full technical support
+              throughout the integration process.
+            </p>
+          </div>
+
+          <div class="info-card" style="margin-bottom: 16px">
+            <h3
+              style="
+                font-size: var(--text-sizes-heading-6);
+                font-weight: 700;
+                margin-bottom: 12px;
+                color: var(--color-scheme-1-text);
+              "
+            >
+              What types of content can EVEMASK detect and blur?
+            </h3>
+            <p style="color: var(--color-scheme-1-text); line-height: 1.6">
+              Our AI can detect and blur gambling logos, betting advertisements,
+              and other prohibited content in real-time across various video
+              formats and resolutions.
+            </p>
+          </div>
+
+          <div class="info-card" style="margin-bottom: 16px">
+            <h3
+              style="
+                font-size: var(--text-sizes-heading-6);
+                font-weight: 700;
+                margin-bottom: 12px;
+                color: var(--color-scheme-1-text);
+              "
+            >
+              Is there a performance impact on live broadcasts?
+            </h3>
+            <p style="color: var(--color-scheme-1-text); line-height: 1.6">
+              EVEMASK is optimized for minimal latency impact, typically adding
+              less than 100ms to your broadcast pipeline while maintaining full
+              video quality.
+            </p>
+          </div>
+
+          <div class="info-card">
+            <h3
+              style="
+                font-size: var(--text-sizes-heading-6);
+                font-weight: 700;
+                margin-bottom: 12px;
+                color: var(--color-scheme-1-text);
+              "
+            >
+              Do you offer 24/7 technical support?
+            </h3>
+            <p style="color: var(--color-scheme-1-text); line-height: 1.6">
+              Yes, we provide round-the-clock technical support for all
+              enterprise customers to ensure your broadcasts remain secure and
+              compliant at all times.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="section section-medium footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-links">
+            <div class="footer-column">
+              <img
+                src="assets/images/EveMask-logo.png"
+                alt="EVEMASK Logo"
+                class="footer-logo"
+              />
+            </div>
+            <div class="footer-column">
+              <h4 class="footer-heading">Quick Links</h4>
+              <div class="footer-links-list">
+                <div class="footer-link-item">
+                  <a href="index.html" class="footer-link">Home</a>
+                </div>
+                <div class="footer-link-item">
+                  <a href="index.html#about" class="footer-link">About Us</a>
+                </div>
+                <div class="footer-link-item">
+                  <a href="index.html#solution" class="footer-link"
+                    >Solutions</a
+                  >
+                </div>
+                <div class="footer-link-item">
+                  <a href="contact.html" class="footer-link">Contact Us</a>
+                </div>
+                <div class="footer-link-item">
+                  <a href="#" class="footer-link">Support</a>
+                </div>
+              </div>
+            </div>
+            <div class="footer-column">
+              <h4 class="footer-heading">Stay Connected</h4>
+              <div class="footer-links-list">
+                <div class="footer-link-item">
+                  <a href="#" class="footer-link">Facebook</a>
+                </div>
+                <div class="footer-link-item">
+                  <a href="#" class="footer-link">Twitter</a>
+                </div>
+                <div class="footer-link-item">
+                  <a href="#" class="footer-link">LinkedIn</a>
+                </div>
+                <div class="footer-link-item">
+                  <a href="#" class="footer-link">Instagram</a>
+                </div>
+                <div class="footer-link-item">
+                  <a href="#" class="footer-link">YouTube</a>
+                </div>
+              </div>
+            </div>
+            <div class="footer-column">
+              <h4 class="footer-heading">Newsletter</h4>
+              <div class="footer-links-list">
+                <div class="footer-link-item">
+                  <a href="#" class="footer-link">Subscribe</a>
+                </div>
+                <div class="footer-link-item">
+                  <a href="#" class="footer-link">Updates</a>
+                </div>
+                <div class="footer-link-item">
+                  <a href="#" class="footer-link">News</a>
+                </div>
+                <div class="footer-link-item">
+                  <a href="#" class="footer-link">Events</a>
+                </div>
+                <div class="footer-link-item">
+                  <a href="#" class="footer-link">Webinars</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="newsletter">
+            <div class="newsletter-content">
+              <h4 class="newsletter-heading">Join</h4>
+              <p class="newsletter-text">
+                Stay updated on our latest features and product releases.
+              </p>
+            </div>
+            <div class="newsletter-form">
+              <div class="form-group">
+                <input
+                  type="email"
+                  class="form-input"
+                  placeholder="Your Email"
+                  aria-label="Email address"
+                />
+                <button type="submit" class="btn btn-secondary">
+                  <span>Send</span>
+                </button>
+              </div>
+              <p class="newsletter-disclaimer">
+                By subscribing, you agree to our Privacy Policy and consent to
+                updates.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="footer-credits">
+          <div class="footer-divider"></div>
+          <div class="footer-bottom">
+            <div class="footer-legal">
+              <span>© 2025 EVEMASK. All rights reserved.</span>
+              <a href="#" class="footer-legal-link">Privacy Policy</a>
+              <a href="#" class="footer-legal-link">Terms of Service</a>
+              <a href="#" class="footer-legal-link">Cookie Settings</a>
+            </div>
+            <div class="social-links">
+              <img
+                src="https://via.placeholder.com/24x24/000000/FFFFFF?text=f"
+                alt="Facebook"
+                class="social-link"
+              />
+              <img
+                src="https://via.placeholder.com/24x24/000000/FFFFFF?text=t"
+                alt="Twitter"
+                class="social-link"
+              />
+              <img
+                src="https://via.placeholder.com/24x24/000000/FFFFFF?text=in"
+                alt="LinkedIn"
+                class="social-link"
+              />
+              <img
+                src="https://via.placeholder.com/24x24/000000/FFFFFF?text=ig"
+                alt="Instagram"
+                class="social-link"
+              />
+              <img
+                src="https://via.placeholder.com/24x24/000000/FFFFFF?text=yt"
+                alt="YouTube"
+                class="social-link"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Simple form enhancement
+      document.querySelector("form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        alert(
+          "Thank you for your message! We will get back to you within 24 hours.",
+        );
+      });
+    </script>
+  </body>
+</html>
