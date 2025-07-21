@@ -10,10 +10,10 @@ This script provides:
 
 Usage Examples:
     # YOLO segmentation model with dynamic shapes
-    python build.py --onnx weights/onnx/yolov8_seg_aug_best_l.onnx --engine weights/trtPlans/yolov8_seg_aug_best_l.trt --fp16 --dynamic --dynamic-shapes "{\"input\": ((1, 3, 640, 640), (2, 3, 640, 640), (3, 3, 640, 640))}"
+    python build.py --onnx weights/onnx/seg_v1.0.0.onnx --engine weights/trtPlans/seg_v1.0.0.trt --fp16 --dynamic --dynamic-shapes "{\"input\": ((1, 3, 640, 640), (2, 3, 640, 640), (3, 3, 640, 640))}"
     
     # Feature extraction model with dynamic shapes
-    python build.py --onnx weights/onnx/SupConLoss_BBVGG16.onnx --engine weights/trtPlans/SupConLoss_BBVGG16.trt --fp16 --dynamic --dynamic-shapes "{\"input\": ((1,3,224,224), (8,3,224,224), (32,3,224,224))}"
+    python build.py --onnx weights/onnx/fe_v1.0.0.onnx --engine weights/trtPlans/fe_v1.0.0.trt --fp16 --dynamic --dynamic-shapes "{\"input\": ((1,3,224,224), (8,3,224,224), (32,3,224,224))}"
 
 Author: EVEMASK Team
 """

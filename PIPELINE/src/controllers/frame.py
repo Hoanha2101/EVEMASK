@@ -89,8 +89,15 @@ class Frame:
         # Ensure tensor is contiguous in memory for efficient processing
         img_tensor = np.ascontiguousarray(input_image)
         
+        # 0 - original_frame: (1080, 1920, 3) <class 'numpy.ndarray'> unit 8
+        # 1 - img_tensor: (1, 3, 640, 640) <class 'numpy.ndarray'> float16
+        # 2 - ratio: 0.3333333333333333
+        # 3 - dwdh: (0.0, 140.0)
+        # 4 - img_no_255: (1, 3, 640, 640) <class 'numpy.ndarray'> float16
+        
         # Package all data for return
         data = (original_frame, img_tensor, ratio, dwdh, img_no_255)
+
         return data
 
     def destroy(self):

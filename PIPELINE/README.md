@@ -1,40 +1,46 @@
-# EVEMASK Pipeline v1.0.0
+# EVEMASK v1.0.0
 
 <div align="center">
 
-![EVEMASK Logo](https://img.shields.io/badge/EVEMASK-Pipeline%20v1.0.0-blue?style=for-the-badge&logo=python)
+![EVEMASK Logo](https://img.shields.io/badge/EVEMASK-%201.0.0-blue?style=for-the-badge&logo=python)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-green?style=for-the-badge&logo=python)
 ![TensorRT](https://img.shields.io/badge/TensorRT-8.6.1-orange?style=for-the-badge&logo=nvidia)
-![YOLOv8](https://img.shields.io/badge/YOLOv8-Segmentation-red?style=for-the-badge&logo=ultralytics)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.7.0-red?style=for-the-badge&logo=pytorch)
+![OpenCV](https://img.shields.io/badge/OpenCV-4.10.0-green?style=for-the-badge&logo=opencv)
 
-**Real-time AI Video Processing Pipeline with Object Detection, Segmentation, and Classification**
+**Real-Time NBA Tournaments Betting Logo Segmentation and Masking Module**
 
-[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Architecture](#architecture) • [Configuration](#configuration) • [Team](#team)
+[![License: Commercial](https://img.shields.io/badge/License-Commercial-red.svg)](LICENSE)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [About](#about)
-- [Features](#features)
-- [Team](#team)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Usage](#usage)
-- [Architecture](#architecture)
-- [Configuration](#configuration)
-- [Project Structure](#project-structure)
-- [Performance](#performance)
-- [Contributing](#contributing)
-- [License](#license)
+- [About](#-about)
+- [Features](#-features)
+- [Team](#-team)
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Usage](#-usage)
+- [Architecture](#-architecture)
+- [Configuration](#️-configuration)
+- [Project Structure](#-project-structure)
+- [API Documentation](#-api-documentation)
+- [Performance](#-performance)
+- [Testing](#-testing)
+- [License](#-license)
 
 ---
 
-## 🎯 About
+## About
 
-**EVEMASK Pipeline v1.0.0** is a high-performance, real-time video processing system designed for intelligent content analysis and automated content moderation. The system combines state-of-the-art AI models to detect, segment, and classify objects in video streams with exceptional accuracy and speed.
+**EVEMASK v1.0.0** is a high-performance, real-time video processing system designed for intelligent content analysis and automated moderation. Leveraging cutting-edge AI models, EVEMASK can accurately detect, segment, and classify visual elements in live video streams with exceptional speed and precision.
+
+In the context of the NBA (National Basketball Association), advertisements from betting companies are commonly displayed on player jerseys, courtside LED boards, and digital overlays. This presents a major challenge for Vietnamese broadcasters, as all forms of gambling and betting promotion are strictly prohibited on mass media under current regulations.
+
+EVEMASK offers a powerful solution: real-time detection and blurring of restricted content during live broadcasts. This ensures legal compliance without compromising viewer experience or broadcast quality. With EVEMASK, airing NBA games becomes safe, seamless, and professional, enabling broadcasters to deliver international sports content while adhering to local content regulations.
 
 ### Key Capabilities
 
@@ -42,8 +48,8 @@
 - **Intelligent Classification**: Feature extraction and similarity matching for object classification
 - **Content Moderation**: Conditional blurring based on object classes
 - **High Performance**: TensorRT optimization for GPU-accelerated inference
-- **Multi-stream Support**: Handle multiple input/output streams simultaneously
 - **Dynamic Processing**: Adaptive frame skipping and batch processing
+- **System Monitoring**: Real-time resource tracking and performance metrics
 
 ### Use Cases
 
@@ -51,54 +57,65 @@
 - **Brand Recognition**: Identify and classify brand logos in video streams
 - **Quality Control**: Monitor video content for compliance and standards
 - **Real-time Analytics**: Extract insights from live video feeds
+- **Broadcasting**: Live content filtering for television and streaming platforms
+- **Security**: Automated surveillance with intelligent object detection
 
 ---
 
-## ✨ Features
+## Features
 
-### 🚀 Performance Optimizations
+### Performance Optimizations
 - **TensorRT Engine**: GPU-accelerated inference with FP16 precision
 - **Dynamic Batching**: Adaptive batch sizes for optimal throughput
 - **Circular Queue**: Efficient frame buffering with automatic memory management
 - **Multi-threading**: Parallel processing of capture, AI, and output streams
+- **Memory Optimization**: Automatic cleanup and efficient buffer usage
+- **Frame Skipping**: Intelligent frame selection for real-time processing
 
-### 🎯 AI Capabilities
-- **YOLOv8 Segmentation**: State-of-the-art object detection and segmentation
-- **Feature Extraction**: VGG16-based embedding generation for classification
+### AI Capabilities
+- **Segmentation**: State-of-the-art object detection and segmentation
+- **Feature Extraction**: Embedding generation for classification
 - **Similarity Matching**: FAISS-based nearest neighbor search
 - **Conditional Blurring**: Intelligent content masking based on object classes
+- **Multi-class Support**: Configurable classification categories
+- **Confidence Thresholding**: Adjustable detection sensitivity
 
-### 📡 Streaming Support
+### Streaming Support
 - **Multiple Protocols**: UDP, RTSP, RTMP input/output support
 - **Real-time Processing**: Sub-second latency for live streams
 - **FPS Control**: Configurable target frame rates
 - **Stream Validation**: Built-in connectivity testing tools
+- **Network Optimization**: Packet size configuration for UDP streams
+- **Error Recovery**: Automatic reconnection and stream recovery
 
-### 🔧 System Monitoring
+### System Monitoring
 - **Resource Tracking**: CPU, GPU, memory, and network monitoring
 - **Performance Metrics**: FPS, latency, and throughput measurement
 - **Health Monitoring**: Automatic system status reporting
-- **Logging**: Comprehensive logging with timestamps
+- **Comprehensive Logging**: Detailed logging with timestamps and levels
+- **Live Display**: Real-time system status dashboard
+- **Alert System**: Automatic notifications for system issues
 
 ---
 
-## 👥 Team
+## Team
 
 **EVEMASK Team** - AI Research & Development Group
 
-### Project Information
-- **Project Name**: EVEMASK Pipeline v1.0.0
+### Product Information
+- **Product Name**: EVEMASK
 - **Version**: 1.0.0
-- **Development Period**: 2024
-- **Technology Stack**: Python, PyTorch, TensorRT, OpenCV, YOLOv8
+- **Development Period**: 2025
+- **Technology Stack**: Python, PyTorch, TensorRT, OpenCV, FAISS
+- **License**: Commercial License (Proprietary)
 
 ### Contact
-- **Email**: [team@evemask.com](mailto:team@evemask.com)
-- **Repository**: [EVEMASK/PIPELINE](https://github.com/EVEMASK/PIPELINE)
+- **Email**: [evemask.ai@gmail.com](mailto:evemask.ai@gmail.com)
+- **Website**: [https://evemask.com](https://evemask.com)
 
 ---
 
-## 🛠 Installation
+## Installation
 
 ### Prerequisites
 
@@ -106,28 +123,33 @@
 - **CUDA**: 11.8 or higher (for GPU acceleration)
 - **TensorRT**: 8.6.1
 - **NVIDIA GPU**: Compatible with TensorRT 8.6.1
+- **Git**: For cloning the repository
 
 ### System Requirements
 
 - **OS**: Windows 10/11, Linux (Ubuntu 20.04+)
 - **RAM**: 8GB minimum, 16GB recommended
-- **GPU**: NVIDIA GPU with 6GB+ VRAM
+- **GPU**: NVIDIA GPU with 6GB+ VRAM (RTX 4050 or better recommended)
 - **Storage**: 10GB free space for models and data
+- **Network**: Stable internet connection for model downloads
 
 ### Installation Steps
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/EVEMASK/PIPELINE.git
+git clone ....
 cd PIPELINE
 ```
 
 2. **Create virtual environment**
 ```bash
+# Windows
 python -m venv evemask_env
-source evemask_env/bin/activate  # Linux/Mac
-# or
-evemask_env\Scripts\activate     # Windows
+evemask_env\Scripts\activate
+
+# Linux/Mac
+python -m venv evemask_env
+source evemask_env/bin/activate
 ```
 
 3. **Install dependencies**
@@ -135,43 +157,101 @@ evemask_env\Scripts\activate     # Windows
 pip install -r requirements.txt
 ```
 
-4. **Verify installation**
+4. **Verify CUDA installation**
 ```bash
-python test_stream.py
+python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
+python -c "import tensorrt; print(f'TensorRT version: {tensorrt.__version__}')"
 ```
 
----
+5. **Test installation**
+```bash
+python tester/run_all_tests.py
+```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Model Preparation
 
-Convert your YOLOv8 models to TensorRT format:
+Download model
+```bash
+# model 1
+gdown "https://drive.google.com/uc?id=1LAAAnlKMrrZ30Eavmkji66Y_LTw70vwj" -O "weights/yolo/seg_v1.0.0.pt"
 
+#model 2
+gdown "https://drive.google.com/uc?id=1xYHOLLgcnWaRk-LFXb-U34Nmhn9x4W0q" -O "weights/pytorch/fe_v1.0.0.pt"
+```
+Get pytorch model
 ```bash
 # Extract PyTorch model from Ultralytics format
-python getpytorch.py --weights weights/yolo/yolov8_seg_aug_best_l.pt --output weights/pytorch/yolov8_seg_aug_best_l.pth
-
-# Export to ONNX format
-python export.py --pth weights/pytorch/yolov8_seg_aug_best_l.pth --output weights/onnx/yolov8_seg_aug_best_l.onnx --input-shape 1 3 640 640 --input-name input --output-names pred0 pred1_0_0 pred1_0_1 pred1_0_2 pred1_1 pred1_2 --mode float32bit --device cuda --opset 19 --typeModel seg
-
-# Build TensorRT engine
-python build.py --onnx weights/onnx/yolov8_seg_aug_best_l.onnx --engine weights/trtPlans/yolov8_seg_aug_best_l.trt --fp16 --dynamic --dynamic-shapes "{\"input\": ((1, 3, 640, 640), (2, 3, 640, 640), (3, 3, 640, 640))}"
+python getpytorch.py --weights weights/yolo/seg_v1.0.0.pt --output weights/pytorch/seg_v1.0.0.pth
 ```
 
-### 2. Configuration
+Export to ONNX format
+```bash
+#model 1
+python export.py --pth weights/pytorch/seg_v1.0.0.pth --output weights/onnx/seg_v1.0.0.onnx --input-shape 1 3 640 640 --input-name input --output-names pred0 pred1_0_0 pred1_0_1 pred1_0_2 pred1_1 pred1_2 --mode float32bit --device cuda --opset 19 --typeModel seg
 
-Edit `cfg/default.yaml` to configure your input/output streams and model parameters.
+#model 2
+python export.py --pth weights/pytorch/fe_v1.0.0.pt --output weights/onnx/fe_v1.0.0.onnx --input-shape 1 3 224 224 --input-name input --output-names output --mode float16bit --device cuda --opset 12 --typeModel fe
+```
+Build TensorRT engine
+
+```bash
+#model 1
+python build.py --onnx weights/onnx/seg_v1.0.0.onnx --engine weights/trtPlans/seg_v1.0.0.trt --fp16 --dynamic --dynamic-shapes "{\"input\": ((1, 3, 640, 640), (2, 3, 640, 640), (3, 3, 640, 640))}"
+
+#model 2
+python build.py --onnx weights/onnx/fe_v1.0.0.onnx --engine weights/trtPlans/fe_v1.0.0.trt --fp16 --dynamic --dynamic-shapes "{\"input\": ((1,3,224,224), (8,3,224,224), (32,3,224,224))}"
+```
+
+### 2. Configuration Setup
+
+Edit `cfg/default.yaml` to configure your streams:
+
+```yaml
+# Basic configuration
+INPUT_SOURCE: "udp://224.1.1.1:30122?pkt_size=1316"
+OUTPUT_TYPE: "udp"
+OUTPUT_STREAM_URL_UDP: "udp://@225.1.9.254:30133?pkt_size=1316"
+TARGET_FPS: 25
+
+# Model paths
+segment_model:
+  path: "weights/trtPlans/yolov8_seg_aug_best_l_trimmed.trt"
+  max_batch_size: 3
+  dynamic_factor: 3
+
+extract_model:
+  path: "weights/trtPlans/SupConLoss_BBVGG16.trt"
+  max_batch_size: 32
+  len_emb: 256
+```
 
 ### 3. Run the Pipeline
 
 ```bash
+# Start the main pipeline
 python main.py
+
+# Monitor system resources
+python monitor.py
+
+# Test stream connectivity
+python test_stream.py
 ```
+
+### 4. Verify Operation
+
+The system will display:
+- EVEMASK logo and startup information
+- Configuration details
+- Thread status (Capture, AI, Output)
+- Real-time performance metrics
+- System health indicators
 
 ---
 
-## 📖 Usage
+## Usage
 
 ### Basic Usage
 
@@ -180,49 +260,81 @@ python main.py
 python main.py
 
 # Test stream connectivity
-python test_stream.py
+python moderator/stream_in.py
 
-# Monitor system resources
+# Monitor system resources in new cmd
 python monitor.py
+
+# Run all tests
+python tester/run_all_tests.py
 ```
 
 ### Advanced Configuration
 
 #### Input Sources
-- **UDP Stream**: `udp://224.1.1.1:30122?pkt_size=1316`
-- **RTSP Stream**: `rtsp://username:password@ip:port/stream`
-- **Local File**: `videos/test.mp4`
-- **Webcam**: `0` (default camera)
+```yaml
+# UDP Stream
+INPUT_SOURCE: "udp://input..."
+```
 
 #### Output Destinations
-- **UDP Stream**: `udp://@225.1.9.254:30133?pkt_size=1316`
-- **RTMP Stream**: `rtmp://server/live/stream`
-- **Local File**: `output.mp4`
+```yaml
+# UDP Stream
+OUTPUT_TYPE: "udp"
+OUTPUT_STREAM_URL_UDP: "udp://output..."
+```
 
 ### Model Configuration
 
 The system supports two main models:
 
-1. **Segmentation Model** (YOLOv8)
-   - Object detection and segmentation
-   - Configurable confidence and IoU thresholds
-   - Dynamic batch processing
+1. **Segmentation Model**
+   ```yaml
+   segment_model:
+     path: "weights/trtPlans/seg_v1.0.0.trt"
+     max_batch_size: 3
+     dynamic_factor: 3
+     conf_threshold: 0.5
+     iou_threshold: 0.7
+   ```
 
-2. **Feature Extraction Model** (VGG16)
-   - Embedding generation for classification
-   - Similarity-based matching
-   - Reference data preparation
+2. **Feature Extraction Model**
+   ```yaml
+   extract_model:
+     path: "weights/trtPlans/fe_v1.0.0.trt"
+     max_batch_size: 32
+     len_emb: 256
+   ```
 
 ### Performance Tuning
 
-- **Batch Size**: Adjust `batch_size` in config for optimal throughput
-- **FPS Control**: Set `TARGET_FPS` for desired output frame rate
-- **GPU Memory**: Configure `max_batch_size` based on available VRAM
-- **Precision**: Use FP16 for faster inference with minimal accuracy loss
+```yaml
+# Batch processing
+batch_size: 3
+
+# Detection thresholds
+conf_threshold: 0.5
+iou_threshold: 0.7
+
+# Frame rate control
+TARGET_FPS: 30
+DELAY_TIME: 2
+```
+
+### Classification Classes
+
+```yaml
+names:
+  0: "unbet"
+  ...
+
+# Classes that should not be blurred
+CLASSES_NO_BLUR: [0]
+```
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
 ### System Overview
 
@@ -246,91 +358,153 @@ The system supports two main models:
 ### Core Components
 
 #### 1. Stream Controller (`src/controllers/stream.py`)
-- Manages video capture and output streaming
-- Handles multiple input/output protocols
-- Implements frame buffering and synchronization
+- **Purpose**: Manages video capture and output streaming
+- **Features**: 
+  - One input/output protocol support
+  - Frame buffering and synchronization
+  - Error handling and recovery
+  - Network optimization
 
 #### 2. AI Engine (`src/brain/AI.py`)
-- Coordinates YOLO segmentation and feature extraction
-- Implements batch processing and frame skipping
-- Manages conditional blurring and object classification
+- **Purpose**: Coordinates segmentation and feature extraction
+- **Features**:
+  - Batch processing and frame skipping
+  - Conditional blurring and object classification
+  - Performance optimization
+  - Memory management
 
 #### 3. Circular Queue (`src/controllers/circle_queue.py`)
-- Thread-safe frame buffer with automatic overflow management
-- Efficient frame retrieval with skipping capabilities
-- Memory management for real-time processing
+- **Purpose**: Thread-safe frame buffer with automatic overflow management
+- **Features**:
+  - Efficient frame retrieval with skipping capabilities
+  - Memory management for real-time processing
+  - Automatic cleanup and overflow prevention
 
 #### 4. TensorRT Models (`src/models/engine.py`)
-- High-performance GPU inference engines
-- Dynamic shape support for flexible batch sizes
-- Memory optimization and workspace management
+- **Purpose**: High-performance GPU inference engines
+- **Features**:
+  - Dynamic shape support for flexible batch sizes
+  - Memory optimization and workspace management
+  - FP16 precision for speed optimization
 
 ### Processing Pipeline
 
 1. **Frame Capture**: Continuous frame reading from input source
 2. **Preprocessing**: Image resizing, normalization, and tensor conversion
-3. **Segmentation**: YOLOv8-based object detection and mask generation
-4. **Feature Extraction**: VGG16-based embedding generation for detected objects
-5. **Classification**: Similarity matching against reference data
+3. **Segmentation**: Object detection and mask generation
+4. **Feature Extraction**: Embedding generation for detected objects
+5. **Similarity Matching**: Similarity matching against reference data
 6. **Post-processing**: Conditional blurring and mask application
 7. **Output Streaming**: Processed frames sent to output destination
 
+### Thread Architecture
+
+- **Capture Thread**: Dedicated to reading frames from input source
+- **AI Thread**: Handles all AI processing and inference
+- **Output Thread**: Manages frame output to destination
+- **Main Thread**: Coordinates system monitoring and user interaction
+
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Main Configuration (`cfg/default.yaml`)
 
 ```yaml
-# Input/Output Configuration
-INPUT_SOURCE: "udp://224.1.1.1:30122?pkt_size=1316"
-OUTPUT_TYPE: "udp"
-OUTPUT_STREAM_URL_UDP: "udp://@225.1.9.254:30133?pkt_size=1316"
-TARGET_FPS: 25
+# =========================
+# Default Configuration File for EVEMASK Pipeline
+# =========================
 
-# Processing Parameters
-batch_size: 3
-conf_threshold: 0.5
-iou_threshold: 0.7
+# List of class indices that are considered "no blur" (possibly for filtering or post-processing)
+CLASSES_NO_BLUR:
+- 0
+
+# Delay time in seconds
 DELAY_TIME: 2
 
-# Model Paths
-segment_model:
-  path: "weights/trtPlans/yolov8_seg_aug_best_l_trimmed.trt"
-  max_batch_size: 3
-  dynamic_factor: 3
+# Target frames per second for processing/output
+TARGET_FPS: 30
 
-extract_model:
-  path: "weights/trtPlans/SupConLoss_BBVGG16.trt"
-  max_batch_size: 32
-  len_emb: 256
+# Batch size for model inference or processing
+batch_size: 3
 
-# Classification Classes
+# Input video stream source (UDP multicast address with packet size)
+INPUT_SOURCE: udp://input...
+
+# Output stream type (e.g., udp, rtmp, rtsp)
+OUTPUT_TYPE: udp
+
+# Output stream URLs for different protocols (set to None if not used)
+OUTPUT_STREAM_URL_RTMP: None
+OUTPUT_STREAM_URL_RTSP: None
+OUTPUT_STREAM_URL_UDP: udp://output...
+
+# Confidence threshold for detection (e.g., for object detection models)
+conf_threshold: 0.5
+
+# Intersection-over-union threshold for filtering detections (e.g., NMS)
+iou_threshold: 0.7
+
+# Number of classes for detection/segmentation
+nc: 14
+
+# Mapping of class indices to class names
 names:
-  0: "unbet"
-  1: "betrivers"
-  2: "fanduel"
-  # ... additional classes
+  0: unbet
+  ...
 
-# Blur Configuration
-CLASSES_NO_BLUR: [0]  # Classes that should not be blurred
+# Path to directory containing recognition data
+recognizeData_path: recognizeData
+
+# Configuration for the segmentation model
+segment_model:
+  # List of all output tensor names from the model
+  all_output_names:
+  - pred0
+  - pred1_0_0
+  - pred1_0_1
+  - pred1_0_2
+  - pred1_1
+  - pred1_2
+  # Dynamic factor (could relate to model input scaling or batching)
+  dynamic_factor: 3
+  # Device to run the model on (e.g., cuda for GPU)
+  get_to: cuda
+  # List of input tensor names for the model
+  input_names:
+  - input
+  # Maximum batch size supported by the model
+  max_batch_size: 3
+  # Path to the model weights/plan file
+  path: weights/trtPlans/yolov8_seg_aug_best_l_trimmed.trt
+
+# Configuration for the feature extraction model
+extract_model:
+  # List of input tensor names for the model
+  input_names:
+  - input
+  # Length of the embedding vector output by the model
+  len_emb: 256
+  # Maximum batch size supported by the model
+  max_batch_size: 32
+  # List of output tensor names for the model
+  output_names:
+  - output
+  # Path to the model weights/plan file
+  path: weights/trtPlans/supconloss_bbresnet50_50e.trt
 ```
 
-### Environment Variables
+### Configuration Validation
 
-```bash
-# CUDA Configuration
-export CUDA_VISIBLE_DEVICES=0
-export CUDA_LAUNCH_BLOCKING=1
-
-# TensorRT Configuration
-export TENSORRT_ROOT=/usr/local/tensorrt
-export LD_LIBRARY_PATH=$TENSORRT_ROOT/lib:$LD_LIBRARY_PATH
-```
+The system automatically validates configuration:
+- Model file existence
+- Stream URL format
+- Parameter ranges
+- System compatibility
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 PIPELINE/
@@ -338,10 +512,10 @@ PIPELINE/
 ├── 📄 monitor.py              # System monitoring
 ├── 📄 build.py                # TensorRT engine builder
 ├── 📄 export.py               # PyTorch to ONNX exporter
-├── 📄 getpytorch.py           # YOLOv8 model extractor
-├── 📄 test_stream.py          # Stream testing utility
+├── 📄 getpytorch.py           # get pytorch model
 ├── 📄 requirements.txt        # Python dependencies
-├── 📄 README.md              # This file
+├── 📄 README.md               # This file
+├── 📄 .gitignore              # Git ignore patterns
 │
 ├── 📁 cfg/
 │   └── 📄 default.yaml       # Main configuration file
@@ -356,8 +530,7 @@ PIPELINE/
 │   │   └── 📄 circle_queue.py # Circular buffer
 │   │
 │   ├── 📁 logger/
-│   │   ├── 📄 logger.py      # EveMaskLogger
-│   │   └── 📄 initNet.py     
+│   │   └── 📄 logger.py      # EveMaskLogger
 │   │
 │   ├── 📁 models/
 │   │   ├── 📄 engine.py      # TensorRT inference
@@ -369,6 +542,17 @@ PIPELINE/
 │       ├── 📄 similarityBlock.py # Similarity matching
 │       └── 📄 NB_search.py   # Neighbor search
 │
+├── 📁 tester/
+│   ├── 📄 run_all_tests.py   # Test runner
+│   ├── 📄 test_ai.py         # AI module tests
+│   ├── 📄 test_stream_controller.py # Stream tests
+│   ├── 📄 test_circle_queue.py # Queue tests
+│   ├── 📄 test_frame.py      # Frame tests
+│   ├── 📄 test_models.py     # Model tests
+│   ├── 📄 test_logger.py     # Logger tests
+│   ├── 📄 test_utils.py      # Utility tests
+│   └── 📄 test_tools_modules.py # Tools tests
+│
 ├── 📁 weights/
 │   ├── 📁 yolo/              # YOLOv8 weights
 │   ├── 📁 pytorch/           # PyTorch models
@@ -377,102 +561,190 @@ PIPELINE/
 │
 ├── 📁 recognizeData/         # Reference data for classification
 ├── 📁 videos/                # Test video files
-└── 📁 block/                 # Additional resources
+├── 📁 block/                 # Additional resources
+└── 📁 moderator/             # Stream moderation tools
 ```
 
 ---
 
-## 📊 Performance
+## 🔧 API Documentation
+
+### Core Classes
+
+#### StreamController
+```python
+from src.controllers import StreamController
+
+# Initialize with configuration
+controller = StreamController(config)
+
+# Start capture thread
+controller.source_capture()
+
+# Start output thread
+controller.out_stream()
+```
+
+#### AI Engine
+```python
+from src.brain import AI
+
+# Initialize AI engine
+ai_engine = AI(config, FEmodel=True)
+
+# Run AI processing
+ai_engine.run()
+```
+
+#### Circular Queue
+```python
+from src.controllers import CircleQueue
+
+# Initialize queue
+queue = CircleQueue(maxsize=1000)
+
+# Add frame
+queue.add_frame(frame)
+
+# Get frame
+frame = queue.get_by_id(id)
+```
+
+#### EveMaskLogger
+```python
+from src.logger import EveMaskLogger
+
+# Get logger instance
+logger = EveMaskLogger.get_instance()
+
+# Log messages
+logger.info("Processing started")
+logger.error("Error occurred")
+logger.warning("Warning message")
+
+# Display system status
+logger.display_logo()
+logger.show_config(config)
+logger.start_live_display(config, capture_alive, output_alive, ai_alive)
+```
+
+### Configuration API
+
+```python
+import yaml
+
+# Load configuration
+config_path = os.path.join(os.path.dirname(__file__), "cfg", "default.yaml")
+with open(os.path.abspath(config_path), "r") as f:
+    cfg = yaml.safe_load(f)
+
+# Access configuration values
+input_source = config["INPUT_SOURCE"]
+batch_size = config["batch_size"]
+```
+
+---
+
+## Performance
 
 ### Benchmarks
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| **Inference Speed** | 25 FPS | Real-time processing |
-| **Latency** | <40ms | End-to-end processing |
-| **GPU Memory** | 4-6GB | TensorRT optimized |
-| **CPU Usage** | 15-25% | Multi-threaded |
-| **Accuracy** | 95%+ | YOLOv8 segmentation |
+**Segmentation AP**
+<img src="illustration/segAP.png" width="100%">
 
-### Optimization Features
+**Separation Score**
+<img src="illustration/feSeparation.png" width="100%">
+
+**AI Inference Speed - Only**
+| Batch Size | RTX3050 4GB | RTX3050ti 4GB |
+|--------|-------|-------|
+| **1** | 25 FPS | 25 FPS |
+| **2** | 25 FPS | 25 FPS |
+| **3** | 25 FPS | 25 FPS |
+
+**AI Inference Speed - Pipeline**
+
+| Config | PC1 | PC2 |
+|--------|-------|-------|
+| **CPU** | AMD Ryzen 5 | Intel® Core™ i7-11800H |
+| **RAM** | 16GB | 16GB |
+| **GPU** | RTX3050 4GB | RTX3050ti 4GB |
+
+| Batch Size | PC1 | PC2 |
+|--------|-------|-------|
+| **1** | 25 FPS | 25 FPS |
+| **2** | 25 FPS | 25 FPS |
+| **3** | 25 FPS | 25 FPS |
+
+### Performance Optimization Features
 
 - **TensorRT FP16**: 2x speed improvement with minimal accuracy loss
 - **Dynamic Batching**: Adaptive batch sizes for optimal throughput
 - **Frame Skipping**: Intelligent frame selection for real-time processing
 - **Memory Management**: Automatic cleanup and efficient buffer usage
+- **Multi-threading**: Parallel processing for maximum efficiency
 
-### Scaling Considerations
+## Testing
 
-- **Multi-GPU**: Support for multiple GPU configurations
-- **Distributed Processing**: Horizontal scaling across multiple nodes
-- **Load Balancing**: Automatic workload distribution
-- **Failover**: Graceful handling of hardware failures
-
----
-
-## 🤝 Contributing
-
-We welcome contributions from the community! Please follow these guidelines:
-
-### Development Setup
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes and add tests
-4. Commit your changes: `git commit -m 'Add amazing feature'`
-5. Push to the branch: `git push origin feature/amazing-feature`
-6. Open a Pull Request
-
-### Code Style
-
-- Follow PEP 8 Python style guidelines
-- Add comprehensive docstrings
-- Include type hints where appropriate
-- Write unit tests for new features
-
-### Testing
+### Running Tests
 
 ```bash
 # Run all tests
-python -m pytest tests/
-
-# Run specific test
-python -m pytest tests/test_ai.py
-
-# Run with coverage
-python -m pytest --cov=src tests/
+python tester/run_all_tests.py
 ```
+
+### Test Coverage
+
+The test suite covers:
+- **AI Module**: Model loading, inference, and processing
+- **Stream Controller**: Input/output stream management
+- **Circular Queue**: Thread-safe operations and memory management
+- **Frame Processing**: Image manipulation and tensor conversion
+- **Logger**: Logging functionality and display features
+- **Utilities**: Helper functions and data processing
+- **Models**: TensorRT engine operations
 
 ---
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under a **Commercial Software License Agreement** - see the [LICENSE](LICENSE) file for complete terms and conditions.
+
+### License Overview
+
+**EVEMASK Pipeline v1.0.0** is proprietary software owned by EVEMASK Team. This software is licensed, not sold, and is protected by copyright laws and international treaties.
+
+### Key License Terms
+
+- **Non-Exclusive License**: Limited, non-transferable license for internal business use
+- **Single Installation**: One copy per computer/server
+- **No Modification**: Reverse engineering, decompilation, or modification prohibited
+- **No Distribution**: Software may not be distributed, sublicensed, or transferred
+- **Confidentiality**: Software contains proprietary trade secrets
+- **Audit Rights**: Licensor reserves the right to audit compliance
+
+### Commercial Use
+
+For commercial licensing, enterprise support, or custom development:
+- **Email**: evemask.ai@gmail.com
+- **Website**: https://evemask.com
+- **Address**: Quy Nhon, Gia Lai, Vietnam
+
+### License Violations
+
+Unauthorized use, distribution, or modification of this software may result in legal action and damages as provided by applicable law.
 
 ### Acknowledgments
 
-- **Ultralytics**: YOLOv8 implementation
-- **NVIDIA**: TensorRT optimization framework
-- **OpenCV**: Computer vision library
-- **PyTorch**: Deep learning framework
-
----
-
-## 📞 Support
-
-For support and questions:
-
-- **Documentation**: Check this README and inline code comments
-- **Issues**: Report bugs and feature requests via GitHub Issues
-- **Discussions**: Join community discussions on GitHub
-- **Email**: Contact the EVEMASK team directly
-
+- **NVIDIA**: TensorRT optimization framework and GPU acceleration
+- **OpenCV**: Computer vision library and video processing
+- **PyTorch**: Deep learning framework and model support
 ---
 
 <div align="center">
 
 **Made with ❤️ by the EVEMASK Team**
 
-[Back to Top](#evemask-pipeline-v20)
+![EVEMASK](https://img.shields.io/badge/EVEMASK-Pipeline%20v1.0.0-blue?style=for-the-badge&logo=python)
 
 </div>

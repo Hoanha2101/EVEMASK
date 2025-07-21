@@ -13,7 +13,10 @@ DELAY_TIME: 2
 TARGET_FPS: 10
 
 # Batch size for model inference or processing
-batch_size: 3
+batch_size: 1
+
+# Maximum batch size for model inference
+MAX_BATCH_SIZE: 3
 
 # Input video stream source (UDP multicast address with packet size)
 INPUT_SOURCE: udp://224.1.1.1:30122?pkt_size=1316

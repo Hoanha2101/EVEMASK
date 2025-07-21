@@ -11,10 +11,10 @@ This script provides:
 
 Usage Examples:
     # YOLO segmentation model export
-    python export.py --pth weights/pytorch/yolov8_seg_aug_best_l.pth --output weights/onnx/yolov8_seg_aug_best_l.onnx --input-shape 1 3 640 640 --input-name input --output-names pred0 pred1_0_0 pred1_0_1 pred1_0_2 pred1_1 pred1_2 --mode float32bit --device cuda --opset 19 --typeModel seg
+    python export.py --pth weights/pytorch/seg_v1.0.0.pth --output weights/onnx/seg_v1.0.0.onnx --input-shape 1 3 640 640 --input-name input --output-names pred0 pred1_0_0 pred1_0_1 pred1_0_2 pred1_1 pred1_2 --mode float32bit --device cuda --opset 19 --typeModel seg
     
     # Feature extraction model export
-    python export.py --pth weights/pytorch/SupConLoss_BBVGG16.pth --output weights/onnx/SupConLoss_BBVGG16.onnx --input-shape 1 3 224 224 --input-name input --output-names output --mode float16bit --device cuda --opset 12 --typeModel fe
+    python export.py --pth weights/pytorch/fe_v1.0.0.pt --output weights/onnx/fe_v1.0.0.onnx --input-shape 1 3 224 224 --input-name input --output-names output --mode float16bit --device cuda --opset 12 --typeModel fe
 
 Author: EVEMASK Team
 """

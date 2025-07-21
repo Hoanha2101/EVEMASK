@@ -16,3 +16,5 @@ tensorrt==8.6.1
 torch==2.7.0+cu118
 torchvision==0.22.0+cu118
 ultralytics==8.3.146
+gdown==5.1.0
+GPUtil==1.4.0

@@ -186,7 +186,7 @@ class AI:
             # Reset tracking for next calculation
             self._processing_times = []
             self._last_fps_update = current_time
-
+            
     def inference(self, processed_batch):
         """
         Perform AI inference on a batch of preprocessed frames.

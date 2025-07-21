@@ -8,7 +8,7 @@ This script provides:
 - Support for all YOLOv8 model variants (detection, segmentation, classification)
 
 Usage Example:
-    python getpytorch.py --weights weights/yolo/yolov8_seg_aug_best_l.pt --output weights/pytorch/yolov8_seg_aug_best_l.pth
+    python getpytorch.py --weights weights/yolo/seg_v1.0.0.pt --output weights/pytorch/seg_v1.0.0.pth
 
 Author: EVEMASK Team
 """
