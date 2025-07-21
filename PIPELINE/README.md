@@ -194,6 +194,18 @@ python export.py --pth weights/pytorch/seg_v1.0.0.pth --output weights/onnx/seg_
 #model 2
 python export.py --pth weights/pytorch/fe_v1.0.0.pt --output weights/onnx/fe_v1.0.0.onnx --input-shape 1 3 224 224 --input-name input --output-names output --mode float16bit --device cuda --opset 12 --typeModel fe
 ```
+[option] Download Onnx model
+```bash
+# model 1 base
+gdown "https://drive.google.com/uc?id=19k8U0gEqpI3Gnr2-94o4dohVyAsX1TD9" -O "weights/onnx/seg_v1.0.0.onnx"
+
+# model 1 trimmed
+gdown "https://drive.google.com/uc?id=1JceHvPMsNtS-oY0m2D4k687hy_yFOaNA" -O "weights/onnx/seg_v1.0.0_trimmed.onnx"
+
+#model 2
+gdown "https://drive.google.com/uc?id=1XIKXj8976WjxfFwoWDPLx_aysmvQmb6p" -O "weights/onnx/fe_v1.0.0.onnx"
+```
+
 Build TensorRT engine
 
 ```bash
@@ -339,20 +351,172 @@ CLASSES_NO_BLUR: [0]
 ### System Overview
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Input Stream  │───▶│  Capture Thread │───▶│  Circular Queue │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                                                        │
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│  Output Stream  │◀───│  Output Thread  │◀───│   AI Thread     │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                                │                       │
-                                └───────────────────────┘
-                                        │
-                                ┌─────────────────┐
-                                │  TensorRT       │
-                                │  Inference      │
-                                └─────────────────┘
+                    ┌─────────────────────────┐
+                    │     Input Stream        │
+                    │   (Video/Camera Feed)   │
+                    └───────────┬─────────────┘
+                                │
+                                ▼
+                    ┌─────────────────────────┐
+                    │    Capture Thread       │
+                    │  • Read frames          │
+                    │  • Frame preprocessing  │
+                    │  • Add to queue         │
+                    └───────────┬─────────────┘
+                                │
+                                ▼
+    ┌─────────────────────────────────────────────────────────────┐
+    │                    Circular Queue                           │
+    │  ┌─────┐  ┌─────┐  ┌─────┐  ┌─────┐  ┌─────┐  ┌─────┐       │
+    │  │Frame│  │Frame│  │Frame│  │Frame│  │Frame│  │Frame│  ...  │
+    │  │  1  │  │  2  │  │  3  │  │  4  │  │  5  │  │  6  │       │
+    │  └─────┘  └─────┘  └─────┘  └─────┘  └─────┘  └─────┘       │
+    └─────┬─────────────────────────────────────────────┬─────────┘
+          │                                             │
+          ▼                                             ▼
+┌─────────────────────────┐                   ┌─────────────────────────┐
+│      AI Thread          │                   │    Output Thread        │
+│  • Get frame by ID      │                   │  • Get processed frame  │
+│  • TensorRT inference   │                   │  • Check completion     │
+│  • Object detection     │                   │  • Send to output       │
+│  • Update frame status  │                   └───────────┬─────────────┘
+└─────────────────────────┘                               │
+          │                                               ▼
+          ▼                                  ┌─────────────────────────┐
+┌─────────────────────────┐                  │    Output Stream        │
+│    TensorRT Engine      │                  │  (Processed Video)      │
+│  • GPU acceleration     │                  └─────────────────────────┘
+│  • Model inference      │
+│  • Result generation    │
+└─────────────────────────┘
+```
+
+```mermaid
+graph TB
+    subgraph "Input Layer"
+        IS[📹 Input Stream<br/>• Camera Feed<br/>• Video File<br/>• Network Stream]
+    end
+    
+    subgraph "Capture Module"
+        CT[🔄 Capture Thread<br/>━━━━━━━━━━━━━━<br/>• Frame Acquisition<br/>• Format Conversion<br/>• Metadata Extraction<br/>• Queue Management]
+        
+        subgraph "Frame Processing"
+            FP[Frame Preprocessor<br/>• Resize & Normalize<br/>• Color Space Conv<br/>• Buffer Allocation]
+            FID[Frame ID Generator<br/>• Unique Timestamp<br/>• Sequence Number<br/>• Priority Level]
+        end
+    end
+    
+    subgraph "Core Memory System"
+        subgraph "Circular Queue Manager"
+            CQ[🔄 Thread-Safe Circular Buffer<br/>━━━━━━━━━━━━━━━━━━━━━━━━━━━<br/>Size: 64 frames - Memory: 2GB<br/>Lock-Free Architecture]
+            
+            subgraph "Queue Slots"
+                direction LR
+                S1[Frame 1<br/>Status: PENDING<br/>ID: 0x001A<br/>Size: 1920x1080]
+                S2[Frame 2<br/>Status: PROCESSING<br/>ID: 0x001B<br/>Priority: HIGH]
+                S3[Frame 3<br/>Status: COMPLETED<br/>ID: 0x001C<br/>Result: ✓]
+                S4[Frame N<br/>Status: OUTPUT<br/>ID: 0x001D<br/>Ready: ✓]
+                
+                S1 -.-> S2 -.-> S3 -.-> S4
+            end
+        end
+        
+        subgraph "Memory Management"
+            MM[🧠 Memory Manager<br/>• Zero-Copy Operations<br/>• Memory Pool<br/>• Garbage Collection<br/>• CUDA Memory Sync]
+        end
+    end
+    
+    subgraph "AI Processing Engine"
+        subgraph "AI Thread Controller"
+            ATC[⚡ AI Thread<br/>━━━━━━━━━━━━<br/>• Frame Scheduler<br/>• Load Balancer<br/>• Error Handler<br/>• Performance Monitor]
+        end
+        
+        subgraph "TensorRT Engine"
+            TRT[🚀 TensorRT Inference<br/>━━━━━━━━━━━━━━━━━━━<br/>GPU: RTX 4090<br/>Precision: FP16<br/>Batch Size: 8<br/>Latency: 5ms]
+            
+            subgraph "Model Pipeline"
+                PRE[Preprocessing<br/>• Tensor Conversion<br/>• Normalization<br/>• Memory Transfer]
+                INF[Model Inference<br/>• Object Detection<br/>• Classification<br/>• Segmentation]
+                POST[Postprocessing<br/>• NMS Filter<br/>• Confidence Thresh<br/>• Result Formatting]
+                
+                PRE --> INF --> POST
+            end
+        end
+        
+        subgraph "GPU Memory"
+            GMEM[🎯 GPU Memory Pool<br/>• Input Buffers: 512MB<br/>• Model Weights: 1GB<br/>• Output Buffers: 256MB<br/>• Workspace: 2GB]
+        end
+    end
+    
+    subgraph "Output Processing"
+        subgraph "Output Thread"
+            OT[📤 Output Thread<br/>━━━━━━━━━━━━━━<br/>• Frame Validator<br/>• Sequence Checker<br/>• Format Converter<br/>• Stream Writer]
+        end
+        
+        subgraph "Output Pipeline"
+            OV[Output Validator<br/>• Quality Check<br/>• Completeness<br/>• Error Detection]
+            OF[Output Formatter<br/>• Codec Selection<br/>• Bitrate Control<br/>• Metadata Inject]
+            OS[Output Streamer<br/>• Network Protocol<br/>• File Writer<br/>• Display Buffer]
+            
+            OV --> OF --> OS
+        end
+    end
+    
+    subgraph "Output Layer"
+        OUT[📺 Output Stream<br/>• RTMP Stream<br/>• Video File<br/>• Display Monitor<br/>• Network Broadcast]
+    end
+    
+    subgraph "System Monitoring"
+        subgraph "Performance Metrics"
+            PM[📊 Performance Dashboard<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• FPS: 60/60<br/>• Latency: 12ms avg<br/>• GPU Usage: 85%<br/>• Memory: 3.2GB/8GB<br/>• Queue Depth: 12/64]
+        end
+        
+        subgraph "Health Monitor"
+            HM[🏥 System Health<br/>• Thread Status<br/>• Error Rates<br/>• Memory Leaks<br/>• Thermal Monitor]
+        end
+        
+        subgraph "Profiling Tools"
+            PT[🔧 Profiler<br/>• CUDA Events<br/>• CPU Sampling<br/>• Memory Tracking<br/>• Bottleneck Analysis]
+        end
+    end
+    
+    %% Connections
+    IS --> CT
+    CT --> FP --> FID
+    FID --> CQ
+    CQ <--> MM
+    
+    CQ --> ATC
+    ATC --> TRT
+    TRT --> PRE
+    TRT <--> GMEM
+    POST --> CQ
+    
+    CQ --> OT
+    OT --> OV
+    OS --> OUT
+    
+    %% Monitoring Connections
+    CT -.-> PM
+    ATC -.-> PM
+    OT -.-> PM
+    TRT -.-> HM
+    MM -.-> PT
+    
+    %% Styling
+    classDef inputStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef processStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef coreStyle fill:#fff3e0,stroke:#e65100,stroke-width:3px
+    classDef aiStyle fill:#e8f5e8,stroke:#2e7d32,stroke-width:3px
+    classDef outputStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef monitorStyle fill:#f5f5f5,stroke:#424242,stroke-width:1px,stroke-dasharray: 5 5
+    
+    class IS inputStyle
+    class CT,FP,FID processStyle
+    class CQ,MM,S1,S2,S3,S4 coreStyle
+    class ATC,TRT,PRE,INF,POST,GMEM aiStyle
+    class OT,OV,OF,OS,OUT outputStyle
+    class PM,HM,PT monitorStyle
 ```
 
 ### Core Components

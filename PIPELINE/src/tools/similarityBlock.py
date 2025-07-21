@@ -24,7 +24,7 @@ class SimilarityBlock:
                     class_0_indices: np.ndarray,
                     recognizeDataVector_array: np.ndarray,
                     outputs: np.ndarray,
-                    threshold: float = 0.9
+                    threshold: float = 0.65
                     ) -> np.ndarray:
         """
         Computes cosine similarity between query vectors and reference data to update class labels.
