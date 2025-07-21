@@ -649,6 +649,11 @@ batch_size = config["batch_size"]
 
 ### Benchmarks
 
+Run benchmarks evaluation.
+```bash
+python benchmarks/evaluator.py
+```
+
 **Segmentation AP**
 <img src="illustration/segAP.png" width="100%">
 
