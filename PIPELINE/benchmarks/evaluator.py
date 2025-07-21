@@ -49,6 +49,11 @@ config_path = os.path.join(os.path.dirname(__file__), "..", "cfg", "default.yaml
 with open(os.path.abspath(config_path), "r") as f:
     cfg = yaml.safe_load(f)
 
+try:
+    from tabulate import tabulate
+except ImportError:
+    tabulate = None
+
 def get_cpu_info():
     print("===== CPU Info =====")
     print(f"Logical CPUs   : {psutil.cpu_count(logical=True)}")
@@ -90,8 +95,8 @@ def show_system_info():
     print()
 
 def AI_Inference_Only_Benchmark(times_avg = 100, warm_up_times = 10):
-
-    ai_instance = AI.get_instance(cfg=cfg)
+    results = []
+    ai_instance = AI.get_instance(cfg=cfg, FEmodel=True)
     MAX_BATCH_SIZE = cfg['MAX_BATCH_SIZE']
     for max_batch_size in range(1, MAX_BATCH_SIZE + 1):
         processed_batch = []
@@ -111,27 +116,15 @@ def AI_Inference_Only_Benchmark(times_avg = 100, warm_up_times = 10):
         for _ in range(times_avg):
             ai_instance.inference(processed_batch = processed_batch) 
         end_time = time.time()
-        print(f"Batch size: {max_batch_size} - AI FPS: {round(1/((end_time - start_time) / times_avg), 4)}")
+        ai_fps = round(1/((end_time - start_time) / times_avg), 4)
+        print(f"Batch size: {max_batch_size} - AI FPS: {ai_fps}")
+        results.append((max_batch_size, ai_fps))
+    return results
 
-def AI_Inference_Pipeline_Benchmark(times_avg=100, warm_up_times=2):
-    """
-    Run the full EVEMASK AI pipeline benchmark.
-
-    Pipeline Stages:
-        1. Frame Capture Thread: Reads frames from source (e.g., video/camera).
-        2. AI Inference Thread: Processes frames using the AI engine.
-        3. Output Thread: Handles outputting or saving processed frames.
-
-    For each batch size:
-        - The pipeline is initialized and all threads are started.
-        - The benchmark measures the time to process a fixed number of frames.
-        - The average AI FPS is reported for each batch size.
-
-    Args:
-        times_avg (int): Number of frames to process for averaging FPS.
-        warm_up_times (int): Number of warm-up frames before measurement.
-    """
+def AI_Inference_Pipeline_Benchmark(times_avg=10, warm_up_times=2):
+    results = []
     MAX_BATCH_SIZE = cfg['MAX_BATCH_SIZE']
+    cfg["INPUT_SOURCE"] = "videos/1.mp4"
 
     for max_batch_size in range(1, MAX_BATCH_SIZE + 1):
         # Set configuration for current batch size and warm-up delay
@@ -139,7 +132,7 @@ def AI_Inference_Pipeline_Benchmark(times_avg=100, warm_up_times=2):
         cfg["batch_size"] = max_batch_size
 
         # Initialize logger, stream controller, and AI engine
-        logger = EveMaskLogger()
+        logger = EveMaskLogger.get_instance()
         streamController = StreamController(cfg)
         useAI = AI(cfg, FEmodel=True)
         
@@ -155,29 +148,63 @@ def AI_Inference_Pipeline_Benchmark(times_avg=100, warm_up_times=2):
         ai_thread.start()        # Thread for running AI inference on frames
         logger.waiting_bar(cfg)  # Optional: show progress bar or wait for warm-up
         output_thread.start()    # Thread for outputting processed frames
-        
-        print("streamController._write_frame_index: ",streamController._write_frame_index)
         # Record the starting frame index to measure progress
         anchor_count = streamController._write_frame_index + times_avg
-        print("anchor_count: ",anchor_count)
-        count_fps = 0
-        fps_sum = 0
-        while streamController._write_frame_index < anchor_count:
-            count_fps += 1
-            fps_sum += useAI._ai_fps_
-        # Calculate and print the average AI FPS for this batch size
-        avg_ai_fps = fps_sum/count_fps
-        print(f"Batch size: {max_batch_size} - AI FPS: {avg_ai_fps:.4f}")
+
+        start_time = time.time()
+        while True:
+            time.sleep(0.01)
+            if streamController._write_frame_index > anchor_count:
+                break
+        end_time = time.time()
+        # Calculate and print the average AI FPS for this batch size (dựa trên thời gian thực tế)
+        ai_fps_now = times_avg / (end_time - start_time) if (end_time - start_time) > 0 else 0
+        print(f"Batch size: {max_batch_size} - AI FPS: {ai_fps_now:.4f}")
         print("--------------------------------")
-        
-    
+        results.append((max_batch_size, round(ai_fps_now, 4)))
+    return results
+
 if __name__ == "__main__":
-    # # Print system and hardware information for benchmarking context
-    # show_system_info()
-    # get_cpu_info()
-    # get_memory_info()
-    # get_gpu_info()
-    # # Run the AI inference-only benchmark (single module, no pipeline)
-    # AI_Inference_Only_Benchmark()
-    # # Run the full pipeline benchmark (capture, AI, output)
-    AI_Inference_Pipeline_Benchmark()
+    # Run the AI inference-only benchmark (single module, no pipeline)
+    only_results = AI_Inference_Only_Benchmark()
+    # Run the full pipeline benchmark (capture, AI, output)
+    pipeline_results = AI_Inference_Pipeline_Benchmark()
+    
+
+    # ========================================================================
+    # CLEAR SCREEN
+    # ========================================================================
+    import os
+    os.system('cls' if os.name == 'nt' else 'clear')
+    
+    # ========================================================================
+    # LOGGER INITIALIZATION
+    # ========================================================================
+    logger = EveMaskLogger.get_instance()
+
+    # ========================================================================
+    # DISPLAY LOGO
+    # ========================================================================
+    logger.display_logo()
+
+    # Print system and hardware information for benchmarking context
+    show_system_info()
+    get_cpu_info()
+    get_memory_info()
+    get_gpu_info()
+
+    print("\n===== BENCHMARK SUMMARY =====")
+    headers = ["Batch Size", "AI Inference Only FPS", "Full Pipeline FPS"]
+    table = []
+    for i in range(len(only_results)):
+        batch_size = only_results[i][0]
+        only_fps = only_results[i][1]
+        pipeline_fps = pipeline_results[i][1] if i < len(pipeline_results) else "-"
+        table.append([batch_size, only_fps, pipeline_fps])
+    if tabulate:
+        print(tabulate(table, headers=headers, tablefmt="grid"))
+    else:
+        # Fallback: print as plain text
+        print(headers)
+        for row in table:
+            print(row)

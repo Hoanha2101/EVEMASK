@@ -658,9 +658,9 @@ batch_size = config["batch_size"]
 **AI Inference Speed - Only**
 | Batch Size | RTX3050 4GB | RTX3050ti 4GB |
 |--------|-------|-------|
-| **1** | 25 FPS | 25 FPS |
-| **2** | 25 FPS | 25 FPS |
-| **3** | 25 FPS | 25 FPS |
+| **1** | 31.0857 FPS | 25 FPS |
+| **2** | 17.945 FPS | 25 FPS |
+| **3** | 10.9312 FPS | 25 FPS |
 
 **AI Inference Speed - Pipeline**
 
@@ -672,9 +672,9 @@ batch_size = config["batch_size"]
 
 | Batch Size | PC1 | PC2 |
 |--------|-------|-------|
-| **1** | 25 FPS | 25 FPS |
-| **2** | 25 FPS | 25 FPS |
-| **3** | 25 FPS | 25 FPS |
+| **1** | 15.3923 FPS | 25 FPS |
+| **2** | 14.771 FPS | 25 FPS |
+| **3** | 13.6473 FPS | 25 FPS |
 
 ### Performance Optimization Features
 

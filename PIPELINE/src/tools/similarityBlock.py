@@ -39,8 +39,8 @@ class SimilarityBlock:
             np.ndarray: Updated class IDs after similarity-based matching.
 
         Notes:
-            - A similarity threshold of 0.9 is used to determine positive matches.
-            - Any query vector with similarity >= 0.9 to any reference vector will be reclassified as class 1.
+            - A similarity threshold of x is used to determine positive matches.
+            - Any query vector with similarity >= x to any reference vector will be reclassified as class 1.
         """
         # Compute cosine similarity between query and reference vectors
         cos_sims = cosine_similarity(outputs, recognizeDataVector_array)  # (num_query, num_ref)
