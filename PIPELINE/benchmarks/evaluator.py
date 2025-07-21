@@ -113,7 +113,7 @@ def AI_Inference_Only_Benchmark(times_avg = 100, warm_up_times = 10):
         end_time = time.time()
         print(f"Batch size: {max_batch_size} - AI FPS: {round(1/((end_time - start_time) / times_avg), 4)}")
 
-def AI_Inference_Pipeline_Benchmark(times_avg=10, warm_up_times=10):
+def AI_Inference_Pipeline_Benchmark(times_avg=100, warm_up_times=2):
     """
     Run the full EVEMASK AI pipeline benchmark.
 
@@ -155,28 +155,29 @@ def AI_Inference_Pipeline_Benchmark(times_avg=10, warm_up_times=10):
         ai_thread.start()        # Thread for running AI inference on frames
         logger.waiting_bar(cfg)  # Optional: show progress bar or wait for warm-up
         output_thread.start()    # Thread for outputting processed frames
-
+        
+        print("streamController._write_frame_index: ",streamController._write_frame_index)
         # Record the starting frame index to measure progress
-        anchor_count = streamController._write_frame_index
-
-        # Measure the time taken to process a fixed number of frames
-        start_time = time.time()
-        while streamController._write_frame_index < anchor_count + times_avg:
-            time.sleep(0.05)  # Sleep briefly to avoid busy waiting
-        end_time = time.time()
-
+        anchor_count = streamController._write_frame_index + times_avg
+        print("anchor_count: ",anchor_count)
+        count_fps = 0
+        fps_sum = 0
+        while streamController._write_frame_index < anchor_count:
+            count_fps += 1
+            fps_sum += useAI._ai_fps_
         # Calculate and print the average AI FPS for this batch size
-        avg_ai_fps = times_avg / (end_time - start_time)
+        avg_ai_fps = fps_sum/count_fps
         print(f"Batch size: {max_batch_size} - AI FPS: {avg_ai_fps:.4f}")
         print("--------------------------------")
+        
     
 if __name__ == "__main__":
-    # Print system and hardware information for benchmarking context
-    show_system_info()
-    get_cpu_info()
-    get_memory_info()
-    get_gpu_info()
-    # Run the AI inference-only benchmark (single module, no pipeline)
-    AI_Inference_Only_Benchmark()
-    # Run the full pipeline benchmark (capture, AI, output)
+    # # Print system and hardware information for benchmarking context
+    # show_system_info()
+    # get_cpu_info()
+    # get_memory_info()
+    # get_gpu_info()
+    # # Run the AI inference-only benchmark (single module, no pipeline)
+    # AI_Inference_Only_Benchmark()
+    # # Run the full pipeline benchmark (capture, AI, output)
     AI_Inference_Pipeline_Benchmark()

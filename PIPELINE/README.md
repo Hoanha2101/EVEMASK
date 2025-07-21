@@ -198,7 +198,7 @@ Build TensorRT engine
 
 ```bash
 #model 1
-python build.py --onnx weights/onnx/seg_v1.0.0.onnx --engine weights/trtPlans/seg_v1.0.0.trt --fp16 --dynamic --dynamic-shapes "{\"input\": ((1, 3, 640, 640), (2, 3, 640, 640), (3, 3, 640, 640))}"
+python build.py --onnx weights/onnx/seg_v1.0.0_trimmed.onnx --engine weights/trtPlans/seg_v1.0.0_trimmed.trt --fp16 --dynamic --dynamic-shapes "{\"input\": ((1, 3, 640, 640), (2, 3, 640, 640), (3, 3, 640, 640))}"
 
 #model 2
 python build.py --onnx weights/onnx/fe_v1.0.0.onnx --engine weights/trtPlans/fe_v1.0.0.trt --fp16 --dynamic --dynamic-shapes "{\"input\": ((1,3,224,224), (8,3,224,224), (32,3,224,224))}"

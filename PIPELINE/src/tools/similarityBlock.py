@@ -8,51 +8,53 @@ Version: 1.0.0
 """
 
 from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
 
 # ========================================================================
 # SIMILARITY BLOCK CLASS
 # ========================================================================
 class SimilarityBlock:
     """
-    The SimilarityBlock class provides methods for computing similarity between feature vectors.
-    Uses cosine similarity to match query vectors against reference data for classification.
+    Provides methods for computing cosine similarity between feature vectors.
+    Used to classify unknown query vectors based on known reference vectors.
     """
 
     @staticmethod
-    def base_cosine(final_class_ids, class_0_indices, recognizeDataVector_array, outputs):
+    def base_cosine(final_class_ids: np.ndarray,
+                    class_0_indices: np.ndarray,
+                    recognizeDataVector_array: np.ndarray,
+                    outputs: np.ndarray,
+                    threshold: float = 0.9
+                    ) -> np.ndarray:
         """
-        Compute cosine similarity between query vectors and reference data to determine class assignments.
-        
+        Computes cosine similarity between query vectors and reference data to update class labels.
+
         Args:
-            final_class_ids (torch.Tensor): Tensor to store final class assignments
-            class_0_indices (torch.Tensor): Indices of objects classified as class 0 (unknown)
-            recognizeDataVector_array (numpy.ndarray): Reference feature vectors for known classes
-            outputs (torch.Tensor): Query feature vectors to be classified
-            
+            final_class_ids (np.ndarray): Array to store final class predictions.
+            class_0_indices (np.ndarray): Indices of elements initially predicted as class 0 (unknown).
+            recognizeDataVector_array (np.ndarray): Reference feature vectors for known classes.
+            outputs (np.ndarray): Query feature vectors to classify.
+
         Returns:
-            torch.Tensor: Updated final_class_ids with similarity-based classifications
-            
-        Note:
-            Uses a threshold of x for cosine similarity to determine positive matches.
-            If similarity >= x, the object is reclassified from class 0 to class 1.
+            np.ndarray: Updated class IDs after similarity-based matching.
+
+        Notes:
+            - A similarity threshold of 0.9 is used to determine positive matches.
+            - Any query vector with similarity >= 0.9 to any reference vector will be reclassified as class 1.
         """
-        # Process each query vector
-        for i in range(outputs.shape[0]):
-            # Reshape query vector for similarity computation
-            query_vector = outputs[i].reshape(1, -1)
-            # Compute cosine similarity between query and all reference vectors
-            cos_sims = cosine_similarity(query_vector, recognizeDataVector_array).flatten()
-            # Check if any reference vector has sufficient similarity
-            for idx, sim in enumerate(cos_sims):
-                if sim >= 0.9:  # Similarity threshold for positive match
-                    # Reclassify from class 0 to class 1 (known class)
-                    final_class_ids[class_0_indices[i].item()] = 1
-                    break  # Stop after first match above threshold
-                    
+        # Compute cosine similarity between query and reference vectors
+        cos_sims = cosine_similarity(outputs, recognizeDataVector_array)  # (num_query, num_ref)
+        # Identify query vectors with at least one match above threshold
+        has_match = (cos_sims >= threshold).any(axis=1)  # shape: (num_query,)
+
+        # Efficient vectorized update of class IDs for matched queries
+        matched_indices = class_0_indices[has_match]
+        final_class_ids[matched_indices] = 1
+
         return final_class_ids
 
 # ========================================================================
 # SIMILARITY METHOD ASSIGNMENT
 # ========================================================================
-# Assign the default similarity method for the pipeline
+# Assign the default similarity function for the pipeline
 SimilarityMethod = SimilarityBlock.base_cosine
