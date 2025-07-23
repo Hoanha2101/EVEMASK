@@ -1,10 +1,10 @@
-# Contributing to EVEMASK Pipeline
+# Contributing to EVEMASK
 
-Thank you for your interest in contributing to EVEMASK Pipeline! This document outlines the process for contributing to our commercial software project.
+Thank you for your interest in contributing to EVEMASK! This document outlines the process for contributing to our commercial software project.
 
-## 🎯 About EVEMASK Pipeline
+## 🎯 About EVEMASK
 
-EVEMASK Pipeline is a proprietary, commercial software product owned by EVEMASK Team. While this is not an open-source project, we welcome collaboration and contributions from qualified partners, customers, and developers under specific terms and conditions.
+EVEMASK is a proprietary, commercial software product owned by EVEMASK Team. While this is not an open-source project, we welcome collaboration and contributions from qualified partners, customers, and developers under specific terms and conditions.
 
 ## 📋 Types of Contributions
 
@@ -79,7 +79,7 @@ EVEMASK Pipeline is a proprietary, commercial software product owned by EVEMASK 
 ### For Research Collaborations
 
 1. **Research Proposal**
-   - Email: research@evemask.com
+   - Email: evemask.ai@com
    - Include research objectives and methodology
    - Specify institutional affiliations
 
@@ -148,14 +148,14 @@ EVEMASK Pipeline is a proprietary, commercial software product owned by EVEMASK 
 ## 📞 Contact Information
 
 ### General Inquiries
-- **Email**: team@evemask.com
+- **Email**: evemask.ai@com
 - **Website**: https://evemask.com
 
 ### Specific Contacts
-- **Partnerships**: partnerships@evemask.com
-- **Technical**: technical@evemask.com
-- **Research**: research@evemask.com
-- **Legal**: legal@evemask.com
+- **Partnerships**: evemask.ai@com
+- **Technical**: evemask.ai@com
+- **Research**: evemask.ai@com
+- **Legal**: evemask.ai@com
 
 ### Response Times
 - Initial response: 2-3 business days
@@ -223,4 +223,4 @@ We look forward to working with you to advance the EVEMASK Pipeline technology!
 **EVEMASK Team**  
 *Advancing AI Video Processing Technology*
 
-For questions about this document: contributing@evemask.com 
+For questions about this document: evemask.ai@com 

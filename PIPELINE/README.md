@@ -261,25 +261,43 @@ The system will display:
 - Real-time performance metrics
 - System health indicators
 
----
 
-## Usage
+## Image Generation & Augmentation Tool
 
-### Basic Usage
+You can use the built-in image augmentation tool to automatically generate new images for data augmentation using a variety of transformations (rotation, flip, scale, brightness, contrast, noise, blur, crop, color shift, etc.).
+
+#### Run the tool:
 
 ```bash
-# Start the main pipeline
-python main.py
-
-# Test stream connectivity
-python moderator/stream_in.py
-
-# Monitor system resources in new cmd
-python monitor.py
-
-# Run all tests
-python tester/run_all_tests.py
+python src/tools/genImage.py
 ```
+
+#### What it does:
+- Scans the `recognizeData/` directory for subfolders containing images.
+- Applies a set of image transformations to each image in the selected folder.
+- Saves the generated images in a new folder (e.g., `garden_generated/` if you select the `garden` folder).
+- Prints statistics about the number of images generated for each transformation.
+
+#### Customization:
+- To change the folder to augment, edit the `selected_folder` variable in `src/tools/genImage.py`:
+  ```python
+  selected_folder = "bet365"  # Change to your desired folder
+  ```
+- To use only specific transformations, modify the `selected_transforms` list:
+  ```python
+  selected_transforms = [
+      gen_image.rotate_image,
+      gen_image.flip_image,
+      gen_image.adjust_brightness,
+      gen_image.scale_image
+  ]
+  ```
+- By default, all transformations are applied.
+- You can also limit the number of generated images per transformation by changing the `max_images_per_transform` parameter.
+
+#### Output:
+- Generated images are saved in a new folder inside `recognizeData/` (e.g., `recognizeData/bet365_generated/`).
+- The script prints a summary of how many images were generated for each transformation.
 
 ### Advanced Configuration
 
@@ -827,9 +845,9 @@ python benchmarks/evaluator.py
 **AI Inference Speed - Only**
 | Batch Size | RTX3050 4GB | RTX3050ti 4GB |
 |--------|-------|-------|
-| **1** | 31.0857 FPS | 25 FPS |
-| **2** | 17.945 FPS | 25 FPS |
-| **3** | 10.9312 FPS | 25 FPS |
+| **1** | 31.0857 FPS | 45.954 FPS |
+| **2** | 17.945 FPS | 25.547 FPS |
+| **3** | 10.9312 FPS | 17.475 FPS |
 
 **AI Inference Speed - Pipeline**
 
@@ -841,9 +859,9 @@ python benchmarks/evaluator.py
 
 | Batch Size | PC1 | PC2 |
 |--------|-------|-------|
-| **1** | 15.3923 FPS | 25 FPS |
-| **2** | 14.771 FPS | 25 FPS |
-| **3** | 13.6473 FPS | 25 FPS |
+| **1** | 15.3923 FPS | 19.186 FPS |
+| **2** | 14.771 FPS | 18.708 FPS |
+| **3** | 13.6473 FPS | 17.475 FPS |
 
 ### Performance Optimization Features
 
