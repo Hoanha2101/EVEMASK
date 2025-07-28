@@ -208,7 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
         button.textContent = "Sending...";
         button.disabled = true;
         try {
-          const response = await fetch("http://localhost:8002/api/newsletter/signup", {
+          const response = await fetch("http://localhost:7860/api/newsletter/signup", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"

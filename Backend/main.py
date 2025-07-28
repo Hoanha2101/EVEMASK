@@ -2,14 +2,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, validator
 from typing import Optional
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import os
 from datetime import datetime
 import json
 import re
 from dotenv import load_dotenv
+# Thêm thư viện của Resend
+import resend
 
 # Load environment variables from .env file
 load_dotenv()
@@ -44,10 +43,9 @@ class EmailResponse(BaseModel):
 
 # Email configuration
 EMAIL_CONFIG = {
-    "smtp_server": "smtp.gmail.com",
-    "smtp_port": 587,
     "sender_email": os.getenv("SENDER_EMAIL"),
-    "sender_password": os.getenv("EMAIL_PASSWORD"),
+    # Thay thế bằng Resend API Key
+    "resend_api_key": os.getenv("RESEND_API_KEY"),
     "sender_name": os.getenv("SENDER_NAME", "EVEMASK Team")
 }
 
@@ -515,115 +513,37 @@ def create_welcome_email_html(user_email: str) -> str:
     return html_content
 
 def send_welcome_email(email: str) -> bool:
-    """Gửi email marketing tới người dùng"""
-    if not EMAIL_CONFIG.get("sender_email") or not EMAIL_CONFIG.get("sender_password"):
-        print("Email credentials not configured. Skipping email.")
+    """Gửi email marketing tới người dùng bằng Resend API"""
+    # Kiểm tra xem Resend API key đã được cấu hình chưa
+    if not EMAIL_CONFIG.get("resend_api_key"):
+        print("❌ Resend API Key not configured. Skipping email.")
         return False
+    
     try:
-        # Tạo message
-        message = MIMEMultipart("alternative")
-        message["Subject"] = "🚨 Stop Losing Money on Content Violations - EVEMASK AI Solution Inside!"
-        message["From"] = f'{EMAIL_CONFIG["sender_name"]} <{EMAIL_CONFIG["sender_email"]}>'
-        message["To"] = email
+        # Cấu hình Resend client
+        resend.api_key = EMAIL_CONFIG["resend_api_key"]
 
-        # Tạo HTML content
-        html_content = create_welcome_email_html(email)
-        
-        # Tạo plain text version
-        text_content = f"""
-EVEMASK - AI-Powered Content Guardian
-
-STOP COMPLIANCE NIGHTMARES TODAY!
-
-Dear Broadcasting Professional,
-
-Are you tired of manual content moderation eating into your profits? 
-Worried about hefty fines from gambling advertisement violations? 
-EVEMASK is here to save your business!
-
-THE PROBLEMS COSTING YOU MONEY RIGHT NOW:
-• Legal Fines: Up to $135 million in penalties for gambling ad violations
-• Lost Revenue: Manual moderation delays costing thousands per hour  
-• Human Error: 40% miss rate in manual content detection
-• Viewer Loss: Poor content quality driving audiences away
-
-EVEMASK: YOUR AI-POWERED SOLUTION
-Our cutting-edge AI technology automatically detects and blurs gambling logos 
-and inappropriate content in REAL-TIME, ensuring 100% compliance while 
-maintaining broadcast quality.
-
-PROVEN RESULTS:
-• 96% AI Accuracy
-• <2s Processing Time  
-• 80% Time Savings
-• 70% Cost Reduction
-
-KEY BENEFITS:
-• Save Money: Reduce moderation costs by 70% and avoid regulatory fines
-• Real-Time Processing: Process live broadcasts with less than 2-second delay
-• 100% Compliance: Automatically detect and blur all gambling advertisements
-
-LIMITED TIME: Get 30% OFF your first year subscription! 
-Only 48 hours left to claim this exclusive offer.
-
-WHAT YOU GET TODAY:
-✓ Complete EVEMASK AI software license
-✓ 24/7 technical support
-✓ Free installation and setup
-✓ Training for your team
-✓ 30-day money-back guarantee
-✓ Free updates for 1 year
-
-READY TO GET STARTED?
-
-Option 1: Purchase EVEMASK Now
-Email: evemask.ai@gmail.com
-Subject: "I want to purchase EVEMASK"
-
-Option 2: Request Free Demo  
-Email: evemask.ai@gmail.com
-Subject: "Request EVEMASK Demo"
-
-Call us: (+84) 386893609
-Email: evemask.ai@gmail.com
-
-TESTIMONIAL:
-"EVEMASK transformed our broadcasting operation. We've saved $50,000 in the 
-first month alone and haven't had a single compliance issue since implementation."
-- Leading Vietnamese Broadcasting Network
-
-Don't let compliance issues kill your profits. Act now!
-
-Best regards,
-EVEMASK Team - AI Content Guardian
-FPT University Quy Nhon AI Campus
-Nhon Binh, Quy Nhon, Vietnam
-
-© 2025 EVEMASK. All rights reserved.
-This is a one-time promotional email. No spam, just valuable offers.
-        """
-
-        # Attach parts
-        part1 = MIMEText(text_content, "plain")
-        part2 = MIMEText(html_content, "html")
-        
-        message.attach(part1)
-        message.attach(part2)
+        # Tạo nội dung email
+        params = {
+            "from": f'{EMAIL_CONFIG["sender_name"]} <{EMAIL_CONFIG["sender_email"]}>',
+            "to": [email],
+            "subject": "🚨 Stop Losing Money on Content Violations - EVEMASK AI Solution Inside!",
+            "html": create_welcome_email_html(email),
+        }
 
         # Gửi email
-        with smtplib.SMTP(EMAIL_CONFIG["smtp_server"], EMAIL_CONFIG["smtp_port"]) as server:
-            server.starttls()
-            server.login(EMAIL_CONFIG["sender_email"], EMAIL_CONFIG["sender_password"])
-            server.send_message(message)
+        email_response = resend.Emails.send(params)
         
-        print(f"✅ Successfully sent welcome email to {email}")
-        return True
-        
-    except smtplib.SMTPAuthenticationError as e:
-        print(f"❌ SMTP Authentication Error: {e}")
-        return False
+        # Kiểm tra xem email đã được gửi thành công chưa
+        if email_response.get("id"):
+            print(f"✅ Successfully sent welcome email to {email} via Resend.")
+            return True
+        else:
+            print(f"❌ Failed to send email via Resend: {email_response}")
+            return False
+            
     except Exception as e:
-        print(f"❌ Error sending email to {email}: {str(e)}")
+        print(f"❌ Error sending email via Resend: {str(e)}")
         return False
 
 def save_subscriber(email: str):
