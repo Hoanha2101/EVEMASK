@@ -31,6 +31,7 @@ DATASET/
 videos/
 recognizeData/
 block/
+benchmarks/sample/
 benchmark_results/
 benchmark_results_onnx/
 *.log
