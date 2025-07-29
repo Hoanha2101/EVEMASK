@@ -27,9 +27,12 @@ weights/yolo/*
 !weights/yolo/.gitkeep
 
 # Ignore other folders
+DATASET/
 videos/
 recognizeData/
 block/
+benchmark_results/
+benchmark_results_onnx/
 *.log
 __pycache__/
 *.pyc

@@ -26,6 +26,9 @@ For each batch size, the script:
 - Reports the average AI FPS for that configuration.
 
 This helps evaluate both the raw AI speed and the practical throughput of the full system.
+
+Author: EVEMASK Team
+Version: 1.0.0
 """
 import psutil
 import GPUtil
@@ -157,7 +160,7 @@ def AI_Inference_Pipeline_Benchmark(times_avg=10, warm_up_times=2):
             if streamController._write_frame_index > anchor_count:
                 break
         end_time = time.time()
-        # Calculate and print the average AI FPS for this batch size (dựa trên thời gian thực tế)
+        # Calculate and print the average AI FPS for this batch size
         ai_fps_now = times_avg / (end_time - start_time) if (end_time - start_time) > 0 else 0
         print(f"Batch size: {max_batch_size} - AI FPS: {ai_fps_now:.4f}")
         print("--------------------------------")

@@ -299,9 +299,15 @@ class AI:
                                 roi_boxes = torch.cat([batch_index, class_0_boxes], dim=1).half()
                                 
                                 # Extract features using RoI alignment
-                                roi_features = ops.roi_align(
+                                # roi_features = ops.roi_align(
+                                #     x, roi_boxes, output_size=(224, 224),
+                                #     spatial_scale=1.0, aligned=True
+                                # )
+                                
+                                # Extract features using RoI pooling
+                                roi_features = ops.roi_pool(
                                     x, roi_boxes, output_size=(224, 224),
-                                    spatial_scale=1.0, aligned=True
+                                    spatial_scale=1.0
                                 )
 
                                 roi_features = roi_features.half().contiguous()
