@@ -2,7 +2,7 @@
 """
 ONNX and TensorRT Model Comparison Tool
 
-This script analyzes and compares ONNX and TensorRT models to show:
+This script analyzes and compares ONNX models to show:
 - Layer counts and types
 - File sizes
 - Performance optimizations

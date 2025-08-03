@@ -6,6 +6,8 @@
 CLASSES_NO_BLUR:
 - 0
 
+USE_FEATURE_EXTRACTION: True
+
 # Delay time in seconds
 DELAY_TIME: 2
 
@@ -86,11 +88,11 @@ extract_model:
   input_names:
   - input
   # Length of the embedding vector output by the model
-  len_emb: 256
+  len_emb: 224
   # Maximum batch size supported by the model
   max_batch_size: 32
   # List of output tensor names for the model
   output_names:
   - output
   # Path to the model weights/plan file
-  path: weights/trtPlans/supconloss_bbresnet50_50e.trt
+  path: weights/trtPlans/fe_v1.0.0.trt

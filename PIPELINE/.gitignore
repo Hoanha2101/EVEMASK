@@ -32,6 +32,7 @@ videos/
 recognizeData/
 block/
 benchmarks/sample/
+benchmarks/results/
 benchmark_results/
 benchmark_results_onnx/
 *.log

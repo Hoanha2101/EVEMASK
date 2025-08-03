@@ -207,7 +207,7 @@ def letterbox(im: ndarray,
 # ========================================================================
 # IMAGE TO BLOB CONVERSION
 # ========================================================================
-def blob(im: ndarray, return_seg: bool = False) -> Union[ndarray, Tuple]:
+def blob(im: ndarray, return_seg: bool = False, half = True) -> Union[ndarray, Tuple]:
     """
     Convert image to blob (N, C, H, W) and normalize to [0, 1].
     Args:
@@ -223,7 +223,10 @@ def blob(im: ndarray, return_seg: bool = False) -> Union[ndarray, Tuple]:
         seg = im.astype(np.float16) / 255
     im = im.transpose([2, 0, 1])
     im = im[np.newaxis, ...]
-    imno255 = np.ascontiguousarray(im).astype(np.float16)
+    if half:
+        imno255 = np.ascontiguousarray(im).astype(np.float16)
+    else:
+        imno255 = np.ascontiguousarray(im)
     im = imno255 / 255
     if return_seg:
         return im, imno255, seg
@@ -319,14 +322,40 @@ def postprocess_torch_cpu(boxes_cxcywh, scores, class_ids, masks, img_w, img_h, 
 # ========================================================================
 # BLUR EFFECTS (RESIZE-BASED)
 # ========================================================================
+# def censored_options(image_tensor, downscale_factor=20):
+#     if image_tensor.dim() == 3:
+#         image_tensor = image_tensor.unsqueeze(0)  # (1, C, H, W)
+    
+#     _, _, h, w = image_tensor.shape
+#     new_h = max(1, h // downscale_factor)
+#     new_w = max(1, w // downscale_factor)
+
+#     small_img = F.interpolate(image_tensor, size=(new_h, new_w), mode='bilinear', align_corners=False, antialias=True)
+#     blur_img = F.interpolate(small_img, size=(h, w), mode='bilinear', align_corners=False, antialias=True)
+
+#     return blur_img.squeeze(0)
+
 def censored_options(image_tensor, downscale_factor=20):
     """
-    Apply blur effect by resizing down and then up (resize-based blur).
+    Applies a blur effect to the input image tensor by using a resize-down and resize-up approach.
+    
+    This method performs image blurring by first downsampling the image to a smaller resolution and 
+    then upsampling it back to its original size. The downsampling removes high-frequency details, 
+    and the upsampling smoothens the result, mimicking the effect of a blur filter. 
+
+    Functionally, this technique is analogous to using `F.interpolate` with `mode='bilinear'` for 
+    both the downscale and upscale operations. However, `T.Resize` from `torchvision.transforms` is 
+    used here as it supports anti-aliasing via the `antialias=True` flag during downsampling. 
+    Anti-aliasing helps reduce aliasing artifacts by applying a low-pass filter before resizing, 
+    resulting in a more natural and visually smooth blur effect.
+
     Args:
-        image_tensor: torch.Tensor (C, H, W)
-        downscale_factor: Blur strength (higher = more blur)
+        image_tensor (torch.Tensor): Input image tensor of shape (C, H, W).
+        downscale_factor (int): Factor by which the image is downscaled before being upscaled. 
+                                A higher value results in stronger blur.
+
     Returns:
-        blur_img: torch.Tensor (C, H, W) blurred image
+        torch.Tensor: Blurred image tensor of shape (C, H, W).
     """
     _, h, w = image_tensor.shape
     new_h = max(1, h // downscale_factor)
@@ -379,6 +408,8 @@ def apply_blur_to_masked_area(image_region, mask, downscale_factor=20):
         mask_tensor = resize_mask_to_image(mask_tensor, h, w)
     if mask_tensor.dim() == 2:
         mask_tensor = mask_tensor.unsqueeze(0)
+        
+    # Blend (1-mask)*image + mask*blur_image
     processed_image = (1 - mask_tensor) * image_tensor + mask_tensor * blur_img
     processed_image = processed_image.permute(1, 2, 0).cpu().numpy()
     processed_image = (processed_image * 255).astype(np.uint8)
@@ -458,4 +489,94 @@ def draw_bboxes(frame, bboxes, class_names=None, color=(0, 255, 0), thickness=2)
         cv2.rectangle(frame, (x1, y1 - h - 4), (x1 + w, y1), color, -1)
         cv2.putText(frame, label, (x1, y1 - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
     return frame
+
+def apply_optimized_blur(frame, masks_gpu, boxes_gpu, class_ids_gpu, frame_ratio, frame_dwdh, CLASSES_NO_BLUR):
+    """
+    Apply optimized blur processing using the exact same logic as original draw_masks_conditional_blur.
+    This maintains blur quality while minimizing GPU-CPU transfers.
+    
+    Args:
+        frame: numpy array (H, W, C) - original frame
+        masks_gpu: torch.Tensor (N, 160, 160) on GPU - segmentation masks
+        boxes_gpu: torch.Tensor (N, 4) on GPU - bounding boxes in xyxy format
+        class_ids_gpu: torch.Tensor (N,) on GPU - class IDs
+        frame_ratio: float - scaling ratio from preprocessing
+        frame_dwdh: tuple - padding offsets from preprocessing
+        CLASSES_NO_BLUR: class is not blur
+    
+    Returns:
+        frame: numpy array with blur applied
+    """
+    if masks_gpu is None or boxes_gpu is None:
+        return frame
+    
+    # First, we need to create detected_objects and polygons using the same logic as original
+    # Convert data to CPU for compatibility with existing postprocess_torch_cpu
+    boxes_cpu = boxes_gpu.cpu()
+    class_ids_cpu = class_ids_gpu.cpu()
+    
+    # Convert boxes from xyxy to cxcywh for postprocessing (same as original)
+    x1, y1, x2, y2 = boxes_cpu.unbind(dim=1)
+    cx = (x1 + x2) / 2  # Center x
+    cy = (y1 + y2) / 2  # Center y
+    w = x2 - x1  # Width
+    h = y2 - y1  # Height
+    boxes_cxcywh = torch.stack([cx, cy, w, h], dim=1)
+    
+    # Create dummy scores (we don't need them for blur, but postprocess_torch_cpu expects them)
+    scores_dummy = torch.ones(len(boxes_cpu))
+    
+    # Use the exact same postprocessing as original to get detected_objects and polygons
+    detected_objects, polygons = postprocess_torch_cpu(
+        boxes_cxcywh=boxes_cxcywh,
+        scores=scores_dummy,
+        class_ids=class_ids_cpu,
+        masks=masks_gpu,  # This handles GPU->CPU conversion internally
+        img_w=frame.shape[1],
+        img_h=frame.shape[0],
+        input_shape=(640, 640),
+        ratio=frame_ratio,
+        dwdh=frame_dwdh
+    )
+    
+    # Now use the EXACT same blur logic as original draw_masks_conditional_blur
+    result_frame = frame.copy()
+    
+    for i, (obj, poly_group) in enumerate(zip(detected_objects, polygons)):
+        if not poly_group:
+            continue
+        
+        current_class_id = class_ids_cpu[i].item() if torch.is_tensor(class_ids_cpu[i]) else class_ids_cpu[i]
+        should_blur = current_class_id not in CLASSES_NO_BLUR
+        
+        if not should_blur:
+            continue
+        
+        # Use EXACT same coordinate logic as original
+        x1, y1, x2, y2 = int(obj.x1), int(obj.y1), int(obj.x2), int(obj.y2)
+        x1, y1 = max(0, x1), max(0, y1)
+        x2, y2 = min(frame.shape[1], x2), min(frame.shape[0], y2)
+        
+        if x2 <= x1 or y2 <= y1:
+            continue
+        
+        bbox_region = result_frame[y1:y2, x1:x2].copy()
+        bbox_mask = np.zeros((y2-y1, x2-x1), dtype=np.uint8)
+        
+        # Use EXACT same polygon filling logic as original
+        for polygon in poly_group:
+            if len(polygon) > 2:
+                offset_polygon = [(max(0, min(x-x1, x2-x1-1)), max(0, min(y-y1, y2-y1-1))) for x, y in polygon]
+                pts = np.array(offset_polygon, np.int32).reshape((-1, 1, 2))
+                cv2.fillPoly(bbox_mask, [pts], 255)
+        
+        try:
+            # Use EXACT same blur function as original
+            blurred_region = apply_blur_to_masked_area(bbox_region, bbox_mask, downscale_factor=20)
+            result_frame[y1:y2, x1:x2] = blurred_region
+        except Exception as e:
+            print(f"Error applying blur: {e}")
+            continue
+    
+    return result_frame
 

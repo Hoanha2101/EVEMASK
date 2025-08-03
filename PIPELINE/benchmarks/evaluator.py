@@ -1,8 +1,4 @@
 """
-========================
-EVEMASK AI Benchmark Pipeline Overview
-========================
-
 This script benchmarks two main scenarios:
 1. AI Inference Only Benchmark:
    - Measures the raw inference speed of the AI module on synthetic data.
