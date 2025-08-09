@@ -214,12 +214,11 @@ class EveMaskLogger:
     
     def display_logo(self):
         """
-        Display EVEMASK logo and startup information.
+        Display EVEMASK logo only (without messages).
         
         This method clears the screen and displays the EVEMASK ASCII art logo
-        with version information and startup messages. It attempts to use
-        colorized output if colorama is available, otherwise falls back to
-        plain text.
+        with version information only. It attempts to use colorized output 
+        if colorama is available, otherwise falls back to plain text.
         """
         # ASCII art logo with version information
         logo = f"""
@@ -256,14 +255,44 @@ class EveMaskLogger:
             
             # Print logo with colors
             print(Fore.CYAN + logo)
+            
+        except ImportError:
+            # Fallback to plain text if colorama is not available
+            print(logo)
+
+    def display_start_message(self):
+        """
+        Display startup message with yellow color.
+        """
+        try:
+            from colorama import init, Fore, Back, Style
+            init(autoreset=True)
+            
             print(Fore.YELLOW + f"🚀 Starting EVEMASK Pipeline {self.version}...")
             print(Fore.GREEN + "=" * 80)
             print()
             
         except ImportError:
             # Fallback to plain text if colorama is not available
-            print(logo)
             print(f"🚀 Starting EVEMASK Pipeline {self.version}...")
+            print("=" * 80)
+            print()
+
+    def display_end_message(self):
+        """
+        Display shutdown message with red color.
+        """
+        try:
+            from colorama import init, Fore, Back, Style
+            init(autoreset=True)
+            
+            print(Fore.RED + "🛑 EVEMASK Pipeline Shutdown Complete")
+            print(Fore.GREEN + "=" * 80)
+            print()
+            
+        except ImportError:
+            # Fallback to plain text if colorama is not available
+            print("🛑 EVEMASK Pipeline Shutdown Complete")
             print("=" * 80)
             print()
             

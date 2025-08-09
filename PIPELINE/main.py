@@ -23,9 +23,10 @@ if __name__ == "__main__":
     logger = EveMaskLogger.get_instance()
 
     # ========================================================================
-    # DISPLAY LOGO
+    # DISPLAY LOGO AND START MESSAGE
     # ========================================================================
     logger.display_logo()
+    logger.display_start_message()
 
     # ========================================================================
     # LOAD CONFIG
@@ -81,10 +82,31 @@ if __name__ == "__main__":
             output_alive = output_thread.is_alive()
             ai_alive = ai_thread.is_alive()
             
+            # Check if StreamController's running status is False (stream ended)
+            if not streamController.running:
+                print("\nStream has ended. Shutting down entire system...")
+                logger.stop_live_display()
+                
+                # Stop all components gracefully
+                streamController.stop()
+                useAI.stop() if hasattr(useAI, 'stop') else None
+                
+                # Display logo and end message
+                logger.display_logo()
+                logger.display_end_message()
+                sys.exit(0)
+            
             logger.update_live_display(cfg, input_alive, output_alive, ai_alive)
             time.sleep(0.25)
     except KeyboardInterrupt:
+        print("\nKeyboard interrupt received. Shutting down system...")
         logger.stop_live_display()
         
-    while True:
-        time.sleep(1)
+        # Stop all components gracefully
+        streamController.stop()
+        useAI.stop() if hasattr(useAI, 'stop') else None
+        
+        # Display logo and end message
+        logger.display_logo()
+        logger.display_end_message()
+        sys.exit(0)

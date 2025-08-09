@@ -1,5 +1,5 @@
 """
-Custom Blur Method for Image Censoring System.
+Enhanced Custom Blur Method for Image Censoring System with Original + Polygon Mask Visualization.
 This system provides advanced image blurring capabilities using downscaling and upscaling techniques
 to create natural-looking censoring effects while preserving image quality outside the censored regions.
 
@@ -7,11 +7,12 @@ The system features:
 - Polygon-based mask creation for precise censoring areas
 - Multi-step blur processing with downscaling and upscaling
 - Real-time visualization of processing steps
+- Enhanced visualization showing original image + polygon mask
 - Configurable blur intensity through downscale factors
 - GPU acceleration support for faster processing
 
 Author: EVEMASK Team
-Version: 1.0.0
+Version: 1.1.0 - Enhanced with Original + Polygon Mask Display
 """
 
 import cv2
@@ -42,6 +43,33 @@ def create_mask_from_polygon(image_shape: Tuple[int, int], polygon: List[Tuple[i
         pts = np.array(polygon, np.int32).reshape((-1, 1, 2))
         cv2.fillPoly(mask, [pts], 255)
     return mask
+
+def create_colored_polygon_outline(image_shape: Tuple[int, int], polygon: List[Tuple[int, int]], 
+                                  outline_color: Tuple[int, int, int] = (255, 0, 0),
+                                  background_color: Tuple[int, int, int] = (255, 255, 255),
+                                  thickness: int = 3) -> np.ndarray:
+    """
+    Create a colored visualization showing polygon outline (viền) on white background.
+    
+    Args:
+        image_shape (Tuple[int, int]): Target image dimensions (height, width)
+        polygon (List[Tuple[int, int]]): List of (x, y) coordinates defining the polygon
+        outline_color (Tuple[int, int, int]): RGB color for polygon outline (default: red)
+        background_color (Tuple[int, int, int]): RGB color for background (default: white)
+        thickness (int): Thickness of the polygon outline (default: 3)
+        
+    Returns:
+        np.ndarray: Image with shape (H, W, 3) showing polygon outline only
+    """
+    # Create white background
+    outline_image = np.full((image_shape[0], image_shape[1], 3), background_color, dtype=np.uint8)
+    
+    if len(polygon) > 2:
+        # Convert polygon points to OpenCV format and draw outline only
+        pts = np.array(polygon, np.int32).reshape((-1, 1, 2))
+        cv2.polylines(outline_image, [pts], isClosed=True, color=outline_color, thickness=thickness)
+    
+    return outline_image
 
 def resize_mask_to_image(mask: torch.Tensor, target_h: int, target_w: int) -> torch.Tensor:
     """
@@ -90,6 +118,7 @@ def custom_blur_with_steps(image: np.ndarray, polygon: List[Tuple[int, int]], do
             - downscaled: Image after downscaling
             - upscaled: Image after upscaling (blurred effect)
             - mask: Binary mask of the polygon region
+            - colored_mask: Colored visualization of polygon (red on white)
             - final_result: Final blended result
     """
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -107,8 +136,10 @@ def custom_blur_with_steps(image: np.ndarray, polygon: List[Tuple[int, int]], do
     upscaled = F.interpolate(downscaled, size=(h, w), mode='bilinear', align_corners=False)
     upscaled = upscaled.squeeze(0)
     
-    # Step 4: Create mask and blend original with blurred regions
+    # Step 4: Create masks
     mask = create_mask_from_polygon(image.shape[:2], polygon)
+    polygon_outline = create_colored_polygon_outline(image.shape[:2], polygon)
+    
     mask_tensor = torch.from_numpy(mask).float().to(device) / 255.0
     
     # Ensure mask has correct dimensions
@@ -130,18 +161,61 @@ def custom_blur_with_steps(image: np.ndarray, polygon: List[Tuple[int, int]], do
         'downscaled': tensor_to_numpy(downscaled.squeeze(0)),
         'upscaled': tensor_to_numpy(upscaled),
         'mask': mask,
+        'polygon_outline': polygon_outline,
         'final_result': tensor_to_numpy(final_result)
     }
     
     return results
 
-def visualize_blur_steps(image: np.ndarray, polygon: List[Tuple[int, int]], 
-                        downscale_factor: int = 20, save_path: str = None):
+def visualize_original_and_polygon(image: np.ndarray, polygon: List[Tuple[int, int]], 
+                                  save_path: str = None):
     """
-    Visualize the 3 main processing steps: downscaled, upscaled, and blended result.
+    Visualize original image on the left and polygon outline on the right.
     
-    This function creates a side-by-side comparison of the blur processing pipeline,
-    showing how the image changes at each step of the custom blur method.
+    This function creates a side-by-side comparison showing:
+    - Left: Original input image
+    - Right: Polygon outline visualization (red outline on white background)
+    
+    Args:
+        image (np.ndarray): Input image to display
+        polygon (List[Tuple[int, int]]): Polygon coordinates for outline visualization
+        save_path (str, optional): Path to save the visualization image
+    """
+    # Create polygon outline visualization
+    polygon_outline = create_colored_polygon_outline(image.shape[:2], polygon)
+    
+    # Create visualization with 2 images side by side
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+    
+    # Left: Original image
+    axes[0].imshow(image)
+    axes[0].set_title('Original Image', fontsize=14, fontweight='bold')
+    axes[0].axis('off')
+    
+    # Right: Polygon outline
+    axes[1].imshow(polygon_outline)
+    axes[1].set_title('Polygon Outline', fontsize=14, fontweight='bold')
+    axes[1].axis('off')
+    
+    # Add main title
+    fig.suptitle('Original Image And Polygon Outline Visualization', fontsize=16, fontweight='bold')
+    
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=150, bbox_inches='tight')
+    
+    plt.show()
+    
+
+def visualize_complete_pipeline(image: np.ndarray, polygon: List[Tuple[int, int]], 
+                               downscale_factor: int = 20, save_path: str = None):
+    """
+    Complete visualization showing original + mask, then the 3-step blur process.
+    
+    This function creates a comprehensive visualization with:
+    - Top row: Original image + Polygon mask
+    - Bottom row: Downscaled + Upscaled + Final result
     
     Args:
         image (np.ndarray): Input image to process
@@ -152,27 +226,41 @@ def visualize_blur_steps(image: np.ndarray, polygon: List[Tuple[int, int]],
     # Get all processing steps
     results = custom_blur_with_steps(image, polygon, downscale_factor)
     
-    # Create visualization with 3 images
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    # Create comprehensive visualization with 2x3 layout
+    fig, axes = plt.subplots(2, 3, figsize=(18, 12))
     
-    # Step 1: Downscaled image
-    axes[0].imshow(results['downscaled'])
-    axes[0].set_title(f'1. Downscaled\n(Factor: {downscale_factor}x)\nSize: {results["downscaled"].shape[:2]}', 
-                     fontsize=12, fontweight='bold')
-    axes[0].axis('off')
+    # Top row: Original and polygon mask
+    axes[0, 0].imshow(results['original'])
+    axes[0, 0].set_title('1. Original Image', fontsize=12, fontweight='bold')
+    axes[0, 0].axis('off')
     
-    # Step 2: Upscaled image (blurred effect)
-    axes[1].imshow(results['upscaled'])
-    axes[1].set_title('2. Upscaled\n(Blur Effect)', fontsize=12, fontweight='bold')
-    axes[1].axis('off')
+    axes[0, 1].imshow(results['polygon_outline'])
+    axes[0, 1].set_title('2. Polygon Outline', fontsize=12, fontweight='bold')
+    axes[0, 1].axis('off')
     
-    # Step 3: Final blended result
-    axes[2].imshow(results['final_result'])
-    axes[2].set_title('3. Final Blended Result', fontsize=12, fontweight='bold')
-    axes[2].axis('off')
+    # Empty space in top right
+    axes[0, 2].axis('off')
+    axes[0, 2].text(0.5, 0.5, f'Downscale Factor:\n{downscale_factor}x\n\nDevice: {"CUDA" if torch.cuda.is_available() else "CPU"}', 
+                   ha='center', va='center', fontsize=14, fontweight='bold',
+                   bbox=dict(boxstyle="round,pad=0.3", facecolor="lightblue", alpha=0.7))
+    
+    # Bottom row: Processing steps
+    axes[1, 0].imshow(results['downscaled'])
+    axes[1, 0].set_title(f'3. Downscaled\n(Factor: {downscale_factor}x)\nSize: {results["downscaled"].shape[:2]}', 
+                        fontsize=12, fontweight='bold')
+    axes[1, 0].axis('off')
+    
+    axes[1, 1].imshow(results['upscaled'])
+    axes[1, 1].set_title('4. Upscaled\n(Blur Effect)', fontsize=12, fontweight='bold')
+    axes[1, 1].axis('off')
+    
+    axes[1, 2].imshow(results['final_result'])
+    axes[1, 2].set_title('5. Final Blended Result\n(Kết Quả Cuối Cùng)', fontsize=12, fontweight='bold')
+    axes[1, 2].axis('off')
     
     # Add main title
-    fig.suptitle(f'Custom Blur Method - Key Steps', fontsize=14, fontweight='bold')
+    fig.suptitle('Complete Custom Blur Pipeline - From Original to Final Result', 
+                fontsize=16, fontweight='bold')
     
     plt.tight_layout()
     
@@ -180,22 +268,15 @@ def visualize_blur_steps(image: np.ndarray, polygon: List[Tuple[int, int]],
         plt.savefig(save_path, dpi=150, bbox_inches='tight')
     
     plt.show()
-    
-    # Print processing information
-    print(f"Original: {results['original'].shape} → Downscaled: {results['downscaled'].shape} → Final: {results['final_result'].shape}")
-    print(f"Downscale factor: {downscale_factor}x | Device: {'CUDA' if torch.cuda.is_available() else 'CPU'}")
 
-def run_custom_blur_demo():
+def run_enhanced_blur_demo():
     """
-    Demo function to run custom blur visualization with different parameters.
+    Enhanced demo function showcasing original + polygon mask visualization.
     
-    This function demonstrates the custom blur method by:
-    1. Loading a real image and polygon data (or creating sample data)
-    2. Testing different downscale factors to show blur intensity variations
-    3. Generating visualizations for each parameter setting
-    
-    The demo shows how different downscale factors affect the blur intensity
-    and processing pipeline visualization.
+    This function demonstrates:
+    1. Original image + polygon mask side-by-side view
+    2. Complete pipeline visualization
+    3. Different downscale factors for blur intensity comparison
     """
     # Try to load real image, fallback to sample data
     try:
@@ -207,26 +288,56 @@ def run_custom_blur_demo():
         polygon = data["shapes"][0]["points"]
         print("Loaded real image and polygon data")
     except:
-        # Fallback to sample data
+        # Fallback to sample data with more visible patterns
         print("File not found, creating sample image and polygon")
         image = np.random.randint(0, 255, (400, 600, 3), dtype=np.uint8)
-        # Add some patterns to make blur effect more visible
-        image[100:300, 200:400] = [255, 100, 100]  # Red rectangle
-        image[50:150, 50:200] = [100, 255, 100]    # Green rectangle
+        
+        # Add some colorful patterns to make blur effect more visible
+        image[50:150, 100:250] = [255, 100, 100]    # Red rectangle
+        image[200:300, 300:450] = [100, 255, 100]   # Green rectangle
+        image[100:200, 400:550] = [100, 100, 255]   # Blue rectangle
+        
+        # Add some text-like patterns
+        cv2.rectangle(image, (150, 180), (400, 220), (0, 0, 0), -1)
+        cv2.putText(image, "SAMPLE TEXT", (160, 205), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         
         polygon = [(150, 120), (450, 140), (430, 280), (170, 260)]
     
-    print("\n" + "="*60)
-    print("CUSTOM BLUR METHOD - STEP BY STEP VISUALIZATION")
-    print("="*60)
+    print("\n" + "="*70)
+    print("ENHANCED CUSTOM BLUR METHOD - COMPLETE VISUALIZATION")
+    print("="*70)
     
-    # Test different downscale factors to demonstrate blur intensity variations
-    downscale_factors = [10, 20, 50]
+    # 1. Show original + polygon mask
+    print("\n1. Displaying Original Image + Polygon Mask:")
+    visualize_original_and_polygon(image, polygon)
+    
+    # 2. Show complete pipeline
+    print("\n2. Complete Processing Pipeline:")
+    visualize_complete_pipeline(image, polygon, downscale_factor=20)
+    
+    # 3. Test different blur intensities
+    print("\n3. Testing Different Blur Intensities:")
+    downscale_factors = [10, 30, 50]
     
     for factor in downscale_factors:
-        print(f"\nTesting with downscale factor: {factor}x")
-        visualize_blur_steps(image, polygon, downscale_factor=factor)
+        print(f"\nTesting blur intensity with downscale factor: {factor}x")
+        results = custom_blur_with_steps(image, polygon, downscale_factor=factor)
+        
+        # Show just the final results for comparison
+        fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+        
+        axes[0].imshow(results['original'])
+        axes[0].set_title('Original', fontsize=12, fontweight='bold')
+        axes[0].axis('off')
+        
+        axes[1].imshow(results['final_result'])
+        axes[1].set_title(f'Blurred (Factor: {factor}x)', fontsize=12, fontweight='bold')
+        axes[1].axis('off')
+        
+        fig.suptitle(f'Blur Intensity Comparison - Factor: {factor}x', fontsize=14, fontweight='bold')
+        plt.tight_layout()
+        plt.show()
 
-# Main execution - run the custom blur demonstration
+# Main execution - run the enhanced blur demonstration
 if __name__ == "__main__":
-    run_custom_blur_demo()
+    run_enhanced_blur_demo()

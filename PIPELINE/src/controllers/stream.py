@@ -80,6 +80,7 @@ class StreamController:
         # Frame tracking
         self._frame_index = 0
         self._write_frame_index = 0
+        self._consecutive_failed_reads = 0  # Track consecutive failed frame reads
         
         # FPS monitoring
         self._frame_times = []  # Store frame timestamps for FPS calculation
@@ -242,6 +243,7 @@ class StreamController:
         - Adds frames to the circular queue for processing
         - Tracks frame timing for FPS calculation
         - Updates AI instance with input FPS information
+        - Stops when no stream is received for 1000 consecutive attempts
         """
         print("Starting source capture...")
         
@@ -250,6 +252,9 @@ class StreamController:
                 # Read frame from input source
                 ret, data = self.cap.read()
                 if ret and data is not None:
+                    # Reset failed read counter on successful frame
+                    self._consecutive_failed_reads = 0
+                    
                     # Create frame object and add to queue
                     frame = Frame(frame_id=self._frame_index, frame_data=data)
                     self.circle_queue.add_frame(frame=frame)
@@ -266,10 +271,28 @@ class StreamController:
                         except Exception as e:
                             print(f"Error updating AI FPS: {e}")
                 else:
+                    # Increment failed read counter
+                    self._consecutive_failed_reads += 1
+                    
+                    # Check if stream has ended (1000 consecutive failed reads)
+                    if self._consecutive_failed_reads >= 1000:
+                        print(f"Stream ended: No frames received for {self._consecutive_failed_reads} consecutive attempts")
+                        self.running = False
+                        break
+                    
                     # Short sleep if no frame available
                     time.sleep(0.01)
             except Exception as e:
+                # Increment failed read counter for exceptions too
+                self._consecutive_failed_reads += 1
                 print(f"Error in capture: {e}")
+                
+                # Check if stream has ended due to errors
+                if self._consecutive_failed_reads >= 1000:
+                    print(f"Stream ended: Consecutive errors for {self._consecutive_failed_reads} attempts")
+                    self.running = False
+                    break
+                
                 time.sleep(0.1)
 
     def out_stream(self):
