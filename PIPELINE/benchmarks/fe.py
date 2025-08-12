@@ -100,7 +100,7 @@ def preprocessing(image, half=False):
     Returns:
         torch.Tensor: Preprocessed tensor ready for model input
     """
-    img_process = cv2.resize(image, (224, 224), interpolation=cv2.INTER_LINEAR)  # Resize to model input size
+    img_process = cv2.resize(image, (224, 224))  # Resize to model input size
     img_process = cv2.cvtColor(img_process, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
     img_process = img_process.astype(np.float32)  # Convert to float32
     
@@ -258,24 +258,6 @@ def find_class_centroids(vector_dict, vector_list, class_names):
                 representative_vectors.append(X[idx])
                 used_classes.add(vector_class)
                 break
-    
-    # If there are still classes without representatives, choose the closest vector to class centroid
-    for class_name in class_names:
-        if class_name not in used_classes:
-            class_indices = [i for i, cls in vector_to_class.items() if cls == class_name]
-            class_vectors = X[class_indices]
-            
-            # Calculate centroid of this class
-            class_centroid = np.mean(class_vectors, axis=0)
-            
-            # Find vector closest to class centroid
-            distances_to_centroid = cdist([class_centroid], class_vectors, metric='euclidean')[0]
-            best_local_idx = np.argmin(distances_to_centroid)
-            best_global_idx = class_indices[best_local_idx]
-            
-            representative_indices.append(best_global_idx)
-            representative_vectors.append(X[best_global_idx])
-            used_classes.add(class_name)
     
     return representative_indices, representative_vectors, vector_to_class
 
@@ -749,77 +731,51 @@ def visualize_embeddings():
 
 def calculate_separation_scores(vector_dict, repr_indices, repr_vectors, vector_to_class, class_names, model_name):
     """
-    Calculate separation scores for model based on representative vectors.
-    
-    This function evaluates how well the model separates different classes by:
-    1. Computing in-class similarity (vectors to their class representative)
-    2. Computing out-class similarity (vectors to other class representatives)
-    3. Calculating separation as the difference between in-class and out-class scores
-    
-    Args:
-        vector_dict (dict): Dictionary containing vectors organized by class
-        repr_indices (list): Indices of representative vectors
-        repr_vectors (list): Representative vectors for each class
-        vector_to_class (dict): Mapping from vector index to class name
-        class_names (list): List of class names
-        model_name (str): Name of the model (PyTorch or TensorRT)
-        
-    Returns:
-        tuple: (in_class_scores, out_class_scores, separation_scores)
+    Calculate separation scores using anchor method:
+    - For each class anchor, compute similarity with all class representatives
+    - In-class score = similarity with its own repr
+    - Out-class score = average similarity with other class reprs
     """
-    print(f"\n=== Calculating Separation Scores for {model_name} ===")
-    
-    # Create mapping from class name to representative vector
-    class_to_repr = {}
-    class_to_repr_idx = {}
-    
-    for i, repr_idx in enumerate(repr_indices):
-        class_name = vector_to_class[repr_idx]
-        class_to_repr[class_name] = repr_vectors[i]
-        class_to_repr_idx[class_name] = i
-    
+    # Map from class to repr vector
+    class_to_repr = {
+        vector_to_class[repr_idx]: repr_vectors[i]
+        for i, repr_idx in enumerate(repr_indices)
+    }
+
+    # Build full_list_output: similarity matrix [num_classes x num_classes]
+    full_list_output = []
+    for anchor_class in class_names:
+        anchor_vectors = vector_dict[anchor_class]
+        anchor_row = []
+
+        # Representative vectors for each class
+        for target_class in class_names:
+            target_repr = class_to_repr[target_class]
+            cosines = [
+                np.dot(vec, target_repr) / (np.linalg.norm(vec) * np.linalg.norm(target_repr))
+                for vec in anchor_vectors
+            ]
+            anchor_row.append(np.mean(cosines) if cosines else 0.0)
+
+        full_list_output.append(anchor_row)
+
+    # Compute in_class, out_class, separation (chuẩn anchor method)
     in_class_scores = []
     out_class_scores = []
     separation_scores = []
-    
-    # Iterate through each class as anchor
-    for anchor_class in class_names:
-        anchor_repr = class_to_repr[anchor_class]
-        anchor_vectors = vector_dict[anchor_class]
-        
-        print(f"Processing anchor class: {anchor_class}")
-        
-        # Calculate in-class score (average cosine similarity with vectors of the same class)
-        in_class_cosines = []
-        for vector in anchor_vectors:
-            cosine_sim = np.dot(vector, anchor_repr) / (np.linalg.norm(vector) * np.linalg.norm(anchor_repr))
-            in_class_cosines.append(cosine_sim)
-        
-        in_class_score = np.mean(in_class_cosines) if len(in_class_cosines) > 0 else 0.0
-        
-        # Calculate out-class score (average cosine similarity with representative vectors of other classes)
-        out_class_cosines = []
-        for other_class in class_names:
-            if other_class != anchor_class:
-                other_repr = class_to_repr[other_class]
-                
-                # Calculate cosine similarity between all vectors of anchor_class and repr of other_class
-                for vector in anchor_vectors:
-                    cosine_sim = np.dot(vector, other_repr) / (np.linalg.norm(vector) * np.linalg.norm(other_repr))
-                    out_class_cosines.append(cosine_sim)
-        
-        out_class_score = np.mean(out_class_cosines) if len(out_class_cosines) > 0 else 0.0
-        
-        # Calculate separation (in-class - out-class)
-        separation = in_class_score - out_class_score
-        
+
+    num_classes = len(class_names)
+
+    for idx, list_output in enumerate(full_list_output):
+        in_class_score = list_output[idx]
+        out_class_score = (sum(list_output) - in_class_score) / (num_classes - 1)
+
         in_class_scores.append(in_class_score)
         out_class_scores.append(out_class_score)
-        separation_scores.append(separation)
+        separation_scores.append(in_class_score - out_class_score)
         
-        print(f"  In-class: {in_class_score:.4f}, Out-class: {out_class_score:.4f}, Separation: {separation:.4f}")
-    
     return in_class_scores, out_class_scores, separation_scores
+
 
 def plot_separation_analysis():
     """
@@ -917,8 +873,81 @@ def plot_separation_analysis():
     
     # Save individual plots
     os.makedirs('benchmarks/results', exist_ok=True)
+    
+    # Save combined plot
     plt.savefig('benchmarks/results/separation_analysis_comparison.png', dpi=300, bbox_inches='tight')
     plt.show()
+    
+    # Save individual plots separately
+    print("\n=== Saving Individual Plots ===")
+    
+    # Plot 1: PyTorch only
+    plt.figure(figsize=(10, 6))
+    plt.bar(x, pytorch_separation, width=bar_width, color=pytorch_color, alpha=0.8, label='PyTorch Separation')
+    plt.plot(x, pytorch_separation, color='red', linewidth=2, marker='o', label='Trend')
+    plt.axhline(y=np.mean(pytorch_separation), color='green', linestyle='--', alpha=0.7, 
+               label=f'Mean: {np.mean(pytorch_separation):.3f}')
+    plt.xlabel("Class Index")
+    plt.ylabel("Separation Score")
+    plt.title("PyTorch Model Separation Performance")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.xticks(x, [f"C{i}" for i in range(len(CLASSES))], rotation=45)
+    plt.tight_layout()
+    plt.savefig('benchmarks/results/pytorch_separation_only.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("   Saved: pytorch_separation_only.png")
+    
+    # Plot 2: TensorRT only
+    plt.figure(figsize=(10, 6))
+    plt.bar(x, trt_separation, width=bar_width, color=trt_color, alpha=0.8, label='TensorRT Separation')
+    plt.plot(x, trt_separation, color='red', linewidth=2, marker='s', label='Trend')
+    plt.axhline(y=np.mean(trt_separation), color='green', linestyle='--', alpha=0.7,
+               label=f'Mean: {np.mean(trt_separation):.3f}')
+    plt.xlabel("Class Index")
+    plt.ylabel("Separation Score")
+    plt.title("TensorRT Model Separation Performance")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.xticks(x, [f"C{i}" for i in range(len(CLASSES))], rotation=45)
+    plt.tight_layout()
+    plt.savefig('benchmarks/results/tensorrt_separation_only.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("   Saved: tensorrt_separation_only.png")
+    
+    # Plot 3: Comparison only
+    plt.figure(figsize=(12, 6))
+    bar_width_combined = 0.35
+    x_pytorch = x - bar_width_combined/2
+    x_trt = x + bar_width_combined/2
+    
+    bars1 = plt.bar(x_pytorch, pytorch_separation, width=bar_width_combined, 
+                   color=pytorch_color, alpha=0.8, label='PyTorch')
+    bars2 = plt.bar(x_trt, trt_separation, width=bar_width_combined, 
+                   color=trt_color, alpha=0.8, label='TensorRT')
+    
+    # Trend lines
+    plt.plot(x_pytorch, pytorch_separation, color='blue', linewidth=2, marker='o', alpha=0.7)
+    plt.plot(x_trt, trt_separation, color='orange', linewidth=2, marker='s', alpha=0.7)
+    
+    # Mean lines
+    plt.axhline(y=np.mean(pytorch_separation), color=pytorch_color, linestyle='--', alpha=0.5,
+               label=f'PyTorch Mean: {np.mean(pytorch_separation):.3f}')
+    plt.axhline(y=np.mean(trt_separation), color=trt_color, linestyle='--', alpha=0.5,
+               label=f'TensorRT Mean: {np.mean(trt_separation):.3f}')
+    
+    plt.xlabel("Class Index")
+    plt.ylabel("Separation Score")
+    plt.title("PyTorch vs TensorRT Separation Comparison")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.xticks(x, [f"C{i}" for i in range(len(CLASSES))], rotation=45)
+    plt.tight_layout()
+    plt.savefig('benchmarks/results/separation_comparison_only.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("   Saved: separation_comparison_only.png")
+    
+    print("   All individual plots saved successfully!")
     
     # Print separation statistics
     print("\n" + "="*60)
@@ -964,45 +993,11 @@ def plot_separation_analysis():
     
     return pytorch_separation, trt_separation
 
-def create_detailed_separation_table(pytorch_separation, trt_separation):
-    """
-    Create detailed table of separation scores for both models.
-    
-    Args:
-        pytorch_separation (list): Separation scores for PyTorch model
-        trt_separation (list): Separation scores for TensorRT model
-        
-    Returns:
-        pandas.DataFrame: Detailed separation scores table
-    """
-    separation_data = {
-        'Class': CLASSES,
-        'PyTorch In-Class': [f"{score:.4f}" for score in pytorch_in_class],
-        'PyTorch Out-Class': [f"{score:.4f}" for score in pytorch_out_class],
-        'PyTorch Separation': [f"{score:.4f}" for score in pytorch_separation],
-        'TensorRT In-Class': [f"{score:.4f}" for score in trt_in_class],
-        'TensorRT Out-Class': [f"{score:.4f}" for score in trt_out_class],
-        'TensorRT Separation': [f"{score:.4f}" for score in trt_separation],
-        'Separation Diff': [f"{trt_separation[i] - pytorch_separation[i]:+.4f}" for i in range(len(CLASSES))],
-        'Winner': ["TensorRT" if trt_separation[i] > pytorch_separation[i] else "PyTorch" for i in range(len(CLASSES))]
-    }
-    
-    separation_df = pd.DataFrame(separation_data)
-    
-    print("\nDETAILED SEPARATION SCORES TABLE")
-    print("-" * 120)
-    print(separation_df.to_string(index=False))
-    
-    return separation_df
-
 #create visualization
 visualize_embeddings()
 
 # Create separation analysis plots
 pytorch_separation, trt_separation = plot_separation_analysis()
-
-# Create detailed table (requires pytorch_in_class, pytorch_out_class, trt_in_class, trt_out_class from calculate_separation_scores function)
-# separation_df = create_detailed_separation_table(pytorch_separation, trt_separation)
 
 print("\n" + "="*50)
 print("FEATURE EXTRACTION BENCHMARK ANALYSIS COMPLETE")

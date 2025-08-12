@@ -144,7 +144,7 @@ class CustomBlurMethod(BlurMethod):
     and then upscaling it back to the original size. The blur intensity is
     controlled by the downscale factor - higher values create stronger blur effects.
     """
-    def __init__(self, downscale_factor: int = 20):
+    def __init__(self, downscale_factor: int = 30):
         """
         Initialize custom blur method.
         
@@ -576,7 +576,6 @@ class BlurPerformanceComparison:
         plt.title('Blur Methods Inference Time Comparison', fontsize=16, fontweight='bold')
         plt.ylabel('Inference Time (ms)', fontsize=12)
         plt.xlabel('Blur Method', fontsize=12)
-        plt.xticks(rotation=45)
         plt.grid(axis='y', alpha=0.3)
         
         # Add value labels on bars
@@ -685,7 +684,7 @@ def create_performance_comparison():
     comparison = BlurPerformanceComparison()
     
     # Add different blur methods with optimized parameters
-    comparison.add_method(CustomBlurMethod(downscale_factor=20))  # Custom downscale/upscale method
+    comparison.add_method(CustomBlurMethod(downscale_factor=40))  # Custom downscale/upscale method
     comparison.add_method(GaussianBlurMethod(kernel_size=51))     # Traditional Gaussian blur
     comparison.add_method(MedianBlurMethod(kernel_size=31))       # Median filter blur
     comparison.add_method(MotionBlurMethod(kernel_size=21))       # Motion blur simulation
@@ -710,10 +709,10 @@ def run_performance_benchmark():
     
     # Try to use real image file, fallback to sample image
     try:
-        image = cv2.imread("benchmarks/sample/blur/draftkings.png")
+        image = cv2.imread("benchmarks/sample/blur/draftkings2.png")
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         
-        with open("benchmarks/sample/blur/draftkings.json", "r") as f:
+        with open("benchmarks/sample/blur/draftkings2.json", "r") as f:
             data = json.load(f)
         polygon = data["shapes"][0]["points"]
         print("Using real image file")

@@ -12,13 +12,13 @@ USE_FEATURE_EXTRACTION: True
 DELAY_TIME: 2
 
 # Target frames per second for processing/output
-TARGET_FPS: 10
+TARGET_FPS: 25
 
 # Batch size for model inference or processing
 batch_size: 3
 
 # Maximum batch size for model inference
-MAX_BATCH_SIZE: 2
+MAX_BATCH_SIZE: 3
 
 # Input video stream source (UDP multicast address with packet size)
 INPUT_SOURCE: udp://224.1.1.1:30122?pkt_size=1316

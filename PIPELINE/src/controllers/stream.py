@@ -315,9 +315,8 @@ class StreamController:
             return
             
         while self.running:
-            # Check if frame is available for output
             start = time.time()
-            if (self._write_frame_index in self.circle_queue.frames.keys()) and (self.ai_instance.mooc_processed_frames >= self._write_frame_index):
+            if (self.ai_instance.mooc_processed_frames >= self._write_frame_index):
                 # Get frame from queue
                 frame_out = self.circle_queue.get_by_id(self._write_frame_index)
                 self.logger.update_number_out_frames(self._write_frame_index)
@@ -325,6 +324,7 @@ class StreamController:
                     # Convert frame to bytes and write to FFmpeg
                     frame_bytes = frame_out.frame_data.tobytes()
                     self.ffmpeg_process.stdin.write(frame_bytes)
+                    self.ffmpeg_process.stdin.flush()
                     
                     # Clean up frame resources
                     frame_out.destroy()
@@ -333,14 +333,6 @@ class StreamController:
                     # Move to next frame
                     self._write_frame_index += 1
                 
-                # Control output rate
-                time.sleep(0.001)
-                # time.sleep(max(0,1/self.target_fps - time.time() + start - 0.001))
-            else:
-                time.sleep(0.001)
-                # Wait if frame not available
-                # time.sleep(max(0,1/self.target_fps - time.time() + start - 0.001))
-            
             # Calculate output FPS
             now = time.time()
             if now - self.last_fps_update >= 1.0:
@@ -350,7 +342,7 @@ class StreamController:
                     fps = 1.0 / avg_delta if avg_delta > 0 else 0.0
                     self.logger.update_out_stream_fps(fps)
                 self.last_fps_update = now
-                    
+            
         print("Output stream stopped")
         self._cleanup_ffmpeg()
 
