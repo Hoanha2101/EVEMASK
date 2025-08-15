@@ -22,6 +22,9 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from typing import List, Tuple
 import json
+import os
+import csv
+import time
 
 def create_mask_from_polygon(image_shape: Tuple[int, int], polygon: List[Tuple[int, int]]) -> np.ndarray:
     """
@@ -255,7 +258,7 @@ def visualize_complete_pipeline(image: np.ndarray, polygon: List[Tuple[int, int]
     axes[1, 1].axis('off')
     
     axes[1, 2].imshow(results['final_result'])
-    axes[1, 2].set_title('5. Final Blended Result\n(Kết Quả Cuối Cùng)', fontsize=12, fontweight='bold')
+    axes[1, 2].set_title('5. Final Blended Result', fontsize=12, fontweight='bold')
     axes[1, 2].axis('off')
     
     # Add main title
@@ -307,23 +310,36 @@ def run_enhanced_blur_demo():
     print("ENHANCED CUSTOM BLUR METHOD - COMPLETE VISUALIZATION")
     print("="*70)
     
-    # 1. Show original + polygon mask
+    # Prepare output directory for saving figures and results
+    save_dir = "benchmarks/results/censored_demo/"
+    os.makedirs(save_dir, exist_ok=True)
+
+    # 1. Show and save original + polygon mask visualization
     print("\n1. Displaying Original Image + Polygon Mask:")
-    visualize_original_and_polygon(image, polygon)
+    orig_poly_fig_path = os.path.join(save_dir, "original_polygon.png")
+    visualize_original_and_polygon(image, polygon, save_path=orig_poly_fig_path)
     
-    # 2. Show complete pipeline
+    # 2. Show and save complete pipeline visualization
     print("\n2. Complete Processing Pipeline:")
-    visualize_complete_pipeline(image, polygon, downscale_factor=20)
+    full_pipeline_fig_path = os.path.join(save_dir, "complete_pipeline.png")
+    visualize_complete_pipeline(image, polygon, downscale_factor=20, save_path=full_pipeline_fig_path)
     
-    # 3. Test different blur intensities
+    # 3. Test different blur intensities and save results + CSV
     print("\n3. Testing Different Blur Intensities:")
     downscale_factors = [10, 30, 50]
-    
+    csv_rows = []
+    device_label = "CUDA" if torch.cuda.is_available() else "CPU"
+    img_h, img_w = image.shape[0], image.shape[1]
+
     for factor in downscale_factors:
         print(f"\nTesting blur intensity with downscale factor: {factor}x")
+        start_time = time.perf_counter()
         results = custom_blur_with_steps(image, polygon, downscale_factor=factor)
-        
-        # Show just the final results for comparison
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+        total_time_ms = (time.perf_counter() - start_time) * 1000.0
+
+        # Save per-factor comparison figure
         fig, axes = plt.subplots(1, 2, figsize=(12, 6))
         
         axes[0].imshow(results['original'])
@@ -336,7 +352,36 @@ def run_enhanced_blur_demo():
         
         fig.suptitle(f'Blur Intensity Comparison - Factor: {factor}x', fontsize=14, fontweight='bold')
         plt.tight_layout()
+        factor_fig_path = os.path.join(save_dir, f"comparison_factor_{factor}.png")
+        plt.savefig(factor_fig_path, dpi=150, bbox_inches='tight')
         plt.show()
+
+        # Save per-factor final result image as PNG
+        final_rgb = results['final_result']
+        final_bgr = cv2.cvtColor(final_rgb, cv2.COLOR_RGB2BGR)
+        final_img_path = os.path.join(save_dir, f"final_result_factor_{factor}.png")
+        cv2.imwrite(final_img_path, final_bgr)
+
+        # Collect CSV row
+        csv_rows.append({
+            'downscale_factor': factor,
+            'device': device_label,
+            'image_height': img_h,
+            'image_width': img_w,
+            'total_time_ms': total_time_ms
+        })
+
+    # Write CSV with timing per factor
+    csv_path = os.path.join(save_dir, "censored_demo_results.csv")
+    with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=['downscale_factor', 'device', 'image_height', 'image_width', 'total_time_ms'])
+        writer.writeheader()
+        for row in csv_rows:
+            writer.writerow(row)
+
+    print(f"\nFigures saved at: {orig_poly_fig_path}, {full_pipeline_fig_path}")
+    print(f"Per-factor comparison figures and final images saved in: {save_dir}")
+    print(f"CSV timing results saved at: {csv_path}")
 
 # Main execution - run the enhanced blur demonstration
 if __name__ == "__main__":

@@ -472,7 +472,7 @@ def evaluate_ap_per_class_streaming(gt_info_list, inference_func, iou_threshold=
     return class_aps, mean_ap
 
 def create_per_class_bar_chart(results):
-    """Tạo biểu đồ cột so sánh AP per class"""
+    """Create a column chart comparing AP per class"""
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 12))
     
     class_ids = list(range(number_of_class))
@@ -533,11 +533,11 @@ def create_per_class_bar_chart(results):
                     f'{tensorrt_ap75[i]:.2f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
     
     plt.tight_layout()
-    plt.savefig('benchmarks/results/seg_per_class_bar_comparison.png', dpi=300, bbox_inches='tight')
+    plt.savefig('benchmarks/results/seg/seg_per_class_bar_comparison.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 def create_per_class_line_chart(results):
-    """Tạo biểu đồ line so sánh AP per class"""
+    """Create a line chart comparing AP per class"""
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 12))
     
     class_ids = list(range(number_of_class))
@@ -601,11 +601,11 @@ def create_per_class_line_chart(results):
                         bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.7))
     
     plt.tight_layout()
-    plt.savefig('benchmarks/results/seg_per_class_line_comparison.png', dpi=300, bbox_inches='tight')
+    plt.savefig('benchmarks/results/seg/seg_per_class_line_comparison.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 def create_map_comparison_chart(results):
-    """Tạo biểu đồ riêng cho mAP comparison"""
+    """Create separate chart for mAP comparison"""
     fig, ax = plt.subplots(figsize=(10, 8))
     
     models = ['PyTorch', 'TensorRT']
@@ -646,11 +646,11 @@ def create_map_comparison_chart(results):
             bbox=dict(boxstyle='round,pad=0.5', facecolor='lightblue', alpha=0.7))
     
     plt.tight_layout()
-    plt.savefig('benchmarks/results/seg_map_comparison.png', dpi=300, bbox_inches='tight')
+    plt.savefig('benchmarks/results/seg/seg_map_comparison.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 def create_inference_time_comparison_chart(results):
-    """Tạo biểu đồ riêng cho inference time comparison"""
+    """Create separate graph for inference time comparison"""
     fig, ax = plt.subplots(figsize=(10, 8))
     
     models = ['PyTorch', 'TensorRT']
@@ -695,11 +695,11 @@ def create_inference_time_comparison_chart(results):
             bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8))
     
     plt.tight_layout()
-    plt.savefig('benchmarks/results/seg_inference_time_comparison.png', dpi=300, bbox_inches='tight')
+    plt.savefig('benchmarks/results/seg/seg_inference_time_comparison.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 def create_combined_summary_table(results):
-    """Tạo bảng tóm tắt kết quả"""
+    """Create a summary table of results"""
     fig, ax = plt.subplots(figsize=(14, 8))
     ax.axis('tight')
     ax.axis('off')
@@ -758,11 +758,11 @@ def create_combined_summary_table(results):
                 table[(i, j)].set_facecolor('#FFEBEE')
     
     plt.title('Model Performance Summary', fontsize=18, fontweight='bold', pad=30)
-    plt.savefig('benchmarks/results/seg_summary_table.png', dpi=300, bbox_inches='tight')
+    plt.savefig('benchmarks/results/seg/seg_summary_table.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 def create_per_class_detailed_table(results):
-    """Tạo bảng chi tiết AP per class"""
+    """Create detailed AP for each class"""
     fig, ax = plt.subplots(figsize=(16, 12))
     ax.axis('tight')
     ax.axis('off')
@@ -839,17 +839,17 @@ def create_per_class_detailed_table(results):
                         pass
     
     plt.title('Per-Class AP Detailed Comparison', fontsize=16, fontweight='bold', pad=20)
-    plt.savefig('benchmarks/results/seg_per_class_detailed_table.png', dpi=300, bbox_inches='tight')
+    plt.savefig('benchmarks/results/seg/seg_per_class_detailed_table.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 def ensure_results_directory():
     """
     Create results directory if it doesn't exist.
     
-    This function ensures that the benchmarks/results directory exists
+    This function ensures that the benchmarks/results/seg directory exists
     for saving visualization outputs and benchmark results.
     """
-    results_dir = 'benchmarks/results'
+    results_dir = 'benchmarks/results/seg'
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
         print(f"Created directory: {results_dir}")
@@ -1052,12 +1052,12 @@ if __name__ == "__main__":
         print("BENCHMARK COMPLETED SUCCESSFULLY!")
         print(f"{'='*60}")
         print("\nGenerated files:")
-        print("   benchmarks/results/seg_per_class_bar_comparison.png")
-        print("   benchmarks/results/seg_per_class_line_comparison.png")
-        print("   benchmarks/results/seg_map_comparison.png")
-        print("   benchmarks/results/seg_inference_time_comparison.png")
-        print("   benchmarks/results/seg_summary_table.png")
-        print("   benchmarks/results/seg_per_class_detailed_table.png")
+        print("   benchmarks/results/seg/seg_per_class_bar_comparison.png")
+        print("   benchmarks/results/seg/seg_per_class_line_comparison.png")
+        print("   benchmarks/results/seg/seg_map_comparison.png")
+        print("   benchmarks/results/seg/seg_inference_time_comparison.png")
+        print("   benchmarks/results/seg/seg_summary_table.png")
+        print("   benchmarks/results/seg/seg_per_class_detailed_table.png")
         
         # Final summary
         speedup = results['PyTorch']['avg_inference_time'] / results['TensorRT']['avg_inference_time']

@@ -95,7 +95,6 @@ class AI:
         self._instream_fps_ = 25  # Default input FPS
         self._ai_fps_ = 10  # Default AI processing FPS
         self._processing_times = []  # Store processing times for FPS calculation
-        self._last_fps_update = time.time()
         
         # Frame marking completed by AI
         self.mooc_processed_frames = 0
@@ -172,20 +171,16 @@ class AI:
         """
         self._processing_times.append(processing_time)
         
-        # Only update FPS every 5 seconds to avoid fluctuations
-        current_time = time.time()
-        if current_time - self._last_fps_update > 5.0:
-            if len(self._processing_times) > 0:
-                # Calculate average processing time
-                avg_processing_time = sum(self._processing_times) / len(self._processing_times)
-                if avg_processing_time > 0:
-                    # Update AI FPS based on average processing time
-                    self._ai_fps_ = 1.0 / avg_processing_time
-                    self.logger.update_ai_fps(round(self._ai_fps_, 2))
+        if len(self._processing_times) > 0:
+            # Calculate average processing time
+            avg_processing_time = sum(self._processing_times) / len(self._processing_times)
+            if avg_processing_time > 0:
+                # Update AI FPS based on average processing time
+                self._ai_fps_ = 1.0 / avg_processing_time
+                self.logger.update_ai_fps(round(self._ai_fps_, 2))
             
             # Reset tracking for next calculation
             self._processing_times = []
-            self._last_fps_update = current_time
             
     def inference(self, processed_batch):
         """

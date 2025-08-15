@@ -22,6 +22,8 @@ import time
 from typing import List, Tuple, Dict, Any
 import matplotlib.pyplot as plt
 import json
+import os
+import csv
 
 # ========================================================================
 # UTILITY FUNCTIONS
@@ -684,13 +686,57 @@ def create_performance_comparison():
     comparison = BlurPerformanceComparison()
     
     # Add different blur methods with optimized parameters
-    comparison.add_method(CustomBlurMethod(downscale_factor=40))  # Custom downscale/upscale method
+    comparison.add_method(CustomBlurMethod(downscale_factor=20))  # Custom downscale/upscale method
     comparison.add_method(GaussianBlurMethod(kernel_size=51))     # Traditional Gaussian blur
     comparison.add_method(MedianBlurMethod(kernel_size=31))       # Median filter blur
     comparison.add_method(MotionBlurMethod(kernel_size=21))       # Motion blur simulation
     comparison.add_method(FastBoxBlurMethod(kernel_size=31))      # Fast box blur
     
     return comparison
+
+def save_results_to_csv(results: Dict[str, Any], csv_path: str):
+    """
+    Save benchmark results (timing statistics) to a CSV file.
+    Args:
+        results (Dict[str, Any]): Benchmark results from compare()
+        csv_path (str): Path to the CSV file to save
+    """
+    fieldnames = [
+        'method_name', 'avg_inference_time_ms', 'std_inference_time_ms',
+        'min_inference_time_ms', 'max_inference_time_ms', 'all_times'
+    ]
+    with open(csv_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for method_name, data in results.items():
+            writer.writerow({
+                'method_name': method_name,
+                'avg_inference_time_ms': data['avg_inference_time_ms'],
+                'std_inference_time_ms': data['std_inference_time_ms'],
+                'min_inference_time_ms': data['min_inference_time_ms'],
+                'max_inference_time_ms': data['max_inference_time_ms'],
+                'all_times': ';'.join(f"{t:.4f}" for t in data['all_times'])
+            })
+
+def save_sample_results_to_png(results: Dict[str, Any], output_dir: str):
+    """
+    Save sample result images from each blur method as PNG files.
+    Args:
+        results (Dict[str, Any]): Benchmark results from compare()
+        output_dir (str): Directory to save PNG images
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    for method_name, data in results.items():
+        img = data['sample_result']
+        # Ensure the image is uint8 RGB
+        if img.dtype != np.uint8:
+            img = (img * 255).astype(np.uint8)
+        if img.shape[2] == 3:
+            img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        else:
+            img_bgr = img
+        out_path = os.path.join(output_dir, f"{method_name.replace(' ', '_')}.png")
+        cv2.imwrite(out_path, img_bgr)
 
 def run_performance_benchmark():
     """
@@ -709,10 +755,10 @@ def run_performance_benchmark():
     
     # Try to use real image file, fallback to sample image
     try:
-        image = cv2.imread("benchmarks/sample/blur/draftkings2.png")
+        image = cv2.imread("benchmarks/sample/blur/draftkings.png")
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         
-        with open("benchmarks/sample/blur/draftkings2.json", "r") as f:
+        with open("benchmarks/sample/blur/draftkings.json", "r") as f:
             data = json.load(f)
         polygon = data["shapes"][0]["points"]
         print("Using real image file")
@@ -731,16 +777,28 @@ def run_performance_benchmark():
     print(f"Device: {'CUDA' if torch.cuda.is_available() else 'CPU'}")
     
     results = comparison.compare(image, polygon, num_runs=10, warmup_runs=3)
-    
-    # Display results in formatted table
+
+    # Print results table
     comparison.print_performance_table(results)
-    
-    # Generate performance visualization
-    comparison.visualize_performance(results)
-    
-    # Generate sample results visualization
-    comparison.visualize_sample_results(image, polygon, results)
-    
+
+    # Prepare output directory and figure paths
+    save_dir = "benchmarks/results/blur_benchmark/"
+    os.makedirs(save_dir, exist_ok=True)
+    performance_fig_path = os.path.join(save_dir, "performance_bar_chart.png")
+    sample_grid_path = os.path.join(save_dir, "sample_results_grid.png")
+
+    # Save figures
+    comparison.visualize_performance(results, save_path=performance_fig_path)
+    comparison.visualize_sample_results(image, polygon, results, save_path=sample_grid_path)
+
+    # Save numeric stats and per-method sample images
+    csv_path = os.path.join(save_dir, "blur_benchmark_results.csv")
+    save_results_to_csv(results, csv_path)
+    save_sample_results_to_png(results, save_dir)
+
+    print(f"\nBenchmark statistics saved at: {csv_path}")
+    print(f"Figures saved at: {performance_fig_path}, {sample_grid_path}")
+    print(f"Per-method sample images saved in: {save_dir}")
     return results
 
 # Main execution - run the blur methods performance benchmark

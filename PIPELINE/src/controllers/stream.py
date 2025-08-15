@@ -152,45 +152,59 @@ class StreamController:
         # Build FFmpeg command for real-time streaming
         ffmpeg_command = [
             "ffmpeg",
-            "-re",  # Real time input - read input at native frame rate
+            "-re",
             "-f", "rawvideo",
-            "-pix_fmt", "bgr24",  # Input pixel format
-            "-s", "{}x{}".format(self.width, self.height),  # Input resolution
-            "-r", str(self.target_fps),  # Input frame rate
-            "-i", "-",  # Read from stdin
-            "-i", self.INPUT_SOURCE,  # Original stream for audio
-            "-af", f"adelay={delay * 1000}|{delay * 1000}",  # Audio delay for sync
-            "-async", "1",  # Audio sync
-            "-vsync", "1",  # Video sync
-            "-q:v", "1",  # Video quality (1 = best)
-            "-map", "1:a",  # Use audio from second input
-            "-map", "0:v",  # Use video from first input
-            "-c:v", "libx264",  # Video codec
-            "-pix_fmt", "yuv420p",  # Output pixel format
-            "-preset", "ultrafast",  # Encoding preset for low latency
-            "-color_primaries", "bt709",  # Color space settings
+            "-pix_fmt", "bgr24",
+            "-s", "{}x{}".format(self.width, self.height),
+            "-r", str(self.target_fps),
+            "-i", "-",
+            "-i", self.INPUT_SOURCE,
+            "-af", f"adelay={delay * 1000}|{delay * 1000}",
+            "-async", "1",
+            "-vsync", "1",
+            "-q:v", "1",
+            "-map", "1:a",
+            "-map", "0:v:0",
+            "-c:v", "libx264",
+            "-pix_fmt", "yuv420p",
+            "-preset", "ultrafast",
+            "-color_primaries", "bt709",
             "-color_trc", "bt709",
             "-colorspace", "bt709",
-            "-vf", "yadif",  # Deinterlace filter
-            "-f",  # Output format
+            "-vf", "yadif",
+            "-f"
         ]
         
         # Configure output based on stream type
+        # OUTPUT_TYPE can be "rtsp", "rtmp", or "udp"
+        # Each protocol has its own purpose and use case:
+        # - RTSP (Real Time Streaming Protocol): Common for low-latency IP camera streams and live monitoring.
+        # - RTMP (Real-Time Messaging Protocol): Originally developed by Macromedia/Adobe for Flash, now widely used for
+        #   pushing live streams to platforms like YouTube, Facebook, Twitch. Uses "flv" container format in FFmpeg.
+        # - UDP (User Datagram Protocol): Sends video in MPEG-TS format over the network; very fast, often used for multicast
+        #   or broadcast streaming in local networks, but without guaranteed packet delivery.
+
         if self.cfg['OUTPUT_TYPE'] == "rtsp":
+            # Output to an RTSP stream using TCP transport for reliability
             ffmpeg_command.extend([
                 "rtsp", "-rtsp_transport", "tcp", self.cfg['OUTPUT_STREAM_URL_RTSP']
             ])
             output_stream_url = self.cfg['OUTPUT_STREAM_URL_RTSP']
+
         elif self.cfg['OUTPUT_TYPE'] == "rtmp":
+            # Output to an RTMP server; FFmpeg uses "flv" format for RTMP streaming
             ffmpeg_command.extend([
                 "flv", self.cfg['OUTPUT_STREAM_URL_RTMP']
             ])
             output_stream_url = self.cfg['OUTPUT_STREAM_URL_RTMP']
+
         else:  # Default to UDP
+            # Output over UDP in MPEG-TS format; often used for fast local streaming or multicast
             ffmpeg_command.extend([
                 "mpegts", self.cfg['OUTPUT_STREAM_URL_UDP']
             ])
             output_stream_url = self.cfg['OUTPUT_STREAM_URL_UDP']
+
             
         print(f"Output URL: {output_stream_url}")
         
@@ -385,5 +399,5 @@ class StreamController:
         Get the singleton instance of StreamController.
         """
         if cls._global_instance is None:
-            cls._global_instance = StreamController(cfg=cfg)
+            cls._global_instance = StreamController()
         return cls._global_instance

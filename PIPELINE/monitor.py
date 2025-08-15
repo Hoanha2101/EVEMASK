@@ -29,6 +29,7 @@ import threading
 import os
 import sys
 from datetime import datetime
+import pynvml
 
 class SystemMonitor:
     """
@@ -84,7 +85,6 @@ class SystemMonitor:
             # GPU memory monitoring (NVIDIA GPUs only)
             gpu_info = "N/A"
             try:
-                import pynvml
                 pynvml.nvmlInit()
                 handle = pynvml.nvmlDeviceGetHandleByIndex(0)  # First GPU
                 gpu_memory = pynvml.nvmlDeviceGetMemoryInfo(handle)

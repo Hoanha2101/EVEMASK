@@ -6,7 +6,9 @@
 CLASSES_NO_BLUR:
 - 0
 
+# Show config
 USE_FEATURE_EXTRACTION: True
+USE_BOX_PLOT: False
 
 # Delay time in seconds
 DELAY_TIME: 2
@@ -21,7 +23,7 @@ batch_size: 3
 MAX_BATCH_SIZE: 3
 
 # Input video stream source (UDP multicast address with packet size)
-INPUT_SOURCE: udp://224.1.1.1:30122?pkt_size=1316
+INPUT_SOURCE: udp://@224.1.1.1:30122?pkt_size=1316
 
 # Output stream type (e.g., udp, rtmp, rtsp)
 OUTPUT_TYPE: udp

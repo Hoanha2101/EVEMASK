@@ -41,3 +41,4 @@ __pycache__/
 
 # Ignore file
 monitor.log
+monitor.py

@@ -2,6 +2,9 @@
 Benchmark entry point for the EVEMASK Pipeline system.
 This script compares inference performance and memory usage between original and trimmed ONNX models used in the EVEMASK system.
 
+CLI sample: 
+    python benchmarks/onnx_trim.py --original weights/onnx/seg_v1.0.0.onnx --trimmed weights/onnx/seg_v1.0.0_trimmed.onnx --plots
+
 Author: EVEMASK Team
 Version: 1.0.0
 """
@@ -13,7 +16,7 @@ import cv2
 import onnxruntime as ort
 import psutil
 import gc
-import json
+import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Tuple
 import matplotlib.pyplot as plt
@@ -38,10 +41,6 @@ class ModelBenchmark:
         self.input_shape = self.session.get_inputs()[0].shape
         self.output_names = [output.name for output in self.session.get_outputs()]
         
-        print(f"Loaded model: {model_path}")
-        print(f"Input shape: {self.input_shape}")
-        print(f"Output names: {self.output_names}")
-        print(f"Provider: {self.session.get_providers()}")
         
     def generate_dummy_images(self, num_images: int, input_shape: Tuple[int, int, int, int]) -> np.ndarray:
         """
@@ -180,12 +179,6 @@ class ModelBenchmark:
             'fps': 1000 / np.mean(inference_times),  # Images per second
         }
         
-        print(f"Benchmark completed!")
-        print(f"   Mean inference time: {results['mean_time']:.2f} ± {results['std_time']:.2f}ms")
-        print(f"   Median inference time: {results['median_time']:.2f}ms")
-        print(f"   FPS: {results['fps']:.1f}")
-        print(f"   Memory usage: {results['mean_memory_after_mb']:.1f}MB")
-        
         return results
 
 def compare_models(original_results: Dict, trimmed_results: Dict) -> Dict:
@@ -294,79 +287,104 @@ def plot_results(original_results: Dict, trimmed_results: Dict, output_dir: str 
 def save_results(original_results: Dict, trimmed_results: Dict, comparison: Dict, 
                 output_dir: str = "benchmark_results_onnx"):
     """
-    Save benchmark results to JSON files.
+    Save benchmark results to CSV files.
     """
     Path(output_dir).mkdir(exist_ok=True)
     
-    # Save individual results
-    with open(f"{output_dir}/original_model_results.json", 'w') as f:
-        json.dump(original_results, f, indent=2, default=str)
-    
-    with open(f"{output_dir}/trimmed_model_results.json", 'w') as f:
-        json.dump(trimmed_results, f, indent=2, default=str)
-    
-    # Save comparison
-    summary = {
-        'original_model': {
-            'path': original_results['model_path'],
-            'mean_time_ms': original_results['mean_time'],
-            'fps': original_results['fps'],
-            'memory_mb': original_results['mean_memory_after_mb'],
-            'num_outputs': original_results['num_outputs']
-        },
-        'trimmed_model': {
-            'path': trimmed_results['model_path'],
-            'mean_time_ms': trimmed_results['mean_time'],
-            'fps': trimmed_results['fps'],
-            'memory_mb': trimmed_results['mean_memory_after_mb'],
-            'num_outputs': trimmed_results['num_outputs']
-        },
-        'improvements': comparison
+    # 1. Save detailed timing results for each iteration
+    timing_data = {
+        'iteration': list(range(len(original_results['inference_times']))),
+        'original_time_ms': original_results['inference_times'],
+        'trimmed_time_ms': trimmed_results['inference_times'],
+        'time_difference_ms': [o - t for o, t in zip(original_results['inference_times'], 
+                                                   trimmed_results['inference_times'])]
     }
+    timing_df = pd.DataFrame(timing_data)
+    timing_df.to_csv(f"{output_dir}/detailed_timing_results.csv", index=False)
     
-    with open(f"{output_dir}/benchmark_summary.json", 'w') as f:
-        json.dump(summary, f, indent=2, default=str)
+    # 2. Save summary statistics
+    summary_data = {
+        'metric': ['model_path', 'num_iterations', 'input_shape', 'num_outputs',
+                  'mean_time_ms', 'std_time_ms', 'min_time_ms', 'max_time_ms', 
+                  'median_time_ms', 'p95_time_ms', 'p99_time_ms',
+                  'initial_memory_mb', 'mean_memory_before_mb', 'mean_memory_after_mb',
+                  'memory_increase_mb', 'fps'],
+        'original_model': [
+            original_results['model_path'],
+            original_results['num_iterations'],
+            str(original_results['input_shape']),
+            original_results['num_outputs'],
+            round(original_results['mean_time'], 4),
+            round(original_results['std_time'], 4),
+            round(original_results['min_time'], 4),
+            round(original_results['max_time'], 4),
+            round(original_results['median_time'], 4),
+            round(original_results['p95_time'], 4),
+            round(original_results['p99_time'], 4),
+            round(original_results['initial_memory_mb'], 2),
+            round(original_results['mean_memory_before_mb'], 2),
+            round(original_results['mean_memory_after_mb'], 2),
+            round(original_results['memory_increase_mb'], 2),
+            round(original_results['fps'], 2)
+        ],
+        'trimmed_model': [
+            trimmed_results['model_path'],
+            trimmed_results['num_iterations'],
+            str(trimmed_results['input_shape']),
+            trimmed_results['num_outputs'],
+            round(trimmed_results['mean_time'], 4),
+            round(trimmed_results['std_time'], 4),
+            round(trimmed_results['min_time'], 4),
+            round(trimmed_results['max_time'], 4),
+            round(trimmed_results['median_time'], 4),
+            round(trimmed_results['p95_time'], 4),
+            round(trimmed_results['p99_time'], 4),
+            round(trimmed_results['initial_memory_mb'], 2),
+            round(trimmed_results['mean_memory_before_mb'], 2),
+            round(trimmed_results['mean_memory_after_mb'], 2),
+            round(trimmed_results['memory_increase_mb'], 2),
+            round(trimmed_results['fps'], 2)
+        ]
+    }
+    summary_df = pd.DataFrame(summary_data)
+    summary_df.to_csv(f"{output_dir}/summary_statistics.csv", index=False)
     
-    print(f"Results saved to {output_dir}/")
-
-def print_summary(original_results: Dict, trimmed_results: Dict, comparison: Dict):
-    """
-    Print a formatted summary of benchmark results.
-    """
-    print("\n" + "="*80)
-    print("BENCHMARK SUMMARY")
-    print("="*80)
+    # 3. Save comparison results
+    comparison_data = {
+        'improvement_metric': [
+            'Speed Improvement (%)',
+            'Memory Reduction (%)',
+            'FPS Improvement (%)',
+            'Outputs Reduction (%)',
+            'Time Difference (ms)',
+            'Memory Difference (MB)',
+            'FPS Difference'
+        ],
+        'value': [
+            round(comparison['speed_improvement_percent'], 2),
+            round(comparison['memory_reduction_percent'], 2),
+            round(comparison['fps_improvement_percent'], 2),
+            round(comparison['outputs_reduction_percent'], 2),
+            round(comparison['time_difference_ms'], 4),
+            round(comparison['memory_difference_mb'], 2),
+            round(comparison['fps_difference'], 2)
+        ]
+    }
+    comparison_df = pd.DataFrame(comparison_data)
+    comparison_df.to_csv(f"{output_dir}/performance_comparison.csv", index=False)
     
-    print(f"\nORIGINAL MODEL: {Path(original_results['model_path']).name}")
-    print(f"   + Mean inference time: {original_results['mean_time']:.2f} ± {original_results['std_time']:.2f}ms")
-    print(f"   + FPS: {original_results['fps']:.1f}")
-    print(f"   + Memory usage: {original_results['mean_memory_after_mb']:.1f}MB")
-    print(f"   + Number of outputs: {original_results['num_outputs']}")
-    
-    print(f"\nTRIMMED MODEL: {Path(trimmed_results['model_path']).name}")
-    print(f"   + Mean inference time: {trimmed_results['mean_time']:.2f} ± {trimmed_results['std_time']:.2f}ms")
-    print(f"   + FPS: {trimmed_results['fps']:.1f}")
-    print(f"   + Memory usage: {trimmed_results['mean_memory_after_mb']:.1f}MB")
-    print(f"   + Number of outputs: {trimmed_results['num_outputs']}")
-    
-    print(f"\nIMPROVEMENTS:")
-    print(f"   + Speed improvement: {comparison['speed_improvement_percent']:+.1f}% ({comparison['time_difference_ms']:+.2f}ms)")
-    print(f"   + Memory reduction: {comparison['memory_reduction_percent']:+.1f}% ({comparison['memory_difference_mb']:+.1f}MB)")
-    print(f"   + FPS improvement: {comparison['fps_improvement_percent']:+.1f}% ({comparison['fps_difference']:+.1f} FPS)")
-    print(f"   + Outputs reduction: {comparison['outputs_reduction_percent']:+.1f}%")
-    
-    print("\nCONCLUSION:")
-    if comparison['speed_improvement_percent'] > 0:
-        print(f"   Trimmed model is {comparison['speed_improvement_percent']:.1f}% FASTER")
-    else:
-        print(f"   Trimmed model is {abs(comparison['speed_improvement_percent']):.1f}% SLOWER")
-    
-    if comparison['memory_reduction_percent'] > 0:
-        print(f"   Memory usage reduced by {comparison['memory_reduction_percent']:.1f}%")
-    else:
-        print(f"   Memory usage increased by {abs(comparison['memory_reduction_percent']):.1f}%")
-    
-    print("="*80)
+    # 4. Save a comprehensive report
+    report_data = {
+        'Model Type': ['Original', 'Trimmed'],
+        'Model Path': [original_results['model_path'], trimmed_results['model_path']],
+        'Mean Time (ms)': [round(original_results['mean_time'], 4), round(trimmed_results['mean_time'], 4)],
+        'Std Time (ms)': [round(original_results['std_time'], 4), round(trimmed_results['std_time'], 4)],
+        'FPS': [round(original_results['fps'], 2), round(trimmed_results['fps'], 2)],
+        'Memory Usage (MB)': [round(original_results['mean_memory_after_mb'], 2), round(trimmed_results['mean_memory_after_mb'], 2)],
+        'Num Outputs': [original_results['num_outputs'], trimmed_results['num_outputs']]
+    }
+    report_df = pd.DataFrame(report_data)
+    report_df.to_csv(f"{output_dir}/benchmark_report.csv", index=False)
 
 def main():
     parser = argparse.ArgumentParser(description="Benchmark YOLOv8 Models - Trimmed vs Non-trimmed")
@@ -374,49 +392,32 @@ def main():
     parser.add_argument("--trimmed", type=str, required=True, help="Path to trimmed ONNX model")
     parser.add_argument("--warmup", type=int, default=10, help="Number of warmup iterations")
     parser.add_argument("--iterations", type=int, default=100, help="Number of benchmark iterations")
-    parser.add_argument("--output-dir", type=str, default="benchmark_results_onnx", help="Output directory for results")
-    parser.add_argument("--no-plots", action="store_true", help="Skip generating plots")
+    parser.add_argument("--output-dir", type=str, default="benchmarks/results/benchmark_results_onnx", help="Output directory for results")
+    parser.add_argument("--plots", action="store_true", help="Generate plots")
     
     args = parser.parse_args()
-    
-    print("YOLOv8 Model Benchmark - Trimmed vs Non-trimmed")
-    print("="*60)
     
     # Initialize benchmarks
     original_benchmark = ModelBenchmark(args.original)
     trimmed_benchmark = ModelBenchmark(args.trimmed)
     
     # Warmup phase
-    print(f"\nWARMUP PHASE ({args.warmup} iterations)")
-    print("-" * 40)
     original_benchmark.warmup(args.warmup)
     trimmed_benchmark.warmup(args.warmup)
     
     # Benchmark phase
-    print(f"\nBENCHMARK PHASE ({args.iterations} iterations)")
-    print("-" * 40)
-    
-    print("\n1. Benchmarking ORIGINAL model...")
     original_results = original_benchmark.benchmark(args.iterations)
-    
-    print("\n2. Benchmarking TRIMMED model...")
     trimmed_results = trimmed_benchmark.benchmark(args.iterations)
     
     # Compare results
     comparison = compare_models(original_results, trimmed_results)
     
-    # Print summary
-    print_summary(original_results, trimmed_results, comparison)
-    
-    # Save results
+    # Save results to CSV
     save_results(original_results, trimmed_results, comparison, args.output_dir)
     
     # Generate plots
-    if not args.no_plots:
-        print(f"\nGenerating visualization plots...")
+    if args.plots:
         plot_results(original_results, trimmed_results, args.output_dir)
-    
-    print(f"\nBenchmark completed! Results saved to '{args.output_dir}/'")
 
 if __name__ == "__main__":
     main()

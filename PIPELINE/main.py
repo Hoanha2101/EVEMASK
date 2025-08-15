@@ -42,7 +42,7 @@ if __name__ == "__main__":
     # ========================================================================
     print("⚙️  Initializing pipeline components...")
     streamController = StreamController(cfg)
-    useAI = AI(cfg, FEmodel=cfg["USE_FEATURE_EXTRACTION"])
+    useAI = AI(cfg, FEmodel=cfg["USE_FEATURE_EXTRACTION"], boxPlot= cfg["USE_BOX_PLOT"])
     print("✅ Components initialized successfully.\n")
 
     # ========================================================================
