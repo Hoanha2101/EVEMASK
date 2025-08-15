@@ -1,0 +1,10 @@
+# Specific directories to ignore
+CSV_REPORT/
+DATASET/
+JSON_DATA/
+MASK_RCNN_RUN/
+PLOT_REPORT/
+TRAIN_LOG_MASK_RCNN/
+WEIGHTS/
+YOLO_RUN/
+val_segment_coco.json
