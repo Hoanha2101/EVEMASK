@@ -35,16 +35,9 @@ import React, { FormEvent, useState } from 'react';
 import './Footer.css';
 
 const Footer: React.FC = () => {
-  // Newsletter subscription state management
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
-
-  /**
-   * Handles newsletter subscription form submission
-   * Integrates with HuggingFace Space API for email collection
-   * @param e - Form submission event
-   */
   const handleNewsletterSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email) return;
@@ -53,7 +46,6 @@ const Footer: React.FC = () => {
     setSubmitMessage('');
     
     try {
-      // API call to HuggingFace Space for newsletter signup
       const apiUrl = "https://nghiant20-evemask.hf.space/api/newsletter/signup";
       
       console.log('Footer - Calling API URL:', apiUrl);
@@ -71,25 +63,21 @@ const Footer: React.FC = () => {
       
       console.log('Footer - Response status:', response.status);
       
-      // Handle successful subscription
       if (response.ok) {
         const data = await response.json();
         console.log('Footer - Success response:', data);
         setSubmitMessage('Thank you for subscribing!');
         setEmail('');
       } else {
-        // Handle API error responses
         const data = await response.json();
         console.log('Footer - Error response:', data);
         setSubmitMessage(data.detail || 'Subscription failed. Please try again.');
       }
     } catch (error) {
-      // Handle network errors
       console.error('Footer - Network error:', error);
       setSubmitMessage('Network error. Please check your connection and try again.');
     } finally {
       setIsSubmitting(false);
-      // Clear message after 5 seconds
       setTimeout(() => setSubmitMessage(''), 5000);
     }
   };

@@ -19,10 +19,6 @@
 import React, { useEffect, useState } from 'react';
 import './Navbar.css';
 
-/**
- * Chart/Analytics Icon Component
- * Used for the Problems section navigation
- */
 const ChartIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M21 21H4.6C4.03995 21 3.75992 21 3.54601 20.891C3.35785 20.7951 3.20487 20.6422 3.10899 20.454C3 20.2401 3 19.9601 3 19.4V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -30,10 +26,6 @@ const ChartIcon = () => (
   </svg>
 );
 
-/**
- * Lightbulb/Innovation Icon Component
- * Used for the Solution section navigation
- */
 const LightbulbIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 7V9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -43,10 +35,6 @@ const LightbulbIcon = () => (
   </svg>
 );
 
-/**
- * Checkmark Icon Component
- * Used for the Why Choose section navigation
- */
 const CheckmarkIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M8 12.5L10.5 15L16 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -54,10 +42,6 @@ const CheckmarkIcon = () => (
   </svg>
 );
 
-/**
- * Team/Star Icon Component
- * Used for the Team section navigation
- */
 const TeamIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 2L15.5 9H8.5L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -67,20 +51,12 @@ const TeamIcon = () => (
   </svg>
 );
 
-/**
- * Play Icon Component
- * Used for the Demo section navigation
- */
 const PlayIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M5 4.99988L19 11.9999L5 18.9999V4.99988Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
-/**
- * Contact/Chat Icon Component
- * Used for the Contact section navigation
- */
 const ContactIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M2 12C2 17.5228 6.47715 22 12 22C14.1135 22 16.0681 21.3712 17.6693 20.292L20 21L19.293 18.6769C20.3782 17.0893 21 15.1538 21 13.0702C21 7.54736 16.5228 3.07021 11 3.07021C7.1358 3.07021 3.82428 5.28423 2.5 8.50023" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -89,10 +65,6 @@ const ContactIcon = () => (
   </svg>
 );
 
-/**
- * Home Icon Component
- * Used for the Hero/Home section navigation
- */
 const HomeIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -100,10 +72,6 @@ const HomeIcon = () => (
   </svg>
 );
 
-/**
- * Hamburger Menu Icon Component
- * Used for mobile navigation menu toggle
- */
 const MenuIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M3 12H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -112,10 +80,6 @@ const MenuIcon = () => (
   </svg>
 );
 
-/**
- * Close Icon Component
- * Used for closing mobile navigation menu
- */
 const CloseIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -135,18 +99,11 @@ const CloseIcon = () => (
  * - Auto-collapse functionality for better UX
  */
 const Navbar: React.FC = () => {
-  // Navigation state management
   const [isScrolled, setIsScrolled] = useState(false);
-  const [activeLink, setActiveLink] = useState<string>('hero'); // Initialize with hero section
+  const [activeLink, setActiveLink] = useState<string>('hero'); 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false); // Collapsed navbar state
+  const [isCollapsed, setIsCollapsed] = useState(false); 
 
-  /**
-   * Setup scroll event listeners and intersection observers
-   * - Track scroll position for navbar styling
-   * - Monitor section visibility for active link highlighting
-   * - Handle navbar auto-collapse behavior
-   */
   useEffect(() => {
     const handleScroll = () => {
       // Update navbar styling on scroll
@@ -156,21 +113,18 @@ const Navbar: React.FC = () => {
         setIsScrolled(false);
       }
       
-      // Collapse navbar on mobile when scrolling down
       if (window.innerWidth <= 768) {
         if (window.scrollY > 150) {
           setIsCollapsed(true);
-          setMobileMenuOpen(false); // Close menu when collapsing
+          setMobileMenuOpen(false); 
         } else {
           setIsCollapsed(false);
         }
       }
       
-      // Update active section based on scroll position
       const sections = document.querySelectorAll('section[id]');
-      const scrollPosition = window.pageYOffset + 100; // Offset for better UX
+      const scrollPosition = window.pageYOffset + 100; 
       
-      // Check if we're at the top of the page (hero section)
       if (window.pageYOffset < 50) {
         setActiveLink('hero');
       } else {
@@ -186,11 +140,10 @@ const Navbar: React.FC = () => {
       }
     };
     
-    // Check screen size and close mobile menu on resize
     const handleResize = () => {
       if (window.innerWidth > 768) {
         setMobileMenuOpen(false);
-        setIsCollapsed(false); // Reset collapsed state on desktop
+        setIsCollapsed(false); 
       }
     };
 
@@ -206,10 +159,9 @@ const Navbar: React.FC = () => {
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     setActiveLink(id);
-    setMobileMenuOpen(false); // Close mobile menu when clicking a link
+    setMobileMenuOpen(false); 
     
     if (id === 'hero') {
-      // Scroll to top for hero section
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       const element = document.getElementById(id);
@@ -221,11 +173,9 @@ const Navbar: React.FC = () => {
 
   const toggleMobileMenu = () => {
     if (isCollapsed) {
-      // Khi collapsed, click hamburger sẽ expand navbar
       setIsCollapsed(false);
       setMobileMenuOpen(true);
     } else {
-      // Toggle menu bình thường
       setMobileMenuOpen(!mobileMenuOpen);
     }
   };
@@ -244,7 +194,6 @@ const Navbar: React.FC = () => {
               />
             </div>
             
-            {/* Mobile Menu Toggle Button */}
             <button 
               className="mobile-menu-toggle" 
               onClick={toggleMobileMenu}
@@ -329,7 +278,6 @@ const Navbar: React.FC = () => {
         )}
       </div>
 
-      {/* Mobile expanded menu */}
       {mobileMenuOpen && (
         <div className="nav-links mobile-expanded">
           <a 

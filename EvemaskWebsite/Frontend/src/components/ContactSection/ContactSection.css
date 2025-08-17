@@ -176,7 +176,6 @@
   }
 }
 
-/* MOBILE OPTIMIZATION FOR CONTACT SECTION - FLEXIBLE & CENTERED */
 @media screen and (max-width: 768px) {
   #contact,
   .section#contact,
@@ -282,7 +281,6 @@
   }
 }
 
-/* Additional responsive breakpoints for better flexibility */
 @media screen and (max-width: 480px) {
   .contact-content {
     max-width: 320px !important;

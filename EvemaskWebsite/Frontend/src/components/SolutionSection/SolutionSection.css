@@ -13,7 +13,6 @@
   animation: gentle-glow 4s ease-in-out infinite;
 }
 
-/* MOBILE OPTIMIZATION FOR SOLUTION SECTION */
 @media screen and (max-width: 768px) {
   #solution,
   .section#solution {
@@ -73,7 +72,6 @@
     border-radius: 5px !important;
   }
   
-  /* Enhanced Workflow Mobile Optimization */
   .workflow-comparison-large .workflow-grid {
     display: block !important;
     max-width: 100% !important;
@@ -102,7 +100,6 @@
     font-size: 0.6rem !important;
   }
   
-  /* Make sure workflow sections stack vertically on mobile */
   .workflow-section.evemask,
   .workflow-section.before {
     width: 100% !important;
@@ -167,7 +164,6 @@
   z-index: 2;
 }
 
-/* Step Cards */
 .steps-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

@@ -31,7 +31,6 @@ const ChallengesSection: React.FC = () => {
   return (
     <section className="section" id="challenges">
       <div className="container">
-        {/* Section Header */}
         <div className="section-title section-title-center">
           <div className="tagline-wrapper tagline-wrapper-center">
             <span className="tagline"> 🏷️ Costs</span>
@@ -46,12 +45,9 @@ const ChallengesSection: React.FC = () => {
           </div>
         </div>
         
-        {/* Challenges Grid Layout */}
         <div className="challenges-grid">
-          {/* Challenge Card 1: Legal Risks */}
           <div className="challenge-card">
             <div className="challenge-icon">
-              {/* Custom SVG icon for legal risks */}
               <svg width="48" height="48" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="32" cy="32" r="30" fill="#FFE5E5"/>
                 <path d="M25 28h14v8H25z" fill="#FF6B6B"/>
@@ -66,10 +62,8 @@ const ChallengesSection: React.FC = () => {
             </p>
           </div>
           
-          {/* Challenge Card 2: Manual Moderation */}
           <div className="challenge-card">
             <div className="challenge-icon">
-              {/* Custom SVG icon for time/efficiency issues */}
               <svg width="48" height="48" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="32" cy="32" r="30" fill="#FFF3E0"/>
                 <circle cx="32" cy="32" r="20" fill="none" stroke="#FF9800" strokeWidth="3"/>

@@ -13,12 +13,6 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 
-// TODO: Uncomment when navbar styles testing is complete
-// const linkElement = document.createElement('link');
-// linkElement.rel = 'stylesheet';
-// linkElement.href = '/assets/css/styles.css';
-// document.head.appendChild(linkElement);
-
 /**
  * Create React root and render the application
  * Uses React.StrictMode for development warnings and checks

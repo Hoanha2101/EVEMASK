@@ -47,7 +47,6 @@ const TeamSection: React.FC = () => {
         
         {/* Team Members Grid */}
         <div className="team-grid">
-          {/* Team Member 1: Dang Phuc Bao Chau */}
           <div className="team-member">
             <div className="team-member-image">
               <img
@@ -62,7 +61,6 @@ const TeamSection: React.FC = () => {
             </div>
           </div>
           
-          {/* Team Member 2: Ha Khai Hoan */}
           <div className="team-member">
             <div className="team-member-image">
               <img

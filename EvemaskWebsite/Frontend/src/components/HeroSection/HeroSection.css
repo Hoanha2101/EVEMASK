@@ -40,17 +40,13 @@
 /* EMERGENCY MOBILE FIX - HIGHEST PRIORITY STYLES */
 /* These styles are placed at the top to ensure mobile compatibility */
 @media screen and (max-width: 768px) {
-  /* FORCE ALL HERO ELEMENTS TO DISPLAY ON MOBILE */
-  /* Multiple selectors ensure compatibility across different CSS specificity levels */
   section#hero.mobile-fixed-2024.section.hero,
   #hero.mobile-fixed-2024.section.hero,
   .mobile-fixed-2024.section.hero {
-    /* Professional gradient background with CSS variables */
     background: var(--gradient-primary) !important;
     color: white !important;
     min-height: 60vh !important;
     width: calc(100% - 8px) !important;
-    /* Push hero section below navbar completely on mobile */
     margin: 180px 4px 4px 4px !important;
     padding: 20px 8px 10px 8px !important;
     border-radius: 8px !important;
@@ -58,7 +54,6 @@
     display: block !important;
     overflow: visible !important;
     
-    /* Professional shadow system for mobile */
     box-shadow: 
       0 10px 30px rgba(0, 0, 0, 0.25),
       0 4px 16px rgba(83, 52, 131, 0.15),
@@ -66,7 +61,6 @@
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
   }
   
-  /* FORCE ALL CONTENT TO SHOW ON MOBILE */
   section#hero .hero-content,
   #hero .hero-content,
   .hero .hero-content {
@@ -78,8 +72,7 @@
     width: 100% !important;
     align-items: center !important;
   }
-  
-  /* Layout order: Text -> Images -> Stats */
+
   .hero-text {
     order: 1 !important;
     width: 100% !important;
@@ -99,7 +92,6 @@
     width: 100% !important;
   }
   
-  /* FORCE STATS TO SHOW */
   section#hero .hero-stats,
   #hero .hero-stats,
   .hero .hero-stats {
@@ -146,7 +138,6 @@
     color: white !important;
   }
   
-  /* FORCE BUTTONS TO SHOW */
   section#hero .hero-actions,
   #hero .hero-actions,
   .hero .hero-actions {
@@ -174,7 +165,6 @@
     opacity: 1 !important;
   }
   
-  /* FORCE TRUST INDICATORS TO SHOW */
   section#hero .hero-trust,
   #hero .hero-trust,
   .hero .hero-trust {
@@ -204,7 +194,6 @@
     color: white !important;
   }
   
-  /* FORCE IMAGES TO BE COMPACT */
   section#hero .hero-visual,
   #hero .hero-visual,
   .hero .hero-visual {
@@ -237,29 +226,24 @@
 
 .hero {
   position: relative;
-  min-height: 80vh; /* Giảm height để giống các section khác */
+  min-height: 80vh; 
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: visible;
   z-index: 1;
-  
-  /* Container styling giống các section khác */
   background: var(--gradient-primary);
   width: calc(100% - 40px);
-  margin: 90px 20px 20px 20px; /* Điều chỉnh margin-top sau khi remove body padding-top */
+  margin: 90px 20px 20px 20px; 
   border-radius: 20px;
-  
-  /* Enhanced professional shadows giống các section khác */
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.3),
     0 8px 32px rgba(83, 52, 131, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);  
   border: 1px solid rgba(255, 255, 255, 0.15);
-  animation: gentle-glow 4s ease-in-out infinite; /* Dùng animation giống các section khác */
+  animation: gentle-glow 4s ease-in-out infinite; 
   transition: all 0.3s ease;
-  padding: 60px 0; /* Thêm padding giống các section khác */
+  padding: 60px 0; 
 }
 
 .hero:hover { 
@@ -279,7 +263,6 @@
   z-index: 1;
 }
 
-/* Thêm overlay dark giống các section khác */
 .hero::before {
   content: '';
   position: absolute;
@@ -322,10 +305,10 @@
 
 .hero-container {
   position: relative;
-  z-index: 3; /* Tăng z-index để hiển thị trên overlay */
+  z-index: 3; 
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px; /* Giảm padding để phù hợp với container style */
+  padding: 40px 20px; 
   width: 100%;
   display: flex;
   align-items: center;
@@ -340,7 +323,7 @@
   min-height: 500px;
   width: 100%;
   max-width: 1200px;
-  z-index: 10; /* Ensure content is above background */
+  z-index: 10;
   position: relative;
 }
 
@@ -350,7 +333,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  z-index: 15; /* Ensure text is visible */
+  z-index: 15;
   position: relative;
 }
 
@@ -668,9 +651,7 @@
 
 @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
 
-/* HIGHEST PRIORITY MOBILE STYLES - COMPACT IMAGES */
 @media screen and (max-width: 768px) {
-  /* Hero section with normal gradient background - Ultra compact */
   section#hero.mobile-fixed-2024.section.hero {
     background: var(--gradient-primary) !important;
     color: white !important;
@@ -684,7 +665,6 @@
     overflow: visible !important;
   }
   
-  /* Container with highest specificity */
   section#hero .mobile-container-2024.hero-container {
     padding: 5px !important;
     max-width: 100% !important;
@@ -692,7 +672,6 @@
     display: block !important;
   }
   
-  /* Content layout */
   section#hero .hero-content {
     display: block !important;
     gap: 5px !important;
@@ -702,14 +681,12 @@
     width: 100% !important;
   }
   
-  /* Text section */
   section#hero .hero-text {
     width: 100% !important;
     margin-bottom: 5px !important;
     display: block !important;
   }
   
-  /* Badge styling */
   section#hero .hero-badge {
     margin-bottom: 4px !important;
     padding: 2px 4px !important;
@@ -721,7 +698,6 @@
     font-size: 8px !important;
   }
   
-  /* Title styling - Ultra compact */
   section#hero .hero-title {
     font-size: 1.1rem !important;
     line-height: 1 !important;
@@ -740,7 +716,6 @@
     display: block !important;
   }
   
-  /* Description - Ultra compact */
   section#hero .hero-description {
     font-size: 0.65rem !important;
     line-height: 1.1 !important;
@@ -749,7 +724,6 @@
     display: block !important;
   }
   
-  /* Stats section - FORCE DISPLAY - Ultra compact */
   section#hero .hero-stats {
     display: flex !important;
     justify-content: space-around !important;
@@ -789,7 +763,6 @@
     opacity: 1 !important;
   }
   
-  /* Actions section - FORCE DISPLAY - Ultra compact */
   section#hero .hero-actions {
     display: flex !important;
     flex-direction: row !important;
@@ -815,7 +788,6 @@
     border-radius: 4px !important;
   }
   
-  /* Trust section - FORCE DISPLAY - Ultra compact */
   section#hero .hero-trust {
     padding-top: 4px !important;
     border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
@@ -841,7 +813,6 @@
     padding: 1px 2px !important;
   }
   
-  /* Visual section - Ultra compact mobile images */
   section#hero .hero-visual {
     display: flex !important;
     flex-direction: row !important;
@@ -868,7 +839,6 @@
     max-height: 80px !important;
   }
   
-  /* Hide decorative elements */
   section#hero .floating-elements {
     display: none !important;
   }
@@ -878,14 +848,12 @@
   }
 }
 
-/* Ultra Small Mobile */
 @media (max-width: 480px) {
   .hero {
     width: calc(100% - 5px) !important;
-    margin: 110px 2px 2px 2px !important; /* Đẩy hero section xuống dưới navbar hoàn toàn trên ultra small mobile */
+    margin: 110px 2px 2px 2px !important; 
     padding: 5px !important;
     border-radius: 5px !important;
-    /* Giữ container style cho ultra small mobile */
     box-shadow: 
       0 8px 24px rgba(0, 0, 0, 0.2),
       0 3px 12px rgba(83, 52, 131, 0.12) !important;
@@ -939,7 +907,6 @@
     font-size: 5px !important;
   }
   
-  /* Ultra small images for 480px */
   .hero-visual {
     gap: 1px !important;
     margin-top: 2px !important;

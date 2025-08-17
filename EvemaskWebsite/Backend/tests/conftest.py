@@ -12,8 +12,6 @@ from unittest.mock import Mock, patch, mock_open
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 import pytest_asyncio
-
-# Import the main app
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from main import app
@@ -45,7 +43,6 @@ def temp_subscribers_file():
     
     yield temp_file
     
-    # Cleanup
     try:
         os.unlink(temp_file)
     except:
@@ -58,7 +55,6 @@ def mock_gmail_service():
         mock_service = Mock()
         mock_build.return_value = mock_service
         
-        # Mock successful email sending
         mock_service.users().messages().send().execute.return_value = {"id": "test_message_id"}
         
         yield mock_service

@@ -31,7 +31,6 @@
  * Version: 1.0.0
  */
 
-/* Main Navbar Container - Fixed positioning with glass morphism */
 .navbar {
   display: flex;
   justify-content: center;
@@ -40,35 +39,22 @@
   width: calc(100% - 40px);
   padding: 15px 20px;
   margin: 0 20px;
-  
-  /* Professional glass morphism background with transparency */
   background: rgba(255, 255, 255, 0.95);
-  
-  /* Fixed positioning for persistent navigation */
   position: fixed;
-  top: 20px; /* Increased spacing from top for better visual hierarchy */
+  top: 20px; 
   left: 0;
   right: 0;
   transform: none;
-  z-index: 1000; /* High z-index to ensure navbar stays above content */
+  z-index: 1000; 
   border-radius: 16px;
-  
-  /* Professional shadow system using CSS variables */
   box-shadow: var(--shadow-1);
-    
-  /* Enhanced backdrop filter for glass morphism effect */
-  -webkit-backdrop-filter: blur(12px) saturate(160%); /* Safari compatibility */
-  backdrop-filter: blur(12px) saturate(160%); /* Modern browsers */
-  
-  /* Professional border */
+  -webkit-backdrop-filter: blur(12px) saturate(160%); 
+  backdrop-filter: blur(12px) saturate(160%); 
   border: 1px solid var(--color-scheme-1-border);
-  
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   overflow: hidden;
 }
 
-/* Professional glass morphism overlay */
-/* Professional glass morphism overlay */
 .navbar::before {
   content: '';
   position: absolute;
@@ -110,9 +96,6 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.4);
   min-height: 55px;
 }
-
-/* Loại bỏ các hiệu ứng phức tạp có thể gây vấn đề trên một số browser */
-/* Removed navbar hover effects */
 
 .navbar-container {
   display: flex;
@@ -167,7 +150,6 @@
   flex-wrap: nowrap;
 }
 
-/* Modern Nav Item Styles - Simple Blue Design */
 .nav-links .nav-item {
   display: flex;
   align-items: center;
@@ -179,8 +161,6 @@
   border-radius: 12px;
   text-decoration: none;
   position: relative;
-  
-  /* Simple blue background like Solution button */
   background: rgba(59, 130, 246, 1);
   border: none;
   
@@ -189,20 +169,15 @@
 }
 
 .nav-links .nav-item::before {
-  /* Remove shimmer effect */
   display: none;
 }
 
-/* Removed nav-item hover effects */
-
-/* Active Nav Item - Simple Blue */
 .nav-links .nav-item.active {
   background: rgba(59, 130, 246, 1);
   color: #ffffff;
   font-weight: 700;
 }
 
-/* Home button active state - Simple Blue */
 .nav-links .nav-item.home-active {
   background: rgba(59, 130, 246, 1);
   color: #ffffff;
@@ -227,7 +202,6 @@
   transform: scale(1.1);
 }
 
-/* Navigation Icon Styles */
 .nav-item svg {
   stroke: currentColor;
   stroke-width: 2;
@@ -240,9 +214,6 @@
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
 }
 
-/* Removed hover effects for SVG icons */
-
-/* Mobile Navigation Styles */
 @media (max-width: 1024px) {
   .navbar-container {
     justify-content: space-between;
@@ -270,11 +241,11 @@
 
 @media (max-width: 768px) {
   .navbar {
-    top: 15px !important; /* Tăng từ 5px để có khoảng cách với edge màn hình */
+    top: 15px !important; 
     left: 0 !important;
     right: 0 !important;
     width: calc(100% - 16px);
-    margin: 0 8px 15px 8px !important; /* Thêm margin-bottom để có gap với hero */
+    margin: 0 8px 15px 8px !important; 
     padding: 8px 12px;
   }
 
@@ -296,11 +267,11 @@
 @media (max-width: 480px) {
   .navbar {
     position: fixed;
-    top: 10px; /* Tăng từ 5px để có khoảng cách với edge màn hình */
+    top: 10px; 
     left: 0;
     right: 0;
     width: calc(100% - 8px);
-    margin: 0 4px 10px 4px; /* Thêm margin-bottom để có gap với hero */
+    margin: 0 4px 10px 4px; 
     padding: 6px 8px;
     min-height: 50px;
     z-index: 1000;
@@ -327,7 +298,6 @@
   }
 }
 
-/* Mobile Menu Toggle Button */
 .mobile-menu-toggle {
   display: none;
   background: linear-gradient(
@@ -350,9 +320,6 @@
   backdrop-filter: blur(10px);
 }
 
-/* Removed mobile menu toggle hover effects */
-
-/* Responsive Design - Tablet và Mobile */
 @media (max-width: 1024px) {
   .navbar {
     min-height: 55px;
@@ -389,11 +356,11 @@
 @media (max-width: 768px) {
   .navbar {
     position: fixed;
-    top: 15px; /* Tăng từ 5px để có khoảng cách với edge màn hình */
+    top: 15px; 
     left: 0;
     right: 0;
     width: calc(100% - 16px);
-    margin: 0 8px 15px 8px; /* Thêm margin-bottom để có gap với hero */
+    margin: 0 8px 15px 8px; 
     padding: 8px 12px;
     min-height: 60px;
     z-index: 1000;
@@ -469,7 +436,6 @@
   }
 }
 
-/* Show text on slightly larger screens */
 @media (max-width: 768px) and (min-width: 600px) {
   .nav-links .nav-item span {
     display: inline;
@@ -482,7 +448,6 @@
   }
 }
 
-/* Additional browser compatibility */
 @supports not (backdrop-filter: blur(10px)) {
   .navbar {
     background: rgba(99, 102, 241, 0.95);
@@ -499,46 +464,33 @@
   }
 }
 
-/* Additional glassmorphism effects */
 .navbar-logo img {
   filter: brightness(1.1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
   transition: all 0.3s ease;
 }
 
-/* Removed logo hover effects */
-
-/* Enhanced Navbar Button Effects - Simple Blue */
 .nav-links .nav-item {
   position: relative;
-  /* Simple blue background - no gradients */
   background: rgba(59, 130, 246, 1);
   border: none;
 }
 
 .nav-links .nav-item:hover {
-  /* No hover effects - keep same appearance */
   background: rgba(59, 130, 246, 1);
 }
 
-/* Active Button - Simple Blue */
 .nav-links .nav-item.active {
   background: rgba(59, 130, 246, 1);
   color: #ffffff;
   font-weight: 700;
 }
 
-/* Home Active - Simple Blue */
 .nav-links .nav-item.home-active {
   background: rgba(59, 130, 246, 1);
   color: #ffffff;
   font-weight: 700;
 }
 
-/* No pulse animation for buttons */
-
-/* Removed pulse animation keyframes */
-
-/* Simple Icon Styles */
 .nav-links .nav-item svg {
   width: 12px;
   height: 12px;
@@ -550,17 +502,11 @@
   filter: drop-shadow(0 0 6px rgba(96, 165, 250, 0.9));
 }
 
-/* Ripple Effect on Click */
 .nav-links .nav-item:active {
   transform: translateY(-1px) scale(1.02);
   transition: all 0.1s ease;
 }
 
-/* ========================================
-   MOBILE HAMBURGER MENU STYLES
-========================================== */
-
-/* Mobile Menu Toggle Button */
 .mobile-menu-toggle {
   display: none;
   background: linear-gradient(
@@ -616,7 +562,6 @@
   transition: all 0.3s ease;
 }
 
-/* Đảm bảo hamburger căn giữa hoàn toàn trong nút collapsed */
 .navbar.collapsed .mobile-menu-toggle {
   display: flex;
   justify-content: center;
@@ -628,13 +573,11 @@
   height: 100%;
 }
 
-/* Hover effect cho hamburger */
 .navbar.collapsed:hover .hamburger span {
   background: rgba(255, 255, 255, 0.9);
   transform: scaleX(1.1);
 }
 
-/* Collapsed navbar state - nút vuông bo góc */
 .navbar.collapsed {
   width: 50px;
   height: 50px;
@@ -683,7 +626,6 @@
   height: 100%;
 }
 
-/* Expanded mobile menu */
 .nav-links.mobile-expanded {
   position: fixed;
   top: 80px;
@@ -745,7 +687,6 @@
   height: 16px;
 }
 
-/* Mobile responsive styles */
 @media (max-width: 768px) {
   .navbar {
     transition: all 0.3s ease;

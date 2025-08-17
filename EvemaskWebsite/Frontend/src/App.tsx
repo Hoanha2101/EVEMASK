@@ -12,14 +12,9 @@ import React from 'react';
 import './App.css';
 import FullSiteComponent from './components/FullSiteComponent';
 
-/**
- * Main App component that serves as the entry point for the application
- * @returns JSX element containing the complete EVEMASK website
- */
 function App() {
   return (
     <div className="App">
-      {/* Main site component containing all sections */}
       <FullSiteComponent />
     </div>
   );

@@ -36,7 +36,6 @@ const ContactSection: React.FC = () => {
     <section className="section" id="contact">
       <div className="container">
         <div className="contact-content">
-          {/* Contact Information Header */}
           <div className="contact-info">
             <div className="section-title">
               <div className="tagline-wrapper">
@@ -52,11 +51,8 @@ const ContactSection: React.FC = () => {
             </div>
           </div>
           
-          {/* Contact Details List */}
           <div className="contact-details">
-            {/* Email Contact */}
             <div className="contact-item">
-              {/* Email SVG Icon */}
               <svg
                 className="contact-icon"
                 width="24"
@@ -82,7 +78,6 @@ const ContactSection: React.FC = () => {
               </svg>
               <div className="contact-info-content">
                 <h4 className="contact-info-heading">Email</h4>
-                {/* Email link with proper mailto protocol */}
                 <a href="mailto:evemask.ai@gmail.com" className="contact-link">
                   evemask.ai@gmail.com
                 </a>

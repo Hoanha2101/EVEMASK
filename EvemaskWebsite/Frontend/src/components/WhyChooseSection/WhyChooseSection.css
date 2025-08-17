@@ -1,6 +1,5 @@
 /* WhyChooseSection.css - Add any specific styles here */
 
-/* MOBILE OPTIMIZATION FOR WHY CHOOSE SECTION */
 @media screen and (max-width: 768px) {
   #why-choose,
   .section#why-choose {
@@ -190,7 +189,6 @@
   margin: 0;
 }
 
-/* Individual card styles with different themes */
 .bubble-section:nth-child(1) {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(29, 78, 216, 0.1));
 }
@@ -394,7 +392,6 @@
   }
 }
 
-/* Animation delays for staggered effect */
 .bubble-section:nth-child(1) { animation: fadeInUp 0.6s ease-out 0.1s both; }
 .bubble-section:nth-child(2) { animation: fadeInUp 0.6s ease-out 0.2s both; }
 .bubble-section:nth-child(3) { animation: fadeInUp 0.6s ease-out 0.3s both; }

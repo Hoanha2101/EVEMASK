@@ -198,9 +198,9 @@ def run_linting():
     for command, description in linting_commands:
         if not run_command(command, description):
             all_passed = False
-            print(f"❌ {description} failed")
+            print(f" {description} failed")
         else:
-            print(f"✅ {description} passed")
+            print(f" {description} passed")
     
     return all_passed
 
@@ -216,9 +216,9 @@ def run_security_checks():
     for command, description in security_commands:
         if not run_command(command, description):
             all_passed = False
-            print(f"❌ {description} failed")
+            print(f" {description} failed")
         else:
-            print(f"✅ {description} passed")
+            print(f" {description} passed")
     
     return all_passed
 
@@ -231,16 +231,16 @@ def generate_coverage_report():
     
     # Generate coverage report
     if run_command("coverage report -m", "Generating coverage report"):
-        print("✅ Coverage report generated successfully")
+        print(" Coverage report generated successfully")
         
         # Open HTML coverage report
         coverage_file = Path("htmlcov/index.html")
         if coverage_file.exists():
-            print(f"📊 HTML coverage report available at: {coverage_file.absolute()}")
+            print(f" HTML coverage report available at: {coverage_file.absolute()}")
         
         return True
     else:
-        print("❌ Failed to generate coverage report")
+        print(" Failed to generate coverage report")
         return False
 
 
@@ -261,33 +261,33 @@ def main():
     
     args = parser.parse_args()
     
-    print("🧪 EVEMASK Backend Test Runner")
+    print(" EVEMASK Backend Test Runner")
     print("="*60)
     
     # Setup test environment
     if not args.no_setup:
         if not setup_test_environment():
-            print("❌ Failed to setup test environment")
+            print(" Failed to setup test environment")
             sys.exit(1)
     
     # Run linting if requested
     if args.lint:
-        print("\n🔍 Running code quality checks...")
+        print("\n Running code quality checks...")
         if not run_linting():
-            print("❌ Linting checks failed")
+            print(" Linting checks failed")
             sys.exit(1)
-        print("✅ All linting checks passed")
-    
+        print(" All linting checks passed")
+
     # Run security checks if requested
     if args.security:
-        print("\n🔒 Running security checks...")
+        print("\n Running security checks...")
         if not run_security_checks():
-            print("❌ Security checks failed")
+            print(" Security checks failed")
             sys.exit(1)
-        print("✅ All security checks passed")
+        print(" All security checks passed")
     
     # Run tests
-    print(f"\n🧪 Running {args.type} tests...")
+    print(f"\n Running {args.type} tests...")
     test_success = run_tests(
         test_type=args.type,
         verbose=not args.quiet,
@@ -304,10 +304,10 @@ def main():
     print("="*60)
     
     if test_success:
-        print("✅ All tests passed successfully!")
+        print(" All tests passed successfully!")
         
         # Show report locations
-        print("\n📊 Generated Reports:")
+        print("\n Generated Reports:")
         print(f"  - HTML Test Report: reports/report.html")
         print(f"  - JSON Test Report: reports/report.json")
         if not args.no_coverage:
@@ -316,7 +316,7 @@ def main():
         
         sys.exit(0)
     else:
-        print("❌ Some tests failed!")
+        print(" Some tests failed!")
         sys.exit(1)
 
 

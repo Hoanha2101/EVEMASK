@@ -55,22 +55,18 @@ import re
 import tempfile
 import uvicorn
 from dotenv import load_dotenv
-# Thêm các thư viện của Google và các thư viện cần thiết khác
 import base64
 from email.mime.text import MIMEText
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-# Thêm Supabase
 from supabase import create_client, Client
 
-# Load environment variables from .env file
 load_dotenv()
 
 app = FastAPI(title="EVEMASK Newsletter API", version="1.0.0")
 
-# CORS middleware to allow frontend to call API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -86,7 +82,6 @@ app.add_middleware(
     expose_headers=["*"]
 )
 
-# Pydantic models
 class NewsletterSignup(BaseModel):
     email: str
     timestamp: Optional[datetime] = None
@@ -103,21 +98,17 @@ class EmailResponse(BaseModel):
     email: str
     status: str
 
-# Email configuration
 EMAIL_CONFIG = {
     "sender_email": os.getenv("SENDER_EMAIL"),
-    # Thêm các cấu hình cho Gmail API
     "google_client_id": os.getenv("GOOGLE_CLIENT_ID"),
     "google_client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
     "google_refresh_token": os.getenv("GOOGLE_REFRESH_TOKEN"),
     "sender_name": os.getenv("SENDER_NAME", "EVEMASK Team")
 }
 
-# Supabase configuration
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY")
 
-# Initialize Supabase client
 supabase: Client = None
 if SUPABASE_URL and SUPABASE_KEY:
     try:
@@ -621,7 +612,6 @@ def get_gmail_credentials():
             service = build('gmail', 'v1', credentials=creds)
     """
     try:
-        # Load credentials từ environment variables
         creds_info = {
             "client_id": EMAIL_CONFIG.get("google_client_id"),
             "client_secret": EMAIL_CONFIG.get("google_client_secret"),
@@ -630,29 +620,26 @@ def get_gmail_credentials():
             "type": "authorized_user"
         }
         
-        # Kiểm tra tất cả credentials có tồn tại không
         missing_creds = [key for key, value in creds_info.items() if not value and key != "type"]
         if missing_creds:
-            print(f"❌ Missing Gmail credentials: {missing_creds}")
-            print("🔧 Please check your HuggingFace Spaces secrets:")
+            print(f" Missing Gmail credentials: {missing_creds}")
+            print(" Please check your HuggingFace Spaces secrets:")
             print("   GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN")
             return None
         
-        # Tạo credentials object
         creds = Credentials.from_authorized_user_info(
             creds_info, 
             ['https://www.googleapis.com/auth/gmail.send']
         )
         
-        # Refresh token nếu cần (credentials sẽ tự động refresh khi expired)
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
-            print("🔄 Gmail credentials refreshed successfully")
+            print(" Gmail credentials refreshed successfully")
         
         return creds
         
     except Exception as e:
-        print(f"❌ Error loading Gmail credentials: {str(e)}")
+        print(f" Error loading Gmail credentials: {str(e)}")
         return None
 
 def send_welcome_email(email: str) -> bool:
@@ -694,59 +681,52 @@ def send_welcome_email(email: str) -> bool:
             print("Welcome email sent successfully")
     """
     try:
-        # Lấy credentials
         creds = get_gmail_credentials()
         if not creds:
-            print("❌ Gmail credentials not available. Skipping email.")
+            print(" Gmail credentials not available. Skipping email.")
             return False
         
-        # Test credentials trước khi sử dụng
         if not creds.valid:
-            print("❌ Gmail credentials invalid. Skipping email.")
+            print(" Gmail credentials invalid. Skipping email.")
             return False
         
-        # Xây dựng service Gmail
         service = build('gmail', 'v1', credentials=creds)
         
-        # Không test profile để tránh lỗi scope, chỉ dùng sender_email từ config
         sender_email = EMAIL_CONFIG["sender_email"]
-        print(f"✅ Gmail API credentials ready. Sender: {sender_email}")
+        print(f" Gmail API credentials ready. Sender: {sender_email}")
         
-        # Tạo nội dung email
         message = MIMEText(create_welcome_email_html(email), 'html')
         message['To'] = email
         message['From'] = f'{EMAIL_CONFIG["sender_name"]} <{sender_email}>'
-        message['Subject'] = "🚨 Stop Losing Money on Content Violations - EVEMASK AI Solution Inside!"
+        message['Subject'] = " Stop Losing Money on Content Violations - EVEMASK AI Solution Inside!"
         
-        # Encode message dưới dạng base64
         encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
         create_message = {'raw': encoded_message}
         
-        # Gửi email
         send_message = service.users().messages().send(
             userId="me", 
             body=create_message
         ).execute()
         
         if send_message.get("id"):
-            print(f"✅ Successfully sent welcome email to {email} via Gmail API.")
-            print(f"📧 Message ID: {send_message.get('id')}")
+            print(f" Successfully sent welcome email to {email} via Gmail API.")
+            print(f" Message ID: {send_message.get('id')}")
             return True
         else:
-            print(f"❌ Failed to send email via Gmail API: {send_message}")
+            print(f" Failed to send email via Gmail API: {send_message}")
             return False
 
     except HttpError as error:
-        print(f"❌ Gmail API HTTP error: {error}")
+        print(f" Gmail API HTTP error: {error}")
         if error.resp.status == 401:
-            print("❌ Authentication failed. Check your credentials.")
+            print(" Authentication failed. Check your credentials.")
         elif error.resp.status == 403:
-            print("❌ Access forbidden. Check your Gmail API permissions.")
+            print(" Access forbidden. Check your Gmail API permissions.")
         elif error.resp.status == 429:
-            print("❌ Rate limit exceeded. Too many requests.")
+            print(" Rate limit exceeded. Too many requests.")
         return False
     except Exception as e:
-        print(f"❌ Unexpected error sending email: {str(e)}")
+        print(f" Unexpected error sending email: {str(e)}")
         return False
 
 def save_subscriber(email: str):
@@ -800,18 +780,16 @@ def save_subscriber(email: str):
     """
     try:
         if not supabase:
-            print("❌ Supabase client not initialized")
+            print(" Supabase client not initialized")
             # Fallback to JSON file if Supabase is not available
             return save_subscriber_to_json(email)
         
-        # Kiểm tra xem email đã tồn tại chưa
         existing_subscriber = supabase.table('subscribers').select('*').eq('email', email).execute()
         
         if existing_subscriber.data:
-            print(f"📝 Email already exists in database: {email}")
+            print(f" Email already exists in database: {email}")
             return True
         
-        # Thêm subscriber mới vào database
         new_subscriber = {
             "email": email,
             "created_at": datetime.now().isoformat(),
@@ -821,72 +799,61 @@ def save_subscriber(email: str):
         result = supabase.table('subscribers').insert(new_subscriber).execute()
         
         if result.data:
-            print(f"✅ Successfully saved subscriber to Supabase: {email}")
+            print(f" Successfully saved subscriber to Supabase: {email}")
             return True
         else:
-            print(f"❌ Failed to save subscriber to Supabase: {email}")
-            # Fallback to JSON file
+            print(f" Failed to save subscriber to Supabase: {email}")
             return save_subscriber_to_json(email)
             
     except Exception as e:
-        print(f"❌ Error saving subscriber to Supabase: {str(e)}")
-        print(f"📋 Attempting fallback to JSON file for: {email}")
-        # Fallback to JSON file if Supabase fails
+        print(f" Error saving subscriber to Supabase: {str(e)}")
+        print(f" Attempting fallback to JSON file for: {email}")
         return save_subscriber_to_json(email)
 
 def save_subscriber_to_json(email: str):
     """Fallback method: Lưu email subscriber vào file JSON"""
     try:
-        # Thử sử dụng file subscribers.json hiện có trước
         subscribers_file = "subscribers.json"
         subscribers = []
-        
-        # Đọc file hiện tại nếu có
         try:
             if os.path.exists(subscribers_file):
                 with open(subscribers_file, 'r') as f:
                     subscribers = json.load(f)
         except (PermissionError, OSError) as read_error:
-            print(f"⚠️ Cannot read {subscribers_file}: {read_error}")
-            # Fallback: sử dụng temp directory
+            print(f" Cannot read {subscribers_file}: {read_error}")
             temp_dir = tempfile.gettempdir()
             subscribers_file = os.path.join(temp_dir, "subscribers_backup.json")
             if os.path.exists(subscribers_file):
                 with open(subscribers_file, 'r') as f:
                     subscribers = json.load(f)
         
-        # Thêm subscriber mới
         new_subscriber = {
             "email": email,
             "timestamp": datetime.now().isoformat()
         }
         
-        # Kiểm tra xem email đã tồn tại chưa
         if not any(sub["email"] == email for sub in subscribers):
             subscribers.append(new_subscriber)
             
-            # Thử lưu lại file gốc trước
             try:
                 if subscribers_file == "subscribers.json":
                     with open(subscribers_file, 'w') as f:
                         json.dump(subscribers, f, indent=2)
-                    print(f"📝 Saved subscriber to main file: {email}")
+                    print(f" Saved subscriber to main file: {email}")
                 else:
-                    # Lưu vào backup file
                     with open(subscribers_file, 'w') as f:
                         json.dump(subscribers, f, indent=2)
-                    print(f"📝 Saved subscriber to backup file: {email}")
+                    print(f" Saved subscriber to backup file: {email}")
             except (PermissionError, OSError) as write_error:
-                print(f"❌ Cannot write to {subscribers_file}: {write_error}")
-                # In ra log để debug
-                print(f"📋 Subscriber data (not saved): {new_subscriber}")
+                print(f" Cannot write to {subscribers_file}: {write_error}")
+                print(f" Subscriber data (not saved): {new_subscriber}")
         else:
-            print(f"📝 Email already exists: {email}")
+            print(f" Email already exists: {email}")
         
         return True
     except Exception as e:
-        print(f"❌ Error saving subscriber to JSON: {str(e)}")
-        print(f"📋 Attempted to save: {email}")
+        print(f" Error saving subscriber to JSON: {str(e)}")
+        print(f" Attempted to save: {email}")
         return False
 
 @app.get("/api/debug/supabase-status")
@@ -991,7 +958,6 @@ async def get_subscribers(limit: int = 50, offset: int = 0):
 async def check_gmail_status():
     """Endpoint để kiểm tra trạng thái Gmail API"""
     try:
-        # Kiểm tra environment variables
         env_check = {
             "GOOGLE_CLIENT_ID": bool(EMAIL_CONFIG.get("google_client_id")),
             "GOOGLE_CLIENT_SECRET": bool(EMAIL_CONFIG.get("google_client_secret")), 
@@ -1000,7 +966,6 @@ async def check_gmail_status():
             "SENDER_NAME": bool(EMAIL_CONFIG.get("sender_name"))
         }
         
-        # Thử lấy credentials
         creds = get_gmail_credentials()
         if not creds:
             return {
@@ -1020,7 +985,6 @@ async def check_gmail_status():
                 "env_check": env_check
             }
         
-        # Test Gmail API connection với scope hiện tại (chỉ send email)
         try:
             service = build('gmail', 'v1', credentials=creds)
             
@@ -1059,7 +1023,6 @@ async def check_file_status():
     try:
         file_info = {}
         
-        # Kiểm tra file subscribers.json chính
         main_file = "subscribers.json"
         if os.path.exists(main_file):
             file_info["main_file"] = {
@@ -1079,7 +1042,6 @@ async def check_file_status():
         else:
             file_info["main_file"] = {"exists": False}
         
-        # Kiểm tra backup file
         temp_dir = tempfile.gettempdir()
         backup_file = os.path.join(temp_dir, "subscribers_backup.json")
         if os.path.exists(backup_file):
@@ -1093,7 +1055,6 @@ async def check_file_status():
         else:
             file_info["backup_file"] = {"exists": False}
         
-        # Thông tin thư mục hiện tại
         file_info["current_directory"] = {
             "cwd": os.getcwd(),
             "temp_dir": temp_dir,
@@ -1182,15 +1143,12 @@ async def newsletter_signup(signup: NewsletterSignup):
     try:
         email = signup.email
         
-        # Lưu subscriber trước
         save_success = save_subscriber(email)
         if not save_success:
             raise HTTPException(status_code=500, detail="Failed to save subscriber")
         
-        # Thử gửi email (không block nếu thất bại)
         email_success = send_welcome_email(email)
         
-        # Trả về response thành công dù email có thể thất bại
         if email_success:
             status_message = "Thank you for your interest! Welcome email sent successfully."
         else:
@@ -1205,7 +1163,7 @@ async def newsletter_signup(signup: NewsletterSignup):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Newsletter signup error: {str(e)}")
+        print(f" Newsletter signup error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.get("/")

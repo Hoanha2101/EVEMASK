@@ -69,13 +69,13 @@ body {
 /* Add padding-top for mobile to ensure content doesn't hide behind navbar */
 @media screen and (max-width: 768px) {
   body {
-    padding-top: 100px !important; /* Push all content down on mobile - tăng thêm 10px */
+    padding-top: 100px !important; 
   }
 }
 
 @media screen and (max-width: 480px) {
   body {
-    padding-top: 80px !important; /* Adjust for smaller screens */
+    padding-top: 80px !important; 
   }
 }
 
@@ -84,16 +84,15 @@ code {
     monospace;
 }
 
-/* FINAL MOBILE HERO OVERRIDE - HIGHEST PRIORITY */
 @media screen and (max-width: 768px) {
   #hero, 
   section#hero,
   .hero {
     min-height: auto !important;
     width: calc(100% - 8px) !important;
-    margin: 180px 4px 4px 4px !important; /* Tăng margin-top lên 180px để đẩy hero xuống thêm */
+    margin: 180px 4px 4px 4px !important; 
     margin-top: 180px !important;
-    padding: 20px 8px 10px 8px !important; /* Thêm padding-top để tạo khoảng cách bổ sung */
+    padding: 20px 8px 10px 8px !important; 
     display: block !important;
     position: relative !important;
     overflow: visible !important;
@@ -159,14 +158,14 @@ code {
     opacity: 1 !important;
   }
 
-/* MOBILE SMALL HERO OVERRIDE - FOR VERY SMALL SCREENS */
+
 @media screen and (max-width: 480px) {
   #hero, 
   section#hero,
   .hero {
-    margin: 150px 4px 4px 4px !important; /* Tăng margin-top lên 150px cho màn hình nhỏ */
+    margin: 150px 4px 4px 4px !important; 
     margin-top: 150px !important;
-    padding: 15px 8px 10px 8px !important; /* Thêm padding-top cho khoảng cách bổ sung */
+    padding: 15px 8px 10px 8px !important; 
   }
 }
 
@@ -251,9 +250,7 @@ code {
     margin: 8px 0 !important;
   }
   
-  /* ALL OTHER SECTIONS MOBILE OPTIMIZATION */
   
-  /* Force all sections to be mobile friendly */
   .section {
     min-height: auto !important;
     width: calc(100% - 8px) !important;
@@ -263,13 +260,11 @@ code {
     overflow: visible !important;
   }
   
-  /* Force all section content to be visible */
   .section * {
     visibility: visible !important;
     opacity: 1 !important;
   }
   
-  /* Grid layouts to stack vertically */
   .team-grid,
   .why-choose-grid,
   .challenges-grid,
@@ -279,12 +274,10 @@ code {
     gap: 6px !important;
   }
   
-  /* Special 2-column grids for compact items */
   .team-grid {
     grid-template-columns: 1fr 1fr !important;
   }
   
-  /* Team photos must be circular on mobile */
   .member-photo,
   .team-avatar {
     width: 100px !important;
@@ -312,7 +305,6 @@ code {
     align-items: center !important;
   }
   
-  /* All headings mobile size */
   .section-heading,
   h1, h2, h3 {
     font-size: 1.3rem !important;
@@ -321,7 +313,6 @@ code {
     margin-bottom: 8px !important;
   }
   
-  /* All descriptions mobile size */
   .section-text,
   .section-description,
   p {
@@ -331,7 +322,6 @@ code {
     margin-bottom: 8px !important;
   }
   
-  /* All buttons mobile friendly */
   .btn,
   .button,
   .demo-button,
@@ -343,7 +333,6 @@ code {
     max-width: 100% !important;
   }
   
-  /* Form elements mobile friendly */
   .form-input,
   .form-textarea,
   input,
@@ -354,21 +343,18 @@ code {
     border-radius: 4px !important;
   }
   
-  /* Images mobile responsive */
   img {
     max-width: 100% !important;
     height: auto !important;
     border-radius: 5px !important;
   }
   
-  /* Video elements mobile responsive */
   video {
     width: 100% !important;
     max-height: 200px !important;
     border-radius: 8px !important;
   }
   
-  /* WORKFLOW MOBILE FINAL OVERRIDE */
   .workflow-comparison,
   .workflow-comparison-large {
     margin: 8px 0 !important;
@@ -449,7 +435,6 @@ code {
   }
 }
 
-/* Animation keyframes for sections */
 @keyframes fadeInUp {
   0% {
     opacity: 0;
@@ -477,31 +462,6 @@ code {
   50% { transform: translateY(-20px) rotate(180deg); }
   100% { transform: translateY(0px) rotate(360deg); }
 }
-
-/* FORCE HERO MOBILE POSITION - FINAL OVERRIDE
-@media screen and (max-width: 768px) {
-  * [id="hero"], 
-  * [class*="hero"],
-  body > div > section:first-of-type,
-  #root > div > section:first-of-type {
-    margin-top: 140px !important;
-    position: relative !important;
-    top: auto !important;
-    z-index: 1 !important;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  * [id="hero"], 
-  * [class*="hero"],
-  body > div > section:first-of-type,
-  #root > div > section:first-of-type {
-    margin-top: 110px !important;
-    position: relative !important;
-    top: auto !important;
-    z-index: 1 !important;
-  }
-} */
 
 @keyframes particles-float {
   0% { transform: translateY(0px) rotate(0deg); }

@@ -27,25 +27,14 @@ import './HeroSection.css';
 import './MobileFix.css';
 
 const HeroSection: React.FC = () => {
-  /**
-   * Component initialization and mobile optimization
-   * Applies responsive styles and ensures mobile compatibility
-   */
   useEffect(() => {
-    /**
-     * Force mobile styles on load and resize
-     * This function ensures consistent mobile styling across browsers
-     * by programmatically applying CSS styles when viewport is mobile-sized
-     */
     const applyMobileStyles = () => {
       if (window.innerWidth <= 768) {
-        // Get hero section elements for mobile styling
         const heroElement = document.getElementById('hero');
         const statsElement = document.querySelector('.hero-stats') as HTMLElement;
         const actionsElement = document.querySelector('.hero-actions') as HTMLElement;
         const trustElement = document.querySelector('.hero-trust') as HTMLElement;
         
-        // Apply mobile-optimized styles to hero container
         if (heroElement) {
           heroElement.style.cssText = `
             display: block !important;
@@ -57,8 +46,7 @@ const HeroSection: React.FC = () => {
             opacity: 1 !important;
           `;
         }
-        
-        // Apply mobile-optimized styles to statistics section
+
         if (statsElement) {
           statsElement.style.cssText = `
             display: flex !important;
@@ -72,8 +60,7 @@ const HeroSection: React.FC = () => {
             opacity: 1 !important;
           `;
         }
-        
-        // Apply mobile-optimized styles to action buttons
+
         if (actionsElement) {
           actionsElement.style.cssText = `
             display: flex !important;
@@ -95,7 +82,6 @@ const HeroSection: React.FC = () => {
           `;
         }
         
-        // Force trust indicators
         const trustIndicators = document.querySelector('.trust-indicators') as HTMLElement;
         if (trustIndicators) {
           trustIndicators.style.cssText = `
@@ -109,10 +95,7 @@ const HeroSection: React.FC = () => {
       }
     };
     
-    // Apply on load
     applyMobileStyles();
-    
-    // Apply on resize
     window.addEventListener('resize', applyMobileStyles);
     
     return () => {
@@ -121,7 +104,6 @@ const HeroSection: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Animation for stats counter
     const statNumbers = document.querySelectorAll('.stat-number');
     
     const animateStats = () => {
@@ -144,7 +126,6 @@ const HeroSection: React.FC = () => {
       });
     };
 
-    // Trigger animation when section is in view
     const heroSection = document.querySelector('.hero');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {

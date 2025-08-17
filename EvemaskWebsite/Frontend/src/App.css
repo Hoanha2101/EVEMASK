@@ -14,32 +14,23 @@
  * Version: 1.0.0
  */
 
-/* Global CSS Reset - Ensures consistent styling across browsers */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Main App Container */
 .App {
   text-align: left;
   width: 100%;
   min-height: 100vh;
   padding-top: 0px;
-  
-  /* Professional background setup - transparent to allow section backgrounds */
   background: transparent;
   position: relative;
-  
-  /* Optimized text rendering for dark theme compatibility */
   color: var(--text-primary);
-  
-  /* Subtle entrance animation for professional user experience */
   animation: subtle-fade-in 1s ease-out;
 }
 
-/* Smooth fade-in animation for app initialization */
 @keyframes subtle-fade-in {
   0% {
     opacity: 0;
@@ -51,7 +42,6 @@
   }
 }
 
-/* Professional scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -69,7 +59,6 @@
   background: linear-gradient(135deg, #7209b7 0%, #a663cc 100%);
 }
 
-/* Đảm bảo CSS styles từ HTML gốc được áp dụng */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

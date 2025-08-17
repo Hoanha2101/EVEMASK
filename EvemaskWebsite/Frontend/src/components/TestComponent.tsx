@@ -2,18 +2,15 @@ import React, { useEffect } from 'react';
 
 const TestComponent: React.FC = () => {
   useEffect(() => {
-    // Import CSS từ thư mục public
     const linkElement = document.createElement('link');
     linkElement.rel = 'stylesheet';
     linkElement.href = '/assets/css/styles.css';
     linkElement.id = 'evemask-styles';
-    
-    // Kiểm tra xem đã có chưa để tránh duplicate
+  
     if (!document.getElementById('evemask-styles')) {
       document.head.appendChild(linkElement);
     }
 
-    // Navbar scroll effect
     const handleScroll = () => {
       const navbar = document.querySelector('.navbar');
       if (navbar) {
@@ -27,7 +24,6 @@ const TestComponent: React.FC = () => {
 
     window.addEventListener('scroll', handleScroll);
 
-    // Cleanup
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
@@ -35,7 +31,6 @@ const TestComponent: React.FC = () => {
 
   return (
     <>
-      {/* Navbar đơn giản */}
       <nav className="navbar">
         <div className="navbar-container">
           <div className="navbar-logo">
@@ -67,7 +62,6 @@ const TestComponent: React.FC = () => {
         </div>
       </nav>
 
-      {/* Hero Section đơn giản */}
       <section className="section hero">
         <div className="hero-background">
           <div className="hero-particles"></div>
@@ -119,7 +113,6 @@ const TestComponent: React.FC = () => {
         </div>
       </section>
 
-      {/* Footer đơn giản */}
       <footer className="section section-medium footer">
         <div className="container">
           <div className="footer-content">

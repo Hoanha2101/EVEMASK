@@ -1,36 +1,36 @@
 # EVEMASK React App
 
-Đây là phiên bản React của website EVEMASK, được chuyển đổi từ HTML thuần sang React với TypeScript.
+This is the React version of the EVEMASK website, converted from pure HTML to React with TypeScript.
 
-## Cài đặt và Chạy Project
+## Installation and Running the Project
 
-### Bước 1: Cài đặt Dependencies
+### Step 1: Install Dependencies
 ```bash
 cd Frontend
 npm install
 ```
 
-### Bước 2: Chạy Development Server
+### Step 2: Run Development Server
 ```bash
 npm start
 ```
 
-Website sẽ chạy tại: http://localhost:3000
+The website will run at: http://localhost:3000
 
-### Bước 3: Build cho Production
+### Step 3: Build for Production
 ```bash
 npm run build
 ```
 
-## Cấu Trúc Project
+## Project Structure
 
 ```
 Frontend/
 ├── public/
-│   ├── assets/          # CSS, images, videos từ HTML cũ
+│   ├── assets/          # CSS, images, videos from old HTML
 │   └── index.html
 ├── src/
-│   ├── components/      # Các React components
+│   ├── components/      # React components
 │   │   ├── Navbar/
 │   │   ├── HeroSection/
 │   │   ├── ChallengesSection/
@@ -49,37 +49,37 @@ Frontend/
 └── README.md
 ```
 
-## Các Tính Năng Đã Chuyển Đổi
+## Converted Features
 
-- ✅ **Navbar với scroll effect**
-- ✅ **Hero Section với animation counter**
-- ✅ **Challenges Section với icons**
-- ✅ **Solution Section với workflow comparison**
-- ✅ **Why Choose Section với bubbles**
+- ✅ **Navbar with scroll effect**
+- ✅ **Hero Section with animation counter**
+- ✅ **Challenges Section with icons**
+- ✅ **Solution Section with workflow comparison**
+- ✅ **Why Choose Section with bubbles**
 - ✅ **Team Section**
-- ✅ **Demo Section với video**
-- ✅ **Contact Section với map**
-- ✅ **Footer với newsletter**
-- ✅ **Responsive design giữ nguyên từ CSS cũ**
+- ✅ **Demo Section with video**
+- ✅ **Contact Section with map**
+- ✅ **Footer with newsletter**
+- ✅ **Responsive design maintained from original CSS**
 
-## Các Cải Tiến
+## Improvements
 
-1. **Component-based Architecture**: Mỗi section được tách thành component riêng
-2. **TypeScript Support**: Type safety cho toàn bộ codebase
-3. **React Hooks**: Sử dụng useState, useEffect cho interactivity
+1. **Component-based Architecture**: Each section separated into individual components
+2. **TypeScript Support**: Type safety for entire codebase
+3. **React Hooks**: Using useState, useEffect for interactivity
 4. **Modern Development**: Hot reload, build optimization
-5. **Maintainable Code**: Easier to maintain và extend
+5. **Maintainable Code**: Easier to maintain and extend
 
-## Scripts Có Sẵn
+## Available Scripts
 
-- `npm start` - Chạy development server
-- `npm build` - Build cho production
-- `npm test` - Chạy tests
-- `npm eject` - Eject cấu hình (không khuyến khích)
+- `npm start` - Run development server
+- `npm build` - Build for production
+- `npm test` - Run tests
+- `npm eject` - Eject configuration (not recommended)
 
-## Lưu Ý
+## Notes
 
-- Tất cả CSS styles từ HTML cũ đã được giữ nguyên
-- Assets (images, videos) đã được copy sang thư mục public
-- Giao diện sẽ giống hệt phiên bản HTML
-- Responsive design vẫn hoạt động như cũ
+- All CSS styles from original HTML have been preserved
+- Assets (images, videos) have been copied to public folder
+- Interface will look identical to HTML version
+- Responsive design still works as before

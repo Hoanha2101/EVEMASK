@@ -1,6 +1,5 @@
 /* TeamSection.css - Add any specific styles here */
 
-/* MOBILE OPTIMIZATION FOR TEAM SECTION */
 @media screen and (max-width: 768px) {
   #team,
   .section#team {
@@ -340,7 +339,6 @@
   }
 }
 
-/* Extra small mobile */
 @media (max-width: 360px) {
   .team-member {
     padding: 8px 4px;
