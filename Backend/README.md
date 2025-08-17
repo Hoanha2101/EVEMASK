@@ -182,7 +182,7 @@ Backend/
 ├── main.py                   # FastAPI application entry point
 ├── requirements.txt          # Python package dependencies
 ├── .env                     # Environment variables (create manually)
-├── .env.example            # Environment variables template
+├── env.template            # Environment variables template
 ├── setup.bat               # Automated setup script
 ├── start_server.bat        # Server startup script
 ├── subscribers.json        # JSON fallback storage (auto-generated)

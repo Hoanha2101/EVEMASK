@@ -30,11 +30,14 @@ ENV/
 env.bak/
 venv.bak/
 
-# Environment variables
+# Environment variables - NEVER commit these!
 .env
+.env.*
 .env.local
 .env.example
 .env.production
+.env.development
+env.local
 
 # IDE
 .vscode/

@@ -39,7 +39,7 @@ echo API Documentation: http://localhost:8002/docs
 echo.
 
 echo IMPORTANT: 
-echo 1. Copy .env.example to .env
+echo 1. Copy env.template to .env and configure your credentials
 echo 2. Configure your Supabase credentials (SUPABASE_URL, SUPABASE_ANON_KEY)
 echo 3. Configure your Gmail API credentials (follow OAUTH_GUIDE.md)
 echo 4. Run migration script if you have existing JSON data: python migrate_to_supabase.py
