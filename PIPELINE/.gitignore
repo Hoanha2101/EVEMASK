@@ -1,0 +1,42 @@
+# Ignore everything in weights folder
+weights/*
+
+# But keep the subfolders themselves (to preserve structure)
+!weights/.gitkeep
+!weights/onnx/
+!weights/pytorch/
+!weights/trtPlans/
+!weights/yolo/
+
+# And keep the .gitkeep in each subfolder
+!weights/onnx/.gitkeep
+!weights/pytorch/.gitkeep
+!weights/trtPlans/.gitkeep
+!weights/yolo/.gitkeep
+
+# Ignore content inside each subfolder
+weights/onnx/*
+weights/pytorch/*
+weights/trtPlans/*
+weights/yolo/*
+
+# But allow only the .gitkeep files in each
+!weights/onnx/.gitkeep
+!weights/pytorch/.gitkeep
+!weights/trtPlans/.gitkeep
+!weights/yolo/.gitkeep
+
+# Ignore other folders
+DATASET/
+videos/
+recognizeData/
+block/
+benchmarks/sample/
+benchmark_results/
+benchmark_results_onnx/
+*.log
+__pycache__/
+*.pyc
+
+# Ignore file
+monitor.log

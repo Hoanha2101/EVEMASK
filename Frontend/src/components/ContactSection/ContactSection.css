@@ -1,0 +1,337 @@
+/* Contact Section - Professional Design */
+.contact-section {
+  position: relative;
+  background: var(--gradient-primary);
+  width: calc(100% - 40px);
+  margin: 20px 20px;
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(83, 52, 131, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  animation: fadeInUp 0.8s ease-out;
+  transition: all 0.3s ease;
+  padding: 80px 0;
+}
+
+.contact-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 25px 70px rgba(0, 0, 0, 0.35),
+    0 10px 40px rgba(83, 52, 131, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.contact-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--overlay-dark);
+  border-radius: 20px;
+  z-index: 1;
+}
+
+.contact-section .container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Contact Section */
+.contact-content {
+  display: flex;
+  width: 100%;
+  align-items: start;
+  gap: 80px;
+  justify-content: start;
+  flex-wrap: wrap;
+}
+
+.contact-info {
+  display: flex;
+  min-width: 240px;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: start;
+  flex: 1;
+}
+
+.contact-details {
+  min-width: 240px;
+  width: 500px;
+  padding: 8px 0;
+}
+
+.contact-item {
+  display: flex;
+  width: 100%;
+  align-items: start;
+  gap: 16px;
+  justify-content: start;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.contact-item:last-child {
+  margin-bottom: 0;
+}
+
+.contact-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  aspect-ratio: 1;
+  object-fit: contain;
+  object-position: center;
+}
+
+.contact-info-content {
+  min-width: 240px;
+  flex: 1;
+}
+
+.contact-info-heading {
+  color: #ffffff;
+  font-size: var(--text-sizes-heading-6);
+  font-weight: 700;
+  line-height: 1.4;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin-bottom: 12px;
+}
+
+.contact-link {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: var(--text-sizes-text-regular);
+  font-weight: 400;
+  text-decoration: underline;
+  margin-top: 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: color 0.3s ease;
+}
+
+.contact-link:hover {
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.contact-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--text-sizes-text-regular);
+  font-weight: 400;
+  margin-top: 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.contact-map {
+  width: 100%;
+  margin-top: 80px;
+  aspect-ratio: 16/9;
+  object-fit: contain;
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .contact-section {
+    width: calc(100% - 20px);
+    margin: 10px 10px;
+    padding: 40px 0;
+  }
+  
+  .contact-content {
+    flex-direction: column;
+    gap: 32px;
+    text-align: center;
+  }
+  
+  .contact-map {
+    margin-top: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-section {
+    width: calc(100% - 16px);
+    margin: 8px 8px;
+    padding: 32px 0;
+  }
+  
+  .contact-content {
+    gap: 24px;
+  }
+  
+  .contact-heading {
+    font-size: 18px;
+  }
+  
+  .contact-link,
+  .contact-text {
+    font-size: 14px;
+  }
+  
+  .contact-map {
+    margin-top: 24px;
+  }
+}
+
+/* MOBILE OPTIMIZATION FOR CONTACT SECTION - FLEXIBLE & CENTERED */
+@media screen and (max-width: 768px) {
+  #contact,
+  .section#contact,
+  .contact-section {
+    min-height: auto !important;
+    width: calc(100% - 16px) !important;
+    margin: 8px !important;
+    padding: 20px 12px !important;
+    border-radius: 12px !important;
+  }
+  
+  .contact-container {
+    padding: 0 !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .contact-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 16px !important;
+    width: 100% !important;
+    max-width: 400px !important;
+    margin: 0 auto !important;
+  }
+  
+  .contact-info {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 350px !important;
+    margin: 0 auto !important;
+    padding: 16px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(10px) !important;
+  }
+  
+  .contact-details {
+    width: 100% !important;
+    max-width: 320px !important;
+    margin: 0 auto !important;
+  }
+  
+  .contact-item {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 8px 12px !important;
+    font-size: 0.85rem !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    width: 100% !important;
+    max-width: 280px !important;
+    text-align: center !important;
+    margin: 0 auto 12px auto !important;
+  }
+  
+  .contact-item:last-child {
+    margin-bottom: 0 !important;
+  }
+  
+  .contact-icon {
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .contact-info-content {
+    flex: 1 !important;
+    text-align: center !important;
+  }
+  
+  .contact-info-heading {
+    font-size: 0.9rem !important;
+    margin-bottom: 4px !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+  }
+  
+  .contact-link,
+  .contact-text {
+    font-size: 0.8rem !important;
+    line-height: 1.4 !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  .contact-map {
+    width: 100% !important;
+    max-width: 350px !important;
+    margin: 16px auto 0 auto !important;
+    aspect-ratio: 16/9 !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* Additional responsive breakpoints for better flexibility */
+@media screen and (max-width: 480px) {
+  .contact-content {
+    max-width: 320px !important;
+    gap: 12px !important;
+  }
+  
+  .contact-info {
+    max-width: 300px !important;
+    padding: 12px !important;
+  }
+  
+  .contact-item {
+    max-width: 260px !important;
+    font-size: 0.8rem !important;
+    padding: 6px 10px !important;
+  }
+  
+  .contact-info-heading {
+    font-size: 0.85rem !important;
+  }
+  
+  .contact-link,
+  .contact-text {
+    font-size: 0.75rem !important;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .contact-content {
+    max-width: 280px !important;
+  }
+  
+  .contact-info {
+    max-width: 260px !important;
+    padding: 10px !important;
+  }
+  
+  .contact-item {
+    max-width: 220px !important;
+    font-size: 0.75rem !important;
+    padding: 5px 8px !important;
+  }
+  
+  .contact-info-heading {
+    font-size: 0.8rem !important;
+  }
+  
+  .contact-link,
+  .contact-text {
+    font-size: 0.7rem !important;
+  }
+}

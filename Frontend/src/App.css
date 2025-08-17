@@ -1,0 +1,80 @@
+/**
+ * App CSS - Main Application Styles
+ * 
+ * This file contains the root application styles including:
+ * - Global CSS reset for consistent cross-browser rendering
+ * - Main App container styles with professional animations
+ * - Dark theme color variables and text rendering optimizations
+ * - Responsive design foundations
+ * 
+ * The styling follows a mobile-first approach with professional
+ * animations and modern CSS practices.
+ * 
+ * Author: EVEMASK Team
+ * Version: 1.0.0
+ */
+
+/* Global CSS Reset - Ensures consistent styling across browsers */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Main App Container */
+.App {
+  text-align: left;
+  width: 100%;
+  min-height: 100vh;
+  padding-top: 0px;
+  
+  /* Professional background setup - transparent to allow section backgrounds */
+  background: transparent;
+  position: relative;
+  
+  /* Optimized text rendering for dark theme compatibility */
+  color: var(--text-primary);
+  
+  /* Subtle entrance animation for professional user experience */
+  animation: subtle-fade-in 1s ease-out;
+}
+
+/* Smooth fade-in animation for app initialization */
+@keyframes subtle-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Professional scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 15, 35, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #533483 0%, #7209b7 100%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #7209b7 0%, #a663cc 100%);
+}
+
+/* Đảm bảo CSS styles từ HTML gốc được áp dụng */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

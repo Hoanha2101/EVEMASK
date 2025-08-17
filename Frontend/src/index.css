@@ -1,0 +1,510 @@
+/**
+ * Index CSS - Global Styles and Design System
+ * 
+ * This file establishes the global design system for the EVEMASK application:
+ * - CSS Custom Properties (CSS Variables) for consistent theming
+ * - Professional gradient color palette
+ * - Glass morphism design elements
+ * - Typography and font rendering optimizations
+ * - Global body and html styles
+ * 
+ * The design system follows modern web standards with:
+ * - Professional blue gradient theme
+ * - Glass morphism effects for modern UI
+ * - Optimized typography for readability
+ * - Cross-browser compatibility
+ * 
+ * Author: EVEMASK Team
+ * Version: 1.0.0
+ */
+
+/* CSS Custom Properties - Design System Variables */
+:root {
+  /* Primary Professional Gradient Colors */
+  --gradient-primary: linear-gradient(135deg, #1e3a8a 0%, #1e40af 25%, #2563eb 50%, #3b82f6 75%, #60a5fa 100%);
+  --gradient-secondary: linear-gradient(135deg, #16213e 0%, #0f3460 50%, #533483 100%);
+  --gradient-accent: linear-gradient(135deg, #533483 0%, #7209b7 50%, #a663cc 100%);
+  
+  /* Professional Overlay Gradients for Glass Morphism */
+  --overlay-dark: linear-gradient(135deg, rgba(30, 58, 138, 0.4) 0%, rgba(37, 99, 235, 0.3) 50%, rgba(59, 130, 246, 0.2) 100%);
+  --overlay-light: linear-gradient(135deg, rgba(30, 64, 175, 0.3) 0%, rgba(37, 99, 235, 0.2) 50%, rgba(96, 165, 250, 0.1) 100%);
+  
+  /* Typography Color System */
+  --text-primary: #ffffff;      /* Primary text for headings and important content */
+  --text-secondary: #e2e8f0;    /* Secondary text for descriptions */
+  --text-accent: #a663cc;       /* Accent text for highlights and CTAs */
+  --text-muted: #94a3b8;        /* Muted text for less important information */
+  
+  /* Glass Morphism Design System */
+  --glass-bg: rgba(255, 255, 255, 0.1);        /* Glass background with transparency */
+  --glass-border: rgba(255, 255, 255, 0.2);    /* Glass border with subtle visibility */
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); /* Professional shadow for depth */
+}
+
+/* Global Body Styles */
+body {
+  margin: 0;
+  /* Professional font stack for optimal readability across platforms */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  /* Font rendering optimizations for crisp text */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Professional main background */
+  background: var(--gradient-primary);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  
+  /* Add subtle texture overlay */
+  background-image: 
+    var(--gradient-primary),
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(83, 52, 131, 0.2) 0%, transparent 50%);
+}
+
+/* Add padding-top for mobile to ensure content doesn't hide behind navbar */
+@media screen and (max-width: 768px) {
+  body {
+    padding-top: 100px !important; /* Push all content down on mobile - tăng thêm 10px */
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body {
+    padding-top: 80px !important; /* Adjust for smaller screens */
+  }
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* FINAL MOBILE HERO OVERRIDE - HIGHEST PRIORITY */
+@media screen and (max-width: 768px) {
+  #hero, 
+  section#hero,
+  .hero {
+    min-height: auto !important;
+    width: calc(100% - 8px) !important;
+    margin: 180px 4px 4px 4px !important; /* Tăng margin-top lên 180px để đẩy hero xuống thêm */
+    margin-top: 180px !important;
+    padding: 20px 8px 10px 8px !important; /* Thêm padding-top để tạo khoảng cách bổ sung */
+    display: block !important;
+    position: relative !important;
+    overflow: visible !important;
+  }
+  
+  #hero .hero-stats,
+  section#hero .hero-stats,
+  .hero .hero-stats {
+    display: flex !important;
+    justify-content: space-around !important;
+    gap: 5px !important;
+    margin: 10px 0 !important;
+    padding: 5px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 6px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    flex-wrap: nowrap !important;
+  }
+  
+  #hero .stat-item,
+  section#hero .stat-item,
+  .hero .stat-item {
+    flex: 1 !important;
+    text-align: center !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  #hero .stat-number,
+  section#hero .stat-number,
+  .hero .stat-number {
+    font-size: 1.5rem !important;
+    font-weight: bold !important;
+    margin-bottom: 3px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: white !important;
+  }
+  
+  #hero .stat-label,
+  section#hero .stat-label,
+  .hero .stat-label {
+    font-size: 0.7rem !important;
+    line-height: 1.2 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  #hero .hero-actions,
+  section#hero .hero-actions,
+  .hero .hero-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    margin: 10px 0 !important;
+    justify-content: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+/* MOBILE SMALL HERO OVERRIDE - FOR VERY SMALL SCREENS */
+@media screen and (max-width: 480px) {
+  #hero, 
+  section#hero,
+  .hero {
+    margin: 150px 4px 4px 4px !important; /* Tăng margin-top lên 150px cho màn hình nhỏ */
+    margin-top: 150px !important;
+    padding: 15px 8px 10px 8px !important; /* Thêm padding-top cho khoảng cách bổ sung */
+  }
+}
+
+  #hero .hero-cta,
+  #hero .hero-cta-secondary,
+  section#hero .hero-cta,
+  section#hero .hero-cta-secondary,
+  .hero .hero-cta,
+  .hero .hero-cta-secondary {
+    width: auto !important;
+    min-width: 110px !important;
+    max-width: 140px !important;
+    height: 38px !important;
+    font-size: 0.75rem !important;
+    padding: 8px 12px !important;
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  #hero .hero-trust,
+  section#hero .hero-trust,
+  .hero .hero-trust {
+    display: block !important;
+    margin: 8px 0 !important;
+    padding-top: 8px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  #hero .trust-indicators,
+  section#hero .trust-indicators,
+  .hero .trust-indicators {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  #hero .trust-item,
+  section#hero .trust-item,
+  .hero .trust-item {
+    font-size: 0.7rem !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  #hero .hero-image,
+  section#hero .hero-image,
+  .hero .hero-image {
+    width: 100% !important;
+    height: 100px !important;
+    object-fit: cover !important;
+    border-radius: 6px !important;
+    display: block !important;
+  }
+  
+  #hero .hero-image-container,
+  section#hero .hero-image-container,
+  .hero .hero-image-container {
+    flex: 1 !important;
+    max-width: 45% !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+  }
+  
+  #hero .hero-visual,
+  section#hero .hero-visual,
+  .hero .hero-visual {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 6px !important;
+    justify-content: center !important;
+    margin: 8px 0 !important;
+  }
+  
+  /* ALL OTHER SECTIONS MOBILE OPTIMIZATION */
+  
+  /* Force all sections to be mobile friendly */
+  .section {
+    min-height: auto !important;
+    width: calc(100% - 8px) !important;
+    margin: 4px !important;
+    padding: 12px 8px !important;
+    border-radius: 8px !important;
+    overflow: visible !important;
+  }
+  
+  /* Force all section content to be visible */
+  .section * {
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* Grid layouts to stack vertically */
+  .team-grid,
+  .why-choose-grid,
+  .challenges-grid,
+  .solution-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 6px !important;
+  }
+  
+  /* Special 2-column grids for compact items */
+  .team-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  
+  /* Team photos must be circular on mobile */
+  .member-photo,
+  .team-avatar {
+    width: 100px !important;
+    height: 100px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    max-width: 100px !important;
+    min-width: 100px !important;
+    min-height: 100px !important;
+    max-height: 100px !important;
+    flex-shrink: 0 !important;
+    border: 3px solid #f1f5f9 !important;
+    display: block !important;
+    margin: 0 auto 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  .team-member-image {
+    width: 100px !important;
+    height: 100px !important;
+    margin: 0 auto 8px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+  
+  /* All headings mobile size */
+  .section-heading,
+  h1, h2, h3 {
+    font-size: 1.3rem !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    margin-bottom: 8px !important;
+  }
+  
+  /* All descriptions mobile size */
+  .section-text,
+  .section-description,
+  p {
+    font-size: 0.8rem !important;
+    line-height: 1.3 !important;
+    text-align: center !important;
+    margin-bottom: 8px !important;
+  }
+  
+  /* All buttons mobile friendly */
+  .btn,
+  .button,
+  .demo-button,
+  .contact-button {
+    padding: 8px 12px !important;
+    font-size: 0.8rem !important;
+    border-radius: 6px !important;
+    width: auto !important;
+    max-width: 100% !important;
+  }
+  
+  /* Form elements mobile friendly */
+  .form-input,
+  .form-textarea,
+  input,
+  textarea {
+    width: 100% !important;
+    padding: 8px !important;
+    font-size: 0.8rem !important;
+    border-radius: 4px !important;
+  }
+  
+  /* Images mobile responsive */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 5px !important;
+  }
+  
+  /* Video elements mobile responsive */
+  video {
+    width: 100% !important;
+    max-height: 200px !important;
+    border-radius: 8px !important;
+  }
+  
+  /* WORKFLOW MOBILE FINAL OVERRIDE */
+  .workflow-comparison,
+  .workflow-comparison-large {
+    margin: 8px 0 !important;
+    padding: 4px !important;
+    width: 100% !important;
+  }
+  
+  .workflow-grid {
+    display: block !important;
+    grid-template-columns: none !important;
+    gap: 8px !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 8px !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(8px) !important;
+  }
+  
+  .workflow-section {
+    width: 100% !important;
+    display: block !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+    margin-bottom: 8px !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    text-align: center !important;
+  }
+  
+  .workflow-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    border-radius: 15px !important;
+    padding: 4px 8px !important;
+    font-size: 0.65rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 6px !important;
+    backdrop-filter: blur(4px) !important;
+  }
+  
+  .workflow-image-container {
+    width: 100% !important;
+    border-radius: 6px !important;
+    margin-bottom: 8px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    overflow: hidden !important;
+  }
+  
+  .workflow-image {
+    width: 100% !important;
+    height: 120px !important;
+    object-fit: cover !important;
+    border-radius: 6px !important;
+    display: block !important;
+  }
+  
+  .workflow-overlay {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%) !important;
+    padding: 6px !important;
+    color: white !important;
+    font-size: 0.65rem !important;
+  }
+  
+  .workflow-stats {
+    display: flex !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+    font-size: 0.6rem !important;
+    justify-content: center !important;
+  }
+}
+
+/* Animation keyframes for sections */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes particles-float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+  100% { transform: translateY(0px) rotate(360deg); }
+}
+
+/* FORCE HERO MOBILE POSITION - FINAL OVERRIDE
+@media screen and (max-width: 768px) {
+  * [id="hero"], 
+  * [class*="hero"],
+  body > div > section:first-of-type,
+  #root > div > section:first-of-type {
+    margin-top: 140px !important;
+    position: relative !important;
+    top: auto !important;
+    z-index: 1 !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  * [id="hero"], 
+  * [class*="hero"],
+  body > div > section:first-of-type,
+  #root > div > section:first-of-type {
+    margin-top: 110px !important;
+    position: relative !important;
+    top: auto !important;
+    z-index: 1 !important;
+  }
+} */
+
+@keyframes particles-float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+  100% { transform: translateY(0px) rotate(360deg); }
+}
