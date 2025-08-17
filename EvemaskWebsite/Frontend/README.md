@@ -42,8 +42,6 @@ Frontend/
 │   │   └── Footer/
 │   ├── App.tsx          # Main App component
 │   ├── App.css
-│   ├── index.tsx        # Entry point
-│   └── index.css
 ├── package.json
 ├── tsconfig.json
 └── README.md
