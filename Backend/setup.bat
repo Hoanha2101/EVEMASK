@@ -39,7 +39,10 @@ echo API Documentation: http://localhost:8002/docs
 echo.
 
 echo IMPORTANT: 
-echo Edit .env file and add your Gmail App Password
-echo for email functionality to work.
+echo 1. Copy .env.example to .env
+echo 2. Configure your Supabase credentials (SUPABASE_URL, SUPABASE_ANON_KEY)
+echo 3. Configure your Gmail API credentials (follow OAUTH_GUIDE.md)
+echo 4. Run migration script if you have existing JSON data: python migrate_to_supabase.py
+echo For detailed setup instructions, see SUPABASE_SETUP.md
 echo.
 pause

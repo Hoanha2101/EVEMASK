@@ -10,7 +10,7 @@ The EVEMASK Newsletter API is a robust, scalable backend service designed to han
 
 - **Newsletter Subscription Management** - RESTful API for subscriber registration
 - **Automated Email Confirmations** - Professional HTML email templates with EVEMASK branding
-- **Data Persistence** - JSON-based subscriber storage with database migration capability
+- **Database Integration** - Supabase PostgreSQL database with JSON fallback
 - **Cross-Origin Resource Sharing** - Full CORS support for frontend integration
 - **Input Validation** - Comprehensive email validation and error handling
 - **API Documentation** - Auto-generated Swagger/OpenAPI documentation
@@ -20,8 +20,8 @@ The EVEMASK Newsletter API is a robust, scalable backend service designed to han
 
 - **Framework**: FastAPI 0.68.0+
 - **Python**: 3.8+ required
-- **Email Service**: SMTP (Gmail configuration)
-- **Data Storage**: JSON (Database-ready architecture)
+- **Database**: Supabase PostgreSQL (with JSON fallback)
+- **Email Service**: Gmail API (OAuth 2.0)
 - **Documentation**: Swagger UI / ReDoc
 - **Validation**: Pydantic models
 
@@ -58,9 +58,16 @@ pip install -r requirements.txt
 Create a `.env` file in the Backend directory:
 
 ```env
-# Email Configuration
+# Database Configuration (Supabase)
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_ANON_KEY=your-anon-key-here
+
+# Email Configuration (Gmail API)
 SENDER_EMAIL=evemask.ai@gmail.com
-EMAIL_PASSWORD=your_16_character_app_password
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REFRESH_TOKEN=your-refresh-token
+SENDER_NAME=EVEMASK Team
 
 # Server Configuration (Optional)
 HOST=localhost
@@ -68,12 +75,18 @@ PORT=8000
 DEBUG=True
 ```
 
-### Gmail App Password Setup
-1. Sign in to your Gmail account (`evemask.ai@gmail.com`)
-2. Navigate to **Google Account Settings**
-3. Go to **Security** → **2-Step Verification**
-4. Select **App passwords** → **Generate password** for "Mail"
-5. Copy the 16-character password to your `.env` file
+### Supabase Setup
+1. Create a new project at [Supabase](https://supabase.com/)
+2. Run the SQL commands from `SUPABASE_SETUP.md` to create the subscribers table
+3. Copy your Project URL and anon key to the `.env` file
+
+### Gmail API Setup (OAuth 2.0)
+Follow the `OAUTH_GUIDE.md` for detailed Gmail API setup instructions:
+1. Create a Google Cloud Project
+2. Enable Gmail API
+3. Set up OAuth 2.0 credentials
+4. Generate refresh token
+5. Add credentials to your `.env` file
 
 ## 🏃‍♂️ Running the Service
 
@@ -166,20 +179,49 @@ Our email confirmation system features:
 
 ```
 Backend/
-├── main.py              # FastAPI application entry point
-├── requirements.txt     # Python package dependencies
-├── .env                # Environment variables (create manually)
-├── .env.example        # Environment variables template
-├── setup.bat           # Automated setup script
-├── start_server.bat    # Server startup script
-├── subscribers.json    # Subscriber database (auto-generated)
-├── templates/          # Email HTML templates
+├── main.py                   # FastAPI application entry point
+├── requirements.txt          # Python package dependencies
+├── .env                     # Environment variables (create manually)
+├── .env.example            # Environment variables template
+├── setup.bat               # Automated setup script
+├── start_server.bat        # Server startup script
+├── subscribers.json        # JSON fallback storage (auto-generated)
+├── migrate_to_supabase.py  # Migration script from JSON to Supabase
+├── SUPABASE_SETUP.md      # Supabase setup instructions
+├── OAUTH_GUIDE.md         # Gmail API setup guide
+├── templates/              # Email HTML templates
 │   └── confirmation.html
-├── tests/              # Unit and integration tests
+├── tests/                  # Unit and integration tests
 │   ├── test_main.py
 │   └── test_email.py
-└── README.md          # This documentation
+└── README.md              # This documentation
 ```
+
+## 🔄 Migration from JSON to Supabase
+
+If you have existing subscriber data in `subscribers.json`, you can migrate to Supabase:
+
+```powershell
+# Run the migration script
+python migrate_to_supabase.py
+```
+
+The migration script will:
+- Create a backup of your JSON file
+- Check for existing subscribers in Supabase
+- Migrate new subscribers without duplicates
+- Provide a detailed summary report
+
+## 🆕 New API Endpoints
+
+### Database Management
+- `GET /api/debug/supabase-status` - Check Supabase connection status
+- `GET /api/subscribers/count` - Get total subscriber count
+- `GET /api/subscribers/list` - Get paginated subscriber list
+
+### Legacy Endpoints
+- `GET /api/debug/gmail-status` - Check Gmail API status  
+- `GET /api/debug/file-status` - Check JSON file status (fallback)
 
 ## 🔧 Development
 
