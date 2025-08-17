@@ -10,7 +10,7 @@ The benchmark evaluates:
 - Detailed performance analysis and visualization
 
 Author: EVEMASK Team
-Version: 1.0.0 - PyTorch Only
+Version: 1.0.0
 """
 
 import sys

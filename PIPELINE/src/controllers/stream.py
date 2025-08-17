@@ -151,28 +151,28 @@ class StreamController:
         
         # Build FFmpeg command for real-time streaming
         ffmpeg_command = [
-            "ffmpeg",
-            "-re",
-            "-f", "rawvideo",
-            "-pix_fmt", "bgr24",
-            "-s", "{}x{}".format(self.width, self.height),
-            "-r", str(self.target_fps),
-            "-i", "-",
-            "-i", self.INPUT_SOURCE,
-            "-af", f"adelay={delay * 1000}|{delay * 1000}",
-            "-async", "1",
-            "-vsync", "1",
-            "-q:v", "1",
-            "-map", "1:a",
-            "-map", "0:v:0",
-            "-c:v", "libx264",
-            "-pix_fmt", "yuv420p",
-            "-preset", "ultrafast",
-            "-color_primaries", "bt709",
-            "-color_trc", "bt709",
-            "-colorspace", "bt709",
-            "-vf", "yadif",
-            "-f"
+            "ffmpeg",                         # Call the ffmpeg program
+            "-re",                            # Read input at real-time speed (simulate live input)
+            "-f", "rawvideo",                 # First input format: raw video frames
+            "-pix_fmt", "bgr24",              # Pixel format of the input: BGR 24-bit (3 channels, 8-bit each)
+            "-s", "{}x{}".format(self.width, self.height),  # Frame size: width x height
+            "-r", str(self.target_fps),       # Frame rate (fps)
+            "-i", "-",                        # Input video from stdin (piped raw frames)
+            "-i", self.INPUT_SOURCE,          # Second input source (file or stream containing original audio)
+            "-af", f"adelay={delay * 1000}|{delay * 1000}", # Apply audio delay (milliseconds) for both left/right channels
+            "-async", "1",                    # Audio sync (compensates drift/delay)
+            "-vsync", "1",                    # Video sync mode (1 = frame duplication/drop to sync)
+            "-q:v", "1",                      # Video quality (1 = highest quality, mainly for mjpeg-like codecs)
+            "-map", "1:a",                    # Select audio stream from second input
+            "-map", "0:v:0",                  # Select video stream from first input (stdin raw video)
+            "-c:v", "libx264",                # Encode video using H.264 (x264 encoder)
+            "-pix_fmt", "yuv420p",            # Output pixel format yuv420p (widely compatible)
+            "-preset", "ultrafast",           # Encoder preset: fastest speed (larger output size)
+            "-color_primaries", "bt709",      # Set color primaries to BT.709 (HD video standard)
+            "-color_trc", "bt709",            # Set transfer characteristics (gamma) to BT.709
+            "-colorspace", "bt709",           # Set colorspace to BT.709
+            "-vf", "yadif",                   # Apply video filter: deinterlace (yadif = Yet Another DeInterlacing Filter)
+            "-f"                              # Specify output format (to be defined later, e.g., "rtsp", "flv", "mp4")
         ]
         
         # Configure output based on stream type

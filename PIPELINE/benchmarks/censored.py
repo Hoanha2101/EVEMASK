@@ -12,7 +12,7 @@ The system features:
 - GPU acceleration support for faster processing
 
 Author: EVEMASK Team
-Version: 1.1.0 - Enhanced with Original + Polygon Mask Display
+Version: 1.1.0
 """
 
 import cv2
