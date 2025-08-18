@@ -101,7 +101,7 @@ def AI_Inference_Only_Benchmark(times_avg = 20, warm_up_times = 10):
     results = []
     ai_instance = AI.get_instance(cfg=cfg, FEmodel=True)
     MAX_BATCH_SIZE = cfg['MAX_BATCH_SIZE']
-    cfg["INPUT_SOURCE"] = "videos/demo1.mp4"
+    cfg["INPUT_SOURCE"] = "videos/1.mp4"
     for max_batch_size in range(1, MAX_BATCH_SIZE + 1):
         processed_batch = []
         ai_instance._instance_list_ = []
@@ -120,7 +120,7 @@ def AI_Inference_Only_Benchmark(times_avg = 20, warm_up_times = 10):
         for _ in range(times_avg):
             ai_instance.inference(processed_batch = processed_batch) 
         end_time = time.time()
-        ai_fps = round(1/((end_time - start_time) / times_avg), 4)
+        ai_fps = round(max_batch_size/((end_time - start_time) / times_avg), 4)
         print(f"Batch size: {max_batch_size} - AI FPS: {ai_fps}")
         results.append((max_batch_size, ai_fps))
         torch.cuda.empty_cache()
@@ -130,7 +130,7 @@ def AI_Inference_Only_Benchmark(times_avg = 20, warm_up_times = 10):
 def AI_Inference_Pipeline_Benchmark(times_avg=200, warm_up_times=2):
     results = []
     MAX_BATCH_SIZE = cfg['MAX_BATCH_SIZE']
-    cfg["INPUT_SOURCE"] = "videos/demo1.mp4"
+    cfg["INPUT_SOURCE"] = "videos/1.mp4"
 
     for max_batch_size in range(1, MAX_BATCH_SIZE + 1):
         FPS_LIST = []

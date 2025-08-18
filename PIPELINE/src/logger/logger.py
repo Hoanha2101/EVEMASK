@@ -62,6 +62,7 @@ class EveMaskLogger:
         self.in_stream_fps = 0      # Input stream FPS
         self.out_stream_fps = 0     # Output stream FPS
         self.ai_fps = 0             # AI processing FPS
+        self.ai_throughput = 0       # AI processing throughput
         
         # Initialize frame counting variables
         self.number_out_frames = 0  # Total output frames processed
@@ -84,6 +85,15 @@ class EveMaskLogger:
             fps (float): Current output stream FPS
         """
         self.out_stream_fps = fps
+        
+    def update_ai_throughput(self, ai_throughput: float):
+        """
+        Update AI throughput value.
+
+        Args:
+            ai_throughput (float): Current AI throughput
+        """
+        self.ai_throughput = ai_throughput
         
     def update_ai_fps(self, fps: float):
         """
@@ -176,6 +186,7 @@ class EveMaskLogger:
         # --- Main stats ---
         table.add_row("🎥 Input FPS", f"{self.in_stream_fps:.1f}")
         table.add_row("📤 Output FPS", f"{self.out_stream_fps:.1f}")
+        table.add_row("🧠 AI Throughput", f"{self.ai_throughput:.1f}")
         table.add_row("🧠 AI FPS", f"{self.ai_fps:.1f}")
         table.add_row("🖼️ Frames Output", str(self.number_out_frames))
         table.add_row("🕳️ Skipped Frames", str(self.n_skip_frames))

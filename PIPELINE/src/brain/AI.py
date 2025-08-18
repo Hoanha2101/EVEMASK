@@ -93,7 +93,7 @@ class AI:
 
         # FPS monitoring
         self._instream_fps_ = 25  # Default input FPS
-        self._ai_fps_ = 10  # Default AI processing FPS
+        self._batch_throughput_ = 5  # Default AI processing batch throughput
         self._processing_times = []  # Store processing times for FPS calculation
         
         # Frame marking completed by AI
@@ -123,11 +123,11 @@ class AI:
         use_count = min(self.batch_size, self.circle_queue.queue_length())
         
         # Calculate skip frames based on FPS ratio
-        # Formula: n_skip = max(0, int((instream_fps / ai_fps) - 1))
-        # If AI FPS = 10, Input FPS = 25 -> n_skip = 1 (process 1 frame, skip 1 frame)
-        # If AI FPS = 5, Input FPS = 25 -> n_skip = 4 (process 1 frame, skip 4 frames)
-        if self._ai_fps_ > 0:
-            n_skip = max(0, int(((self._instream_fps_ / self._ai_fps_)* self.batch_size) - self.batch_size))
+        # Formula: n_skip = max(0, int((instream_fps / ai_batch_throughput) - 1))
+        # If AI batch throughput = 10, Input FPS = 25 -> n_skip = 1 (process 1 frame, skip 1 frame)
+        # If AI batch throughput = 5, Input FPS = 25 -> n_skip = 4 (process 1 frame, skip 4 frames)
+        if self._batch_throughput_ > 0:
+            n_skip = max(0, int(((self._instream_fps_ / self._batch_throughput_)* self.batch_size) - self.batch_size))
         else:
             n_skip = 0
         self.logger.update_n_skip_frames(n_skip)
@@ -175,9 +175,10 @@ class AI:
             # Calculate average processing time
             avg_processing_time = sum(self._processing_times) / len(self._processing_times)
             if avg_processing_time > 0:
-                # Update AI FPS based on average processing time
-                self._ai_fps_ = 1.0 / avg_processing_time
-                self.logger.update_ai_fps(round((self._ai_fps_)*self.batch_size, 2))
+                # Update AI batch throughput based on average processing time
+                self._batch_throughput_ = 1.0 / avg_processing_time
+                self.logger.update_ai_throughput(round(self._batch_throughput_, 2))
+                self.logger.update_ai_fps(round((self._batch_throughput_)*self.batch_size, 2))
             
             # Reset tracking for next calculation
             self._processing_times = []
@@ -382,18 +383,18 @@ class AI:
         Returns:
             dict: Information about FPS ratios and skipping strategy
         """
-        if self._ai_fps_ > 0:
-            n_skip = max(0, int((self._instream_fps_ / self._ai_fps_) - 1))
+        if self._batch_throughput_ > 0:
+            n_skip = max(0, int((self._instream_fps_ / self._batch_throughput_) - 1))
             return {
                 'input_fps': self._instream_fps_,
-                'ai_fps': self._ai_fps_,
+                'ai_throughput': self._batch_throughput_,
                 'skip_frames': n_skip,
-                'ratio': self._instream_fps_ / self._ai_fps_,
+                'ratio': self._instream_fps_ / self._batch_throughput_,
                 'strategy': f"Process 1 frame, skip {n_skip} frames" if n_skip > 0 else "Process all frames"
             }
         return {
             'input_fps': self._instream_fps_,
-            'ai_fps': self._ai_fps_,
+            'ai_throughput': self._batch_throughput_,
             'skip_frames': 0,
             'ratio': 0,
             'strategy': "No FPS data available"
