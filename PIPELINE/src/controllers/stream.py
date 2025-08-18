@@ -329,7 +329,6 @@ class StreamController:
             return
             
         while self.running:
-            start = time.time()
             if (self.ai_instance.mooc_processed_frames >= self._write_frame_index):
                 # Get frame from queue
                 frame_out = self.circle_queue.get_by_id(self._write_frame_index)
@@ -399,10 +398,16 @@ class StreamController:
         self._cleanup_ffmpeg() 
     
     @classmethod
-    def get_instance(cls) -> "StreamController":
+    def get_instance(cls, cfg=None) -> "StreamController":
         """
         Get the singleton instance of StreamController.
+        
+        Args:
+            cfg (dict, optional): Configuration dictionary. 
+                                Required only for first initialization.
         """
         if cls._global_instance is None:
-            cls._global_instance = StreamController()
+            if cfg is None:
+                raise ValueError("StreamController not initialized yet")
+            cls._global_instance = StreamController(cfg)
         return cls._global_instance

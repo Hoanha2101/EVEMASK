@@ -18,6 +18,7 @@ Key Components:
 Author: EVEMASK Team
 """
 
+from tkinter import N
 from ..tools import *
 from ..models.initNet import net1
 from ..tools.vectorPrepare import VectorPrepare
@@ -27,6 +28,7 @@ import torch
 import time
 from ..controllers import CircleQueue
 from ..logger import EveMaskLogger
+from ..controllers.stream import StreamController
 
 class AI:
     """
@@ -73,7 +75,8 @@ class AI:
         # Get singleton instance of circular queue
         self.circle_queue = CircleQueue.get_instance()
         self.logger = EveMaskLogger.get_instance()
-        
+        self.stream_controller = StreamController.get_instance(cfg)
+
         # Load configuration parameters
         self.batch_size = cfg['batch_size']
         self.number_of_class = cfg['nc']
@@ -127,9 +130,17 @@ class AI:
         # If AI batch throughput = 10, Input FPS = 25 -> n_skip = 1 (process 1 frame, skip 1 frame)
         # If AI batch throughput = 5, Input FPS = 25 -> n_skip = 4 (process 1 frame, skip 4 frames)
         if self._batch_throughput_ > 0:
+            
             n_skip = max(0, int(((self._instream_fps_ / self._batch_throughput_)* self.batch_size) - self.batch_size))
+            
         else:
             n_skip = 0
+        
+        # Avoiding streaming bottlenecks
+        if self.mooc_processed_frames - self.stream_controller._write_frame_index == 1:
+            n_skip += 1
+            print("Use Avoiding streaming bottlenecks")
+            
         self.logger.update_n_skip_frames(n_skip)
         # Get frames from queue with skipping
         frames = self.circle_queue.get_frame_non_processed(use_count, n_skip)
@@ -375,30 +386,6 @@ class AI:
         # Calculate processing time and update AI FPS
         processing_time = time.time() - start_time
         self._update_ai_fps(processing_time)
-
-    def get_skip_frame_info(self):
-        """
-        Get information about current frame skipping strategy.
-        
-        Returns:
-            dict: Information about FPS ratios and skipping strategy
-        """
-        if self._batch_throughput_ > 0:
-            n_skip = max(0, int((self._instream_fps_ / self._batch_throughput_) - 1))
-            return {
-                'input_fps': self._instream_fps_,
-                'ai_throughput': self._batch_throughput_,
-                'skip_frames': n_skip,
-                'ratio': self._instream_fps_ / self._batch_throughput_,
-                'strategy': f"Process 1 frame, skip {n_skip} frames" if n_skip > 0 else "Process all frames"
-            }
-        return {
-            'input_fps': self._instream_fps_,
-            'ai_throughput': self._batch_throughput_,
-            'skip_frames': 0,
-            'ratio': 0,
-            'strategy': "No FPS data available"
-        }
 
     def update_input_fps(self, input_fps):
         """

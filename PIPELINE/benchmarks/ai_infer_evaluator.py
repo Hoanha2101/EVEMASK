@@ -160,7 +160,7 @@ def AI_Inference_Pipeline_Benchmark(times_avg=200, warm_up_times=2):
 
         while True:
             time.sleep(0.01)
-            if streamController._write_frame_index > 100:
+            if streamController._write_frame_index > 20:
                 if logger.ai_fps > 0:
                     FPS_LIST.append(logger.ai_fps)
             if streamController._write_frame_index > anchor_count:

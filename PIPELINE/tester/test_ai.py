@@ -226,41 +226,6 @@ class TestAI(unittest.TestCase):
     @patch("src.tools.VectorPrepare")
     @patch("src.controllers.CircleQueue")
     @patch("src.logger.EveMaskLogger")
-    def test_get_skip_frame_info(self, mock_logger, mock_circle_queue, mock_vector_prepare):
-        """
-        Test get_skip_frame_info method returns correct information.
-        """
-        # Mock the logger singleton
-        mock_logger_instance = MagicMock()
-        mock_logger.get_instance.return_value = mock_logger_instance
-        
-        # Mock the circle queue singleton
-        mock_queue_instance = MagicMock()
-        mock_circle_queue.get_instance.return_value = mock_queue_instance
-        
-        # Mock the vectorizer's run method to return dummy data
-        mock_vector_instance = MagicMock()
-        mock_vector_prepare.return_value = mock_vector_instance
-        mock_vector_instance.run.return_value = (np.zeros((2, 256)), ["img1", "img2"])
-        
-        ai = AI(MINIMAL_CFG)
-        
-        # Set some FPS values
-        ai._instream_fps_ = 25
-        ai._ai_fps_ = 10
-        
-        info = ai.get_skip_frame_info()
-        
-        # Verify the returned information
-        self.assertEqual(info['input_fps'], 25)
-        self.assertEqual(info['ai_fps'], 10)
-        self.assertIn('skip_frames', info)
-        self.assertIn('ratio', info)
-        self.assertIn('strategy', info)
-
-    @patch("src.tools.VectorPrepare")
-    @patch("src.controllers.CircleQueue")
-    @patch("src.logger.EveMaskLogger")
     def test_update_input_fps(self, mock_logger, mock_circle_queue, mock_vector_prepare):
         """
         Test update_input_fps method.
