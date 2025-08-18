@@ -177,7 +177,7 @@ class AI:
             if avg_processing_time > 0:
                 # Update AI FPS based on average processing time
                 self._ai_fps_ = 1.0 / avg_processing_time
-                self.logger.update_ai_fps(round(self._ai_fps_, 2))
+                self.logger.update_ai_fps(round((self._ai_fps_)*self.batch_size, 2))
             
             # Reset tracking for next calculation
             self._processing_times = []
