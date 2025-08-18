@@ -101,6 +101,7 @@ def AI_Inference_Only_Benchmark(times_avg = 20, warm_up_times = 10):
     results = []
     ai_instance = AI.get_instance(cfg=cfg, FEmodel=True)
     MAX_BATCH_SIZE = cfg['MAX_BATCH_SIZE']
+    cfg["INPUT_SOURCE"] = "videos/demo1.mp4"
     for max_batch_size in range(1, MAX_BATCH_SIZE + 1):
         processed_batch = []
         ai_instance._instance_list_ = []
@@ -126,9 +127,10 @@ def AI_Inference_Only_Benchmark(times_avg = 20, warm_up_times = 10):
         torch.cuda.synchronize()
     return results
 
-def AI_Inference_Pipeline_Benchmark(times_avg=900, warm_up_times=10):
+def AI_Inference_Pipeline_Benchmark(times_avg=200, warm_up_times=2):
     results = []
     MAX_BATCH_SIZE = cfg['MAX_BATCH_SIZE']
+    cfg["INPUT_SOURCE"] = "videos/demo1.mp4"
 
     for max_batch_size in range(1, MAX_BATCH_SIZE + 1):
         FPS_LIST = []
@@ -158,8 +160,9 @@ def AI_Inference_Pipeline_Benchmark(times_avg=900, warm_up_times=10):
 
         while True:
             time.sleep(0.01)
-            if streamController._write_frame_index > 300:
-                FPS_LIST.append(logger.ai_fps)
+            if streamController._write_frame_index > 100:
+                if logger.ai_fps > 0:
+                    FPS_LIST.append(logger.ai_fps)
             if streamController._write_frame_index > anchor_count:
                 break
         # Calculate and print the average AI FPS for this batch size

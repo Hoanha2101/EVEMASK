@@ -335,6 +335,11 @@ class StreamController:
                 frame_out = self.circle_queue.get_by_id(self._write_frame_index)
                 self.logger.update_number_out_frames(self._write_frame_index)
                 if frame_out is not None:
+                    
+                    # Output resolution show
+                    if self._write_frame_index == 1:
+                        print(f"Output resolution: {frame_out.frame_data.shape[1]}x{frame_out.frame_data.shape[0]}")
+                    
                     # Convert frame to bytes and write to FFmpeg
                     frame_bytes = frame_out.frame_data.tobytes()
                     self.ffmpeg_process.stdin.write(frame_bytes)

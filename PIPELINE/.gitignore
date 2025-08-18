@@ -35,6 +35,7 @@ benchmarks/sample/
 benchmarks/results/
 benchmark_results/
 benchmark_results_onnx/
+noUse/
 *.log
 __pycache__/
 *.pyc
