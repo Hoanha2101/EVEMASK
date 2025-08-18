@@ -39,6 +39,7 @@ import threading
 import csv
 import matplotlib.pyplot as plt
 import torch
+import json
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from src.brain.AI import AI
@@ -97,52 +98,66 @@ def show_system_info():
     print(f"Time           : {datetime.now()}")
     print()
 
-def AI_Inference_Only_Benchmark(times_avg = 20, warm_up_times = 10):
-    results = []
+def AI_Inference_Only_Benchmark(batch_size, times_avg = 20, warm_up_times = 10):
+    """
+    Run AI inference benchmark for a specific batch size.
+    Returns the result for this batch size only.
+    """
+    print(f"\n=== Running AI Inference Only Benchmark for Batch Size: {batch_size} ===")
+    
     ai_instance = AI.get_instance(cfg=cfg, FEmodel=True)
-    MAX_BATCH_SIZE = cfg['MAX_BATCH_SIZE']
     cfg["INPUT_SOURCE"] = "videos/1.mp4"
-    for max_batch_size in range(1, MAX_BATCH_SIZE + 1):
-        processed_batch = []
-        ai_instance._instance_list_ = []
-        for i in range(max_batch_size):
-            original_frame = np.random.randint(0, 256, (1080, 1920, 3), dtype=np.uint8)
-            img_tensor = np.random.rand(1, 3, 640, 640).astype(np.float16)
-            ratio = 0.3333333333333333
-            dwdh = (0.0, 140.0)
-            img_no_255 = np.random.rand(1, 3, 640, 640).astype(np.float16)
-            ai_instance._instance_list_.append(Frame(i, original_frame))
-            processed_batch.append((original_frame, img_tensor, ratio, dwdh, img_no_255))
-        # WARM UP
-        for _ in range(warm_up_times):
-            ai_instance.inference(processed_batch = processed_batch)
-        start_time = time.time()
-        for _ in range(times_avg):
-            ai_instance.inference(processed_batch = processed_batch) 
-        end_time = time.time()
-        ai_fps = round(max_batch_size/((end_time - start_time) / times_avg), 4)
-        print(f"Batch size: {max_batch_size} - AI FPS: {ai_fps}")
-        results.append((max_batch_size, ai_fps))
-        torch.cuda.empty_cache()
-        torch.cuda.synchronize()
-    return results
+    
+    processed_batch = []
+    ai_instance._instance_list_ = []
+    
+    for i in range(batch_size):
+        original_frame = np.random.randint(0, 256, (1080, 1920, 3), dtype=np.uint8)
+        img_tensor = np.random.rand(1, 3, 640, 640).astype(np.float16)
+        ratio = 0.3333333333333333
+        dwdh = (0.0, 140.0)
+        img_no_255 = np.random.rand(1, 3, 640, 640).astype(np.float16)
+        ai_instance._instance_list_.append(Frame(i, original_frame))
+        processed_batch.append((original_frame, img_tensor, ratio, dwdh, img_no_255))
+    
+    # WARM UP
+    print(f"Warming up with {warm_up_times} iterations...")
+    for _ in range(warm_up_times):
+        ai_instance.inference(processed_batch = processed_batch)
+    
+    # ACTUAL BENCHMARK
+    print(f"Running benchmark with {times_avg} iterations...")
+    start_time = time.time()
+    for _ in range(times_avg):
+        ai_instance.inference(processed_batch = processed_batch) 
+    end_time = time.time()
+    
+    ai_fps = round(batch_size/((end_time - start_time) / times_avg), 4)
+    print(f"Batch size: {batch_size} - AI FPS: {ai_fps}")
+    
+    # Clean up
+    torch.cuda.empty_cache()
+    torch.cuda.synchronize()
+    
+    return (batch_size, ai_fps)
 
-def AI_Inference_Pipeline_Benchmark(times_avg=200, warm_up_times=2):
-    results = []
-    MAX_BATCH_SIZE = cfg['MAX_BATCH_SIZE']
+def AI_Inference_Pipeline_Benchmark(batch_size, times_avg=200, warm_up_times=2):
+    """
+    Run full pipeline benchmark for a specific batch size.
+    Returns the result for this batch size only.
+    """
+    print(f"\n=== Running Full Pipeline Benchmark for Batch Size: {batch_size} ===")
+    
     cfg["INPUT_SOURCE"] = "videos/1.mp4"
+    cfg["DELAY_TIME"] = warm_up_times
+    cfg["batch_size"] = batch_size
 
-    for max_batch_size in range(1, MAX_BATCH_SIZE + 1):
-        FPS_LIST = []
-        # Set configuration for current batch size and warm-up delay
-        cfg["DELAY_TIME"] = warm_up_times
-        cfg["batch_size"] = max_batch_size
-
-        # Initialize logger, stream controller, and AI engine
-        logger = EveMaskLogger.get_instance()
-        streamController = StreamController(cfg)
-        useAI = AI(cfg, FEmodel=True)
-        
+    # Initialize logger, stream controller, and AI engine
+    logger = EveMaskLogger.get_instance()
+    streamController = StreamController(cfg)
+    useAI = AI(cfg, FEmodel=True)
+    
+    try:
         # Start the video source (e.g., ffmpeg or camera)
         streamController._start_ffmpeg()
 
@@ -155,8 +170,10 @@ def AI_Inference_Pipeline_Benchmark(times_avg=200, warm_up_times=2):
         ai_thread.start()        # Thread for running AI inference on frames
         logger.waiting_bar(cfg)  # Optional: show progress bar or wait for warm-up
         output_thread.start()    # Thread for outputting processed frames
+        
         # Record the starting frame index to measure progress
         anchor_count = streamController._write_frame_index + times_avg
+        FPS_LIST = []
 
         while True:
             time.sleep(0.01)
@@ -165,52 +182,138 @@ def AI_Inference_Pipeline_Benchmark(times_avg=200, warm_up_times=2):
                     FPS_LIST.append(logger.ai_fps)
             if streamController._write_frame_index > anchor_count:
                 break
+                
         # Calculate and print the average AI FPS for this batch size
-        ai_fps_now = sum(FPS_LIST) / len(FPS_LIST)
-        print(f"Batch size: {max_batch_size} - AI FPS: {ai_fps_now:.4f}")
-        print("--------------------------------")
-        results.append((max_batch_size, round(ai_fps_now, 4)))
-
+        if FPS_LIST:
+            ai_fps_now = sum(FPS_LIST) / len(FPS_LIST)
+            print(f"Batch size: {batch_size} - AI FPS: {ai_fps_now:.4f}")
+            result = (batch_size, round(ai_fps_now, 4))
+        else:
+            print(f"Batch size: {batch_size} - No FPS data collected")
+            result = (batch_size, 0.0)
+            
+    except Exception as e:
+        print(f"Error in pipeline benchmark for batch size {batch_size}: {e}")
+        result = (batch_size, 0.0)
+    finally:
+        # Clean up
         streamController.stop()
-        useAI.stop() if hasattr(useAI, 'stop') else None
+        if hasattr(useAI, 'stop'):
+            useAI.stop()
         torch.cuda.empty_cache()
         torch.cuda.synchronize()
         
+    return result
+
+def save_temporary_result(batch_size, ai_only_fps, pipeline_fps, temp_dir):
+    """
+    Save temporary result for a specific batch size.
+    """
+    os.makedirs(temp_dir, exist_ok=True)
+    temp_file = os.path.join(temp_dir, f"batch_{batch_size}_result.json")
+    
+    result_data = {
+        "batch_size": batch_size,
+        "ai_inference_only_fps": ai_only_fps,
+        "full_pipeline_fps": pipeline_fps,
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    with open(temp_file, 'w', encoding='utf-8') as f:
+        json.dump(result_data, f, indent=2)
+    
+    print(f"Saved temporary result for batch size {batch_size} to {temp_file}")
+
+def load_temporary_results(temp_dir):
+    """
+    Load all temporary results and combine them.
+    """
+    results = []
+    if not os.path.exists(temp_dir):
+        return results
+    
+    for filename in os.listdir(temp_dir):
+        if filename.startswith("batch_") and filename.endswith("_result.json"):
+            filepath = os.path.join(temp_dir, filename)
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    results.append((
+                        data["batch_size"],
+                        data["ai_inference_only_fps"],
+                        data["full_pipeline_fps"]
+                    ))
+            except Exception as e:
+                print(f"Error loading {filepath}: {e}")
+    
+    # Sort by batch size
+    results.sort(key=lambda x: x[0])
     return results
 
-def save_benchmark_results_to_csv(only_results, pipeline_results, csv_path):
+def run_single_batch_benchmark(batch_size, temp_dir):
+    """
+    Run both benchmarks for a single batch size and save temporary result.
+    """
+    print(f"\n{'='*60}")
+    print(f"STARTING BENCHMARK FOR BATCH SIZE: {batch_size}")
+    print(f"{'='*60}")
+    
+    try:
+        # Run AI inference only benchmark
+        ai_only_result = AI_Inference_Only_Benchmark(batch_size)
+        
+        # Run full pipeline benchmark
+        pipeline_result = AI_Inference_Pipeline_Benchmark(batch_size)
+        
+        # Save temporary result
+        save_temporary_result(
+            batch_size, 
+            ai_only_result[1], 
+            pipeline_result[1], 
+            temp_dir
+        )
+        
+        print(f"\n✓ Completed benchmark for batch size {batch_size}")
+        print(f"AI Inference Only FPS: {ai_only_result[1]}")
+        print(f"Full Pipeline FPS: {pipeline_result[1]}")
+        
+    except Exception as e:
+        print(f"✗ Error in benchmark for batch size {batch_size}: {e}")
+        # Save error result
+        save_temporary_result(batch_size, 0.0, 0.0, temp_dir)
+
+def save_benchmark_results_to_csv(combined_results, csv_path):
     """
     Save combined benchmark results to a CSV file.
     Columns: batch_size, ai_inference_only_fps, full_pipeline_fps
     """
-    # Create a mapping for quick lookup of pipeline FPS by batch size
-    pipeline_map = {batch: fps for batch, fps in pipeline_results}
     fieldnames = ["batch_size", "ai_inference_only_fps", "full_pipeline_fps"]
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
+    
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for batch_size, only_fps in only_results:
+        for batch_size, ai_fps, pipeline_fps in combined_results:
             writer.writerow({
                 "batch_size": batch_size,
-                "ai_inference_only_fps": only_fps,
-                "full_pipeline_fps": pipeline_map.get(batch_size, "-")
+                "ai_inference_only_fps": ai_fps,
+                "full_pipeline_fps": pipeline_fps
             })
 
-def visualize_benchmark_results(only_results, pipeline_results, save_path):
+def visualize_benchmark_results(combined_results, save_path):
     """
     Visualize FPS vs Batch Size for both scenarios and save as PNG.
     """
-    if not only_results:
+    if not combined_results:
         return
-    only_batches = [b for b, _ in only_results]
-    only_fps = [f for _, f in only_results]
-    pipeline_map = {b: f for b, f in pipeline_results}
-    pipeline_fps_aligned = [pipeline_map.get(b, np.nan) for b in only_batches]
+    
+    batch_sizes = [r[0] for r in combined_results]
+    ai_fps = [r[1] for r in combined_results]
+    pipeline_fps = [r[2] for r in combined_results]
 
     plt.figure(figsize=(10, 6))
-    plt.plot(only_batches, only_fps, marker='o', label='AI Inference Only FPS')
-    plt.plot(only_batches, pipeline_fps_aligned, marker='s', label='Full Pipeline FPS')
+    plt.plot(batch_sizes, ai_fps, marker='o', label='AI Inference Only FPS')
+    plt.plot(batch_sizes, pipeline_fps, marker='s', label='Full Pipeline FPS')
     plt.title('Benchmark: FPS vs Batch Size', fontsize=14, fontweight='bold')
     plt.xlabel('Batch Size', fontsize=12)
     plt.ylabel('FPS', fontsize=12)
@@ -268,12 +371,100 @@ def collect_system_info_text():
         lines.append(f"GPU info error: {e}")
     return "\n".join(lines)
 
-if __name__ == "__main__":
-    # Run the AI inference-only benchmark (single module, no pipeline)
-    only_results = AI_Inference_Only_Benchmark()
-    # Run the full pipeline benchmark (capture, AI, output)
-    pipeline_results = AI_Inference_Pipeline_Benchmark()
+def main():
+    """
+    Main function to run benchmarks for each batch size separately.
+    """
+    print("TensorRT Batch Size Benchmark Tool")
+    print("This tool will run benchmarks for each batch size separately")
+    print("to avoid TensorRT batch size change issues.")
+    print()
     
+    # Get configuration
+    MAX_BATCH_SIZE = cfg['MAX_BATCH_SIZE']
+    print(f"Maximum batch size from config: {MAX_BATCH_SIZE}")
+    
+    # Create temporary directory for storing results
+    temp_dir = os.path.join(os.path.dirname(__file__), 'results', 'temp_results')
+    os.makedirs(temp_dir, exist_ok=True)
+    
+    # Check if we have existing temporary results
+    existing_results = load_temporary_results(temp_dir)
+    completed_batches = [r[0] for r in existing_results]
+    
+    if existing_results:
+        print(f"Found existing results for batch sizes: {completed_batches}")
+        print("You can:")
+        print("1. Continue from where you left off")
+        print("2. Start fresh (delete existing results)")
+        print("3. Just combine existing results")
+        
+        choice = input("\nEnter your choice (1/2/3): ").strip()
+        
+        if choice == "2":
+            # Delete existing results
+            import shutil
+            shutil.rmtree(temp_dir)
+            os.makedirs(temp_dir, exist_ok=True)
+            existing_results = []
+            completed_batches = []
+            print("Deleted existing results. Starting fresh.")
+        elif choice == "3":
+            # Just combine existing results
+            print("Combining existing results...")
+            combined_results = existing_results
+            save_final_results(combined_results)
+            return
+        # Choice 1: continue from where left off
+        else:
+            print("Continuing from where you left off...")
+    
+    # Run benchmarks for each batch size
+    for batch_size in range(1, MAX_BATCH_SIZE + 1):
+        if batch_size in completed_batches:
+            print(f"Batch size {batch_size} already completed, skipping...")
+            continue
+            
+        print(f"\n{'='*60}")
+        print(f"READY TO RUN BENCHMARK FOR BATCH SIZE: {batch_size}")
+        print(f"{'='*60}")
+        print("Press Enter when ready to continue, or 'q' to quit...")
+        
+        user_input = input().strip().lower()
+        if user_input == 'q':
+            print("Benchmark stopped by user.")
+            break
+            
+        # Run benchmark for this batch size
+        run_single_batch_benchmark(batch_size, temp_dir)
+        
+        print(f"\nBatch size {batch_size} completed!")
+        print("You can now:")
+        print("1. Continue to next batch size")
+        print("2. Stop here and combine results later")
+        print("3. Quit")
+        
+        continue_choice = input("Enter choice (1/2/3): ").strip()
+        if continue_choice == "2":
+            print("Stopping here. You can run the script again later to continue.")
+            break
+        elif continue_choice == "3":
+            print("Quitting...")
+            break
+    
+    # Combine all results
+    print("\nCombining all results...")
+    combined_results = load_temporary_results(temp_dir)
+    
+    if combined_results:
+        save_final_results(combined_results)
+    else:
+        print("No results to combine.")
+
+def save_final_results(combined_results):
+    """
+    Save final combined results and display summary.
+    """
     # ========================================================================
     # CLEAR SCREEN
     # ========================================================================
@@ -299,11 +490,9 @@ if __name__ == "__main__":
     print("\n===== BENCHMARK SUMMARY =====")
     headers = ["Batch Size", "AI Inference Only FPS", "Full Pipeline FPS"]
     table = []
-    for i in range(len(only_results)):
-        batch_size = only_results[i][0]
-        only_fps = only_results[i][1]
-        pipeline_fps = pipeline_results[i][1] if i < len(pipeline_results) else "-"
-        table.append([batch_size, only_fps, pipeline_fps])
+    for batch_size, ai_fps, pipeline_fps in combined_results:
+        table.append([batch_size, ai_fps, pipeline_fps])
+    
     if tabulate:
         print(tabulate(table, headers=headers, tablefmt="grid"))
     else:
@@ -320,11 +509,11 @@ if __name__ == "__main__":
 
     # Save combined results to CSV
     csv_path = os.path.join(results_dir, 'benchmark_summary.csv')
-    save_benchmark_results_to_csv(only_results, pipeline_results, csv_path)
+    save_benchmark_results_to_csv(combined_results, csv_path)
 
     # Save line chart figure comparing scenarios
     fig_path = os.path.join(results_dir, 'fps_vs_batch.png')
-    visualize_benchmark_results(only_results, pipeline_results, fig_path)
+    visualize_benchmark_results(combined_results, fig_path)
 
     # Save system information to a text file
     sysinfo_path = os.path.join(results_dir, 'system_info.txt')
@@ -334,3 +523,6 @@ if __name__ == "__main__":
     print(f"\nSaved CSV to: {csv_path}")
     print(f"Saved figure to: {fig_path}")
     print(f"Saved system info to: {sysinfo_path}")
+
+if __name__ == "__main__":
+    main()
