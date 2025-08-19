@@ -195,6 +195,9 @@ class CircleQueue:
         if frame:
             del self.frames[frame_id]  # Remove frame from buffer
         return frame
+    
+    def pop_by_id(self, frame_id: int):
+        del self.frames[frame_id]
 
     def buffer_capacity(self) -> int:
         """
@@ -204,7 +207,22 @@ class CircleQueue:
             int: Maximum number of frames the buffer can hold
         """
         return self.buffer_size
+    
+    def count_processed_frames(self) -> int:
+        """
+        Count the number of processed frames in the queue.
 
+        Returns:
+            int: Number of frames marked as processed
+        """
+        return sum(1 for frame in self.frames.values() if frame.processed)
+    
+    def clear_queue(self):
+        """
+        Clear all frames from the queue and reset counters.
+        """
+        self.frames.clear()
+    
     @classmethod
     def get_instance(cls) -> "CircleQueue":
         """

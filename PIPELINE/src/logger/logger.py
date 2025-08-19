@@ -132,6 +132,9 @@ class EveMaskLogger:
         Args:
             cfg (dict): Configuration dictionary containing pipeline settings
         """
+        if cfg["APPLICATION"] == "VIDEO":
+            cfg['batch_size'] = cfg['MAX_BATCH_SIZE']
+            
         print("✅ Configuration loaded")
         print(f"📥 Input source : {cfg.get('INPUT_SOURCE', 'Not specified')}")
         print(f"📤 Output type  : {cfg.get('OUTPUT_TYPE', 'Not specified')}")

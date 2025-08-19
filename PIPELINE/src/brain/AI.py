@@ -17,19 +17,19 @@ Key Components:
 
 Author: EVEMASK Team
 """
-
 from tkinter import N
 from ..tools import *
 from ..models.initNet import net1
 from ..tools.vectorPrepare import VectorPrepare
+from ..tools.videoWriter import FFmpegVideoWriter
 import torchvision.ops as ops
 import numpy as np
 import torch
 import time
+import os
 from ..controllers import CircleQueue
 from ..logger import EveMaskLogger
 from ..controllers.stream import StreamController
-
 class AI:
     """
     Main AI processing engine using singleton pattern.
@@ -78,7 +78,14 @@ class AI:
         self.stream_controller = StreamController.get_instance(cfg)
 
         # Load configuration parameters
+        self.INPUT_SOURCE = cfg['INPUT_SOURCE']
+        self.target_fps = cfg['TARGET_FPS']
         self.batch_size = cfg['batch_size']
+        self.application = cfg["APPLICATION"]
+        # Auto set batch_size for APPLICATION
+        if self.application == "VIDEO":
+            self.batch_size = cfg["MAX_BATCH_SIZE"]
+            
         self.number_of_class = cfg['nc']
         self.conf_threshold = cfg['conf_threshold']
         self.iou_threshold = cfg['iou_threshold']
@@ -101,6 +108,14 @@ class AI:
         
         # Frame marking completed by AI
         self.mooc_processed_frames = 0
+        
+        if self.application == "VIDEO":
+            self.video_writer = None
+            name_list = self.INPUT_SOURCE.split("/")
+            processed_name_output = "EVEMASK@processed_" + name_list[-1]
+            processed_name_list = name_list[:-1] 
+            processed_name_list.append(processed_name_output)
+            self.new_name_save = "/".join(processed_name_list)
 
         # Initialize feature extraction if enabled
         if FEmodel:
@@ -124,22 +139,24 @@ class AI:
         """
         # Get available frames (limited by batch size)
         use_count = min(self.batch_size, self.circle_queue.queue_length())
-        
-        # Calculate skip frames based on FPS ratio
-        # Formula: n_skip = max(0, int((instream_fps / ai_batch_throughput) - 1))
-        # If AI batch throughput = 10, Input FPS = 25 -> n_skip = 1 (process 1 frame, skip 1 frame)
-        # If AI batch throughput = 5, Input FPS = 25 -> n_skip = 4 (process 1 frame, skip 4 frames)
-        if self._batch_throughput_ > 0:
+        if self.application == "STREAM":
             
-            n_skip = max(0, int(((self._instream_fps_ / self._batch_throughput_)* self.batch_size) - self.batch_size))
+            # Calculate skip frames based on FPS ratio
+            # Formula: n_skip = max(0, int((instream_fps / ai_batch_throughput) - 1))
+            # If AI batch throughput = 10, Input FPS = 25 -> n_skip = 1 (process 1 frame, skip 1 frame)
+            # If AI batch throughput = 5, Input FPS = 25 -> n_skip = 4 (process 1 frame, skip 4 frames)
+            if self._batch_throughput_ > 0:
+                
+                n_skip = max(0, int(((self._instream_fps_ / self._batch_throughput_)* self.batch_size) - self.batch_size))
+                
+            else:
+                n_skip = 0
             
+            # Avoiding streaming bottlenecks
+            if self.mooc_processed_frames - self.stream_controller._write_frame_index == 1:
+                n_skip += 1
         else:
             n_skip = 0
-        
-        # Avoiding streaming bottlenecks
-        if self.mooc_processed_frames - self.stream_controller._write_frame_index == 1:
-            n_skip += 1
-            print("Use Avoiding streaming bottlenecks")
             
         self.logger.update_n_skip_frames(n_skip)
         # Get frames from queue with skipping
@@ -377,7 +394,11 @@ class AI:
                     final_class_ids,
                     downscale_factor=20, 
                     no_blur_classes=self.CLASSES_NO_BLUR)
-                    
+                
+            # Save video
+            if self.application == "VIDEO":
+                self._save_video(current_frame)
+            
             # Update frame data and mark as processed
             self._instance_list_[b].frame_data = current_frame
             self._instance_list_[b].processed = True
@@ -386,6 +407,41 @@ class AI:
         # Calculate processing time and update AI FPS
         processing_time = time.time() - start_time
         self._update_ai_fps(processing_time)
+    
+    def _save_video(self, current_frame):
+        # Save video with original audio via FFmpeg muxer
+        if self.mooc_processed_frames == 0:
+            h, w = current_frame.shape[:2]
+            # Create directory if not exists
+            out_dir = os.path.dirname(self.new_name_save)
+            if out_dir and not os.path.exists(out_dir):
+                try:
+                    os.makedirs(out_dir, exist_ok=True)
+                except Exception:
+                    pass
+            self.video_writer = FFmpegVideoWriter(
+                input_source_path=self.INPUT_SOURCE,
+                output_path=self.new_name_save,
+                width=w,
+                height=h,
+                fps=self.target_fps,
+            )
+
+        if self.video_writer is not None:
+            self.video_writer.write(current_frame)
+        self.logger.update_number_out_frames(self.mooc_processed_frames)
+        if self.mooc_processed_frames > 0:
+            self.circle_queue.pop_by_id(self.mooc_processed_frames)
+            
+        # if self.stream_controller.running == False:
+        #     self.video_writer.release()
+
+    def stop(self):
+        if getattr(self, "video_writer", None) is not None:
+            try:
+                self.video_writer.release()
+            except Exception:
+                pass
 
     def update_input_fps(self, input_fps):
         """

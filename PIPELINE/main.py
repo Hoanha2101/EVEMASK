@@ -65,8 +65,11 @@ if __name__ == "__main__":
     # ========================================================================
     logger.waiting_bar(cfg)
 
-    output_thread.start()
-    print("📤 Output thread ............ ✅ started")
+    if cfg["APPLICATION"] == "STREAM":
+        output_thread.start()
+        print("📤 Output thread ............ ✅ started")
+    else:
+        print("Output thread is not started, because application is not STREAM")
 
     print("\n🚀 All threads are now running.")
     print("📡 Real-time processing has begun. Press Ctrl+C to exit.\n")

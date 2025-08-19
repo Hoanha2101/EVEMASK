@@ -7,6 +7,7 @@ CLASSES_NO_BLUR:
 - 0
 
 # Show config
+APPLICATION: STREAM # STREAM / VIDEO
 USE_FEATURE_EXTRACTION: True
 USE_BOX_PLOT: False
 
@@ -17,13 +18,14 @@ DELAY_TIME: 2
 TARGET_FPS: 25
 
 # Batch size for model inference or processing
-batch_size: 3
+batch_size: 2
 
 # Maximum batch size for model inference
 MAX_BATCH_SIZE: 3
 
 # Input video stream source (UDP multicast address with packet size)
 INPUT_SOURCE: udp://@224.1.1.1:30122?pkt_size=1316
+# INPUT_SOURCE: "videos/demo1.mp4"
 
 # Output stream type (e.g., udp, rtmp, rtsp)
 OUTPUT_TYPE: udp

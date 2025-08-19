@@ -21,7 +21,7 @@ import subprocess
 import threading
 import numpy as np
 from collections import deque
-
+from src.controllers import circle_queue
 
 class StreamController:
     """
@@ -63,8 +63,14 @@ class StreamController:
         # Store configuration
         self.cfg = cfg
         self.INPUT_SOURCE = cfg['INPUT_SOURCE']
+        self.input_source_type = self.detect_input_stream(self.INPUT_SOURCE)
         self.target_fps = cfg['TARGET_FPS']
+
         self.batch_size = cfg['batch_size']
+        self.application = cfg["APPLICATION"]
+        # Auto set batch_size for APPLICATION
+        if self.application == "VIDEO":
+            self.batch_size = cfg["MAX_BATCH_SIZE"]
         
         # Video properties
         self.width = None
@@ -105,10 +111,9 @@ class StreamController:
             try:
                 # Create video capture object
                 cap = cv2.VideoCapture(self.INPUT_SOURCE)
-                
                 # Optimize buffer settings for real-time processing
                 # Smaller buffer reduces latency but may cause frame drops
-                cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+                # cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
                 
                 # Test capture by reading a frame
                 ret, frame = cap.read()
@@ -120,7 +125,6 @@ class StreamController:
                     self.height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                     self.cap = cap
                     self.begin_time = time.time()
-                    
                     print(f"Input resolution: {self.width}x{self.height}")
                     break
                 else:
@@ -247,67 +251,95 @@ class StreamController:
             self._last_fps_calc = current_time
         
         return None
+    
+    def detect_input_stream(self, url: str) -> str:
+        """
+        Specify output stream type (RTMP, RTSP, UDP) or video file
+        """
+        url = url.strip().lower()
+
+        if url.startswith("rtmp://"):
+            return "RTMP"
+        elif url.startswith("rtsp://"):
+            return "RTSP"
+        elif url.startswith("udp://"):
+            return "UDP"
+        else:
+            return "FILE"
+        
 
     def source_capture(self):
         """
         Main capture loop that reads frames from input stream.
         
-        This method runs in a separate thread and continuously:
-        - Reads frames from the input source
-        - Adds frames to the circular queue for processing
+        - Reads frames from input source
+        - Adds frames to queue
         - Tracks frame timing for FPS calculation
         - Updates AI instance with input FPS information
-        - Stops when no stream is received for 1000 consecutive attempts
+        - Stops after too many failed reads
+        - Controls input FPS according to self.target_fps
         """
         print("Starting source capture...")
         
+        frame_interval = 1.0 / self.target_fps
+        next_frame_time = time.time()
+        
         while self.running:
-            try:
-                # Read frame from input source
-                ret, data = self.cap.read()
-                if ret and data is not None:
-                    # Reset failed read counter on successful frame
-                    self._consecutive_failed_reads = 0
-                    
-                    # Create frame object and add to queue
-                    frame = Frame(frame_id=self._frame_index, frame_data=data)
-                    self.circle_queue.add_frame(frame=frame)
-                    self._frame_index += 1
-                    
-                    # Calculate and update input FPS
-                    input_fps = self._calculate_input_fps()
-                    self.logger.update_in_stream_fps(input_fps)
-                    if input_fps is not None:
-                        # Update AI instance with current input FPS
-                        try:     
-                            if self.ai_instance:
-                                self.ai_instance.update_input_fps(input_fps)
-                        except Exception as e:
-                            print(f"Error updating AI FPS: {e}")
-                else:
-                    # Increment failed read counter
+            
+            # Read frame from input source
+            ret, data = self.cap.read()
+            if ret and data is not None:
+                # Reset failed read counter
+                self._consecutive_failed_reads = 0
+                
+                # Create frame object and add to queue
+                frame = Frame(frame_id=self._frame_index, frame_data=data)
+                self.circle_queue.add_frame(frame=frame)
+                self._frame_index += 1
+                
+                # Calculate and update input FPS
+                input_fps = self._calculate_input_fps()
+                self.logger.update_in_stream_fps(input_fps)
+                if self.application == "STREAM" and self.input_source_type == "FILE":
+                    next_frame_time += frame_interval
+                    sleep_time = next_frame_time - time.time()
+                    if sleep_time > 0:
+                        time.sleep(sleep_time)
+                    else:
+                        next_frame_time = time.time()
+                        
+                if input_fps is not None:
+                    try:     
+                        if self.ai_instance:
+                            self.ai_instance.update_input_fps(input_fps)
+                    except Exception as e:
+                        print(f"Error updating AI FPS: {e}")
+                        
+                if self.application == "VIDEO":
+                    while self.circle_queue.queue_length() == 1000:
+                        time.sleep(0.01)
+                        if self.circle_queue.count_processed_frames() == 1000:
+                            self.circle_queue.clear_queue()
+                            break
+            else:
+                # Increment failed read counter
+                if self.application == "VIDEO":  
                     self._consecutive_failed_reads += 1
-                    
-                    # Check if stream has ended (1000 consecutive failed reads)
-                    if self._consecutive_failed_reads >= 1000:
-                        print(f"Stream ended: No frames received for {self._consecutive_failed_reads} consecutive attempts")
+                    if self._consecutive_failed_reads >= 1000 and (self.circle_queue.last_frame_id - 1 == self.ai_instance.mooc_processed_frames):
                         self.running = False
+                        self.ai_instance.video_writer.release()
+                        print(f"Stream ended: No frames received for {self._consecutive_failed_reads} consecutive attempts")
                         break
-                    
-                    # Short sleep if no frame available
                     time.sleep(0.01)
-            except Exception as e:
-                # Increment failed read counter for exceptions too
-                self._consecutive_failed_reads += 1
-                print(f"Error in capture: {e}")
-                
-                # Check if stream has ended due to errors
-                if self._consecutive_failed_reads >= 1000:
-                    print(f"Stream ended: Consecutive errors for {self._consecutive_failed_reads} attempts")
-                    self.running = False
-                    break
-                
-                time.sleep(0.1)
+                    
+                else:
+                    self._consecutive_failed_reads += 1
+                    if self._consecutive_failed_reads >= 1000:
+                        self.running = False
+                        self.ai_instance.video_writer.release()
+                        print(f"Stream ended: No frames received for {self._consecutive_failed_reads} consecutive attempts")
+                        break
+                    time.sleep(0.01)
 
     def out_stream(self):
         """
@@ -321,10 +353,11 @@ class StreamController:
         """
         print("Starting output stream...")
         
-        # Start FFmpeg process
-        self._start_ffmpeg()
+        if self.application == "STREAM":
+            # Start FFmpeg process
+            self._start_ffmpeg()
         
-        if self.ffmpeg_process is None:
+        if self.ffmpeg_process is None and self.application == "STREAM":
             print("Failed to start FFmpeg")
             return
             
@@ -334,16 +367,17 @@ class StreamController:
                 frame_out = self.circle_queue.get_by_id(self._write_frame_index)
                 self.logger.update_number_out_frames(self._write_frame_index)
                 if frame_out is not None:
-                    
                     # Output resolution show
-                    if self._write_frame_index == 1:
-                        print(f"Output resolution: {frame_out.frame_data.shape[1]}x{frame_out.frame_data.shape[0]}")
-                    
-                    # Convert frame to bytes and write to FFmpeg
-                    frame_bytes = frame_out.frame_data.tobytes()
-                    self.ffmpeg_process.stdin.write(frame_bytes)
-                    self.ffmpeg_process.stdin.flush()
-                    
+                    if self._write_frame_index == 0:
+                        h, w = frame_out.frame_data.shape[:2]
+                        print(f"Output resolution: {w}x{h}")
+                            
+                    if self.application == "STREAM":
+                        # Convert frame to bytes and write to FFmpeg
+                        frame_bytes = frame_out.frame_data.tobytes()
+                        self.ffmpeg_process.stdin.write(frame_bytes)
+                        self.ffmpeg_process.stdin.flush()
+                                 
                     # Clean up frame resources
                     frame_out.destroy()
                     # Update timestamp
@@ -360,9 +394,9 @@ class StreamController:
                     fps = 1.0 / avg_delta if avg_delta > 0 else 0.0
                     self.logger.update_out_stream_fps(fps)
                 self.last_fps_update = now
-            
-        print("Output stream stopped")
-        self._cleanup_ffmpeg()
+        if self.application == "STREAM":   
+            print("Output stream stopped")
+            self._cleanup_ffmpeg()
 
     def _cleanup_ffmpeg(self):
         """
