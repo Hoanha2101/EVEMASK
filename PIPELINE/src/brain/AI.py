@@ -103,9 +103,11 @@ class AI:
 
         # FPS monitoring
         self._instream_fps_ = 25  # Default input FPS
-        self._batch_throughput_ = 5  # Default AI processing batch throughput
+        self._batch_throughput_ = 1  # Default AI processing batch throughput
         self._processing_times = []  # Store processing times for FPS calculation
         
+        # start AI FPS
+        self.start_time = 0
         # Frame marking completed by AI
         self.mooc_processed_frames = 0
         
@@ -152,9 +154,6 @@ class AI:
             else:
                 n_skip = 0
             
-            # Avoiding streaming bottlenecks
-            if self.mooc_processed_frames - self.stream_controller._write_frame_index == 1:
-                n_skip += 1
         else:
             n_skip = 0
             
@@ -181,11 +180,11 @@ class AI:
                 # Get frames with dynamic skipping
                 frames = self._get_frames_from_queue()
                 if frames:
+                    self.start_time = time.time()
                     # Preprocess all frames in batch
                     processed_batch = [frame.framePreprocessing() for frame in frames]
                     # Perform AI inference on batch
                     self.inference(processed_batch)
-            time.sleep(0.01)  # Short sleep to prevent busy waiting
 
     def _update_ai_fps(self, processing_time):
         """
@@ -225,7 +224,7 @@ class AI:
         Args:
             processed_batch (list): List of preprocessed frame data
         """
-        start_time = time.time()
+        
         
         # Prepare input tensors for inference
         origin_imno255 = np.concatenate([item[4] for item in processed_batch], axis=0)
@@ -403,10 +402,11 @@ class AI:
             self._instance_list_[b].frame_data = current_frame
             self._instance_list_[b].processed = True
             self.mooc_processed_frames = self._instance_list_[b].frame_id
-        
+
         # Calculate processing time and update AI FPS
-        processing_time = time.time() - start_time
+        processing_time = time.time() - self.start_time
         self._update_ai_fps(processing_time)
+        
     
     def _save_video(self, current_frame):
         # Save video with original audio via FFmpeg muxer

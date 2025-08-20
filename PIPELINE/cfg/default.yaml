@@ -7,7 +7,9 @@ CLASSES_NO_BLUR:
 - 0
 
 # Show config
-APPLICATION: STREAM # STREAM / VIDEO
+APPLICATION: STREAM # STREAM / VIDEO - # Auto save a video (.mp4)
+SAVE_STREAM_TO_VIDEO: True
+FOLDER_SAVE_STREAM_TO_VIDEO = videos
 USE_FEATURE_EXTRACTION: True
 USE_BOX_PLOT: False
 
@@ -18,7 +20,7 @@ DELAY_TIME: 2
 TARGET_FPS: 25
 
 # Batch size for model inference or processing
-batch_size: 2
+batch_size: 1
 
 # Maximum batch size for model inference
 MAX_BATCH_SIZE: 3

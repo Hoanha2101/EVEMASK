@@ -22,6 +22,7 @@ import threading
 import numpy as np
 from collections import deque
 from src.controllers import circle_queue
+import os
 
 class StreamController:
     """
@@ -68,6 +69,8 @@ class StreamController:
 
         self.batch_size = cfg['batch_size']
         self.application = cfg["APPLICATION"]
+        self.save_stream = cfg["SAVE_STREAM_TO_VIDEO"]
+        self.path_save_stream = cfg['FOLDER_SAVE_STREAM_TO_VIDEO']
         # Auto set batch_size for APPLICATION
         if self.application == "VIDEO":
             self.batch_size = cfg["MAX_BATCH_SIZE"]
@@ -97,7 +100,12 @@ class StreamController:
         
         # Initialize video capture
         self._init_capture()
-
+        
+        if self.save_stream:
+            self.video_writer_stream = None
+            processed_name_output = "EVEMASK@stream_.mp4"
+            self.new_name_save = os.path.join(self.path_save_stream, processed_name_output)
+            
     def _init_capture(self):
         """
         Initialize video capture from input source.
@@ -111,10 +119,7 @@ class StreamController:
             try:
                 # Create video capture object
                 cap = cv2.VideoCapture(self.INPUT_SOURCE)
-                # Optimize buffer settings for real-time processing
-                # Smaller buffer reduces latency but may cause frame drops
-                # cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-                
+
                 # Test capture by reading a frame
                 ret, frame = cap.read()
                 if ret and frame is not None:
@@ -267,7 +272,6 @@ class StreamController:
         else:
             return "FILE"
         
-
     def source_capture(self):
         """
         Main capture loop that reads frames from input stream.
@@ -315,6 +319,8 @@ class StreamController:
                     except Exception as e:
                         print(f"Error updating AI FPS: {e}")
                         
+
+                
                 if self.application == "VIDEO":
                     while self.circle_queue.queue_length() == 1000:
                         time.sleep(0.01)
@@ -362,7 +368,9 @@ class StreamController:
             return
             
         while self.running:
-            if (self.ai_instance.mooc_processed_frames >= self._write_frame_index):
+            # Get the next frame from the queue to be streamed
+            frame_out = self.circle_queue.get()
+            if (self.ai_instance.mooc_processed_frames > self._write_frame_index):
                 # Get frame from queue
                 frame_out = self.circle_queue.get_by_id(self._write_frame_index)
                 self.logger.update_number_out_frames(self._write_frame_index)
@@ -394,6 +402,8 @@ class StreamController:
                     fps = 1.0 / avg_delta if avg_delta > 0 else 0.0
                     self.logger.update_out_stream_fps(fps)
                 self.last_fps_update = now
+                
+            time.sleep(0.001)
         if self.application == "STREAM":   
             print("Output stream stopped")
             self._cleanup_ffmpeg()
