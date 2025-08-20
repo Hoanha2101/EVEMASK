@@ -23,7 +23,7 @@ import numpy as np
 from collections import deque
 from src.controllers import circle_queue
 import os
-
+import datetime
 class StreamController:
     """
     Main controller for video stream operations.
@@ -103,8 +103,13 @@ class StreamController:
         
         if self.save_stream:
             self.video_writer_stream = None
+            
             processed_name_output = "EVEMASK@stream_.mp4"
-            self.new_name_save = os.path.join(self.path_save_stream, processed_name_output)
+            time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            name, ext = os.path.splitext(processed_name_output)
+            new_filename = f"{name}{time_str}{ext}"
+            self.new_name_save = os.path.join(self.path_save_stream, new_filename)
+            
             
     def _init_capture(self):
         """
@@ -319,8 +324,6 @@ class StreamController:
                     except Exception as e:
                         print(f"Error updating AI FPS: {e}")
                         
-
-                
                 if self.application == "VIDEO":
                     while self.circle_queue.queue_length() == 1000:
                         time.sleep(0.01)
@@ -368,8 +371,6 @@ class StreamController:
             return
             
         while self.running:
-            # Get the next frame from the queue to be streamed
-            frame_out = self.circle_queue.get()
             if (self.ai_instance.mooc_processed_frames > self._write_frame_index):
                 # Get frame from queue
                 frame_out = self.circle_queue.get_by_id(self._write_frame_index)
@@ -381,6 +382,9 @@ class StreamController:
                         print(f"Output resolution: {w}x{h}")
                             
                     if self.application == "STREAM":
+                        # save stream to video
+                        # if self.save_stream:
+                            
                         # Convert frame to bytes and write to FFmpeg
                         frame_bytes = frame_out.frame_data.tobytes()
                         self.ffmpeg_process.stdin.write(frame_bytes)
@@ -403,7 +407,9 @@ class StreamController:
                     self.logger.update_out_stream_fps(fps)
                 self.last_fps_update = now
                 
+            # Smooth - Avoiding streaming bottlenecks
             time.sleep(0.001)
+            
         if self.application == "STREAM":   
             print("Output stream stopped")
             self._cleanup_ffmpeg()
