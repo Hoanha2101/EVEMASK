@@ -47,6 +47,9 @@ class StreamController:
     """
     _global_instance: "StreamController" = None
     
+    # ========================================================================
+    # __init__ StreamController
+    # ========================================================================
     def __init__(self, cfg):
         """
         Initialize the stream controller with configuration.
@@ -56,6 +59,7 @@ class StreamController:
         """
         # Get singleton instances
         self.circle_queue = CircleQueue.get_instance()
+        
         from ..brain.AI import AI
         from ..logger import EveMaskLogger
         self.logger = EveMaskLogger.get_instance()
@@ -66,11 +70,11 @@ class StreamController:
         self.INPUT_SOURCE = cfg['INPUT_SOURCE']
         self.input_source_type = self.detect_input_stream(self.INPUT_SOURCE)
         self.target_fps = cfg['TARGET_FPS']
-
         self.batch_size = cfg['batch_size']
         self.application = cfg["APPLICATION"]
         self.save_stream = cfg["SAVE_STREAM_TO_VIDEO"]
         self.path_save_stream = cfg['FOLDER_SAVE_STREAM_TO_VIDEO']
+        
         # Auto set batch_size for APPLICATION
         if self.application == "VIDEO":
             self.batch_size = cfg["MAX_BATCH_SIZE"]
@@ -86,31 +90,51 @@ class StreamController:
         self.ffmpeg_process = None
         self.cap = None
         
+        #delay time
+        self.delay = 0
+        
         # Frame tracking
         self._frame_index = 0
         self._write_frame_index = 0
-        self._consecutive_failed_reads = 0  # Track consecutive failed frame reads
+        
+        # Track consecutive failed frame reads
+        self._consecutive_failed_reads = 0 
         
         # FPS monitoring
-        self._frame_times = []  # Store frame timestamps for FPS calculation
+        # Store frame timestamps for FPS calculation
+        self._frame_times = []  
         self._last_fps_calc = time.time()
         
-        self.out_timestamps = deque(maxlen=100)  # Store output timestamps for FPS calculation
+        # Store output timestamps for FPS calculation
+        self.out_timestamps = deque(maxlen=100)
         self.last_fps_update = time.time()
         
         # Initialize video capture
         self._init_capture()
         
         if self.save_stream:
+            self._init_save_stream_to_video()
             self.video_writer_stream = None
+            self.audio_extraction_started = False
             
-            processed_name_output = "EVEMASK@stream_.mp4"
-            time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            name, ext = os.path.splitext(processed_name_output)
-            new_filename = f"{name}{time_str}{ext}"
-            self.new_name_save = os.path.join(self.path_save_stream, new_filename)
-            
-            
+    # ========================================================================
+    # __init__ Path, Name - Save stream to video
+    # ========================================================================    
+    def _init_save_stream_to_video(self):
+        """Initialize paths for saving video and audio separately."""
+        # Create save directory
+        os.makedirs(self.path_save_stream, exist_ok=True)
+        # Generate base filename with timestamp
+        time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        base_name = f"EVEMASK@streamProcessed_{time_str}"
+        # Separate file paths
+        self.video_only_path = os.path.join(self.path_save_stream, f"{base_name}_video.mp4")
+        self.audio_only_path = os.path.join(self.path_save_stream, f"{base_name}_audio.aac")
+        self.final_video_path = os.path.join(self.path_save_stream, f"{base_name}.mp4")
+        
+    # ========================================================================
+    # __init__ Read function to get frames from input source
+    # ========================================================================
     def _init_capture(self):
         """
         Initialize video capture from input source.
@@ -150,6 +174,41 @@ class StreamController:
             print(f"[{time.time()}] Waiting for input stream: {self.INPUT_SOURCE}")
             time.sleep(1)
 
+    # ========================================================================
+    # Start audio extraction function
+    # ========================================================================
+    def _start_audio_extraction(self):
+        """Start FFmpeg process to extract audio from input source."""
+        if self.audio_extraction_started:
+            return 
+        try:
+            # FFmpeg command to extract audio only from an input video source
+            audio_extract_command = [
+                "ffmpeg",            # Call the ffmpeg program
+                "-y",                # Overwrite output file if it already exists (yes - no prompt)
+                "-i", self.INPUT_SOURCE,  # Specify the input source (stream)
+                "-vn",               # Disable video recording (ignore the video stream)
+                "-acodec", "aac",    # Set audio codec to AAC (Advanced Audio Codec)
+                "-b:a", "128k",      # Set audio bitrate to 128 kbps
+                self.audio_only_path # Path to the output file that will contain audio only
+            ]
+
+            # Start audio extraction in background
+            self.audio_process = subprocess.Popen(
+                audio_extract_command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            
+            self.audio_extraction_started = True
+            
+        except Exception as e:
+            print(f"Error starting audio extraction: {e}")
+            self.audio_process = None
+    
+    # ========================================================================
+    # Start FFmpeg tool
+    # ========================================================================
     def _start_ffmpeg(self):
         """
         Start FFmpeg process for output streaming.
@@ -161,7 +220,7 @@ class StreamController:
         - Applies video processing and encoding
         """
         # Calculate audio delay to synchronize with video
-        delay = time.time() - self.begin_time if self.begin_time else 0
+        self.delay = time.time() - self.begin_time if self.begin_time else 0
         
         # Build FFmpeg command for real-time streaming
         ffmpeg_command = [
@@ -173,7 +232,7 @@ class StreamController:
             "-r", str(self.target_fps),       # Frame rate (fps)
             "-i", "-",                        # Input video from stdin (piped raw frames)
             "-i", self.INPUT_SOURCE,          # Second input source (file or stream containing original audio)
-            "-af", f"adelay={delay * 1000}|{delay * 1000}", # Apply audio delay (milliseconds) for both left/right channels
+            "-af", f"adelay={self.delay * 1000}|{self.delay * 1000}", # Apply audio delay (milliseconds) for both left/right channels
             "-async", "1",                    # Audio sync (compensates drift/delay)
             "-vsync", "1",                    # Video sync mode (1 = frame duplication/drop to sync)
             "-q:v", "1",                      # Video quality (1 = highest quality, mainly for mjpeg-like codecs)
@@ -219,7 +278,6 @@ class StreamController:
             ])
             output_stream_url = self.cfg['OUTPUT_STREAM_URL_UDP']
 
-            
         print(f"Output URL: {output_stream_url}")
         
         try:
@@ -234,6 +292,119 @@ class StreamController:
             print(f"Error starting FFmpeg: {e}")
             self.ffmpeg_process = None
 
+    # ========================================================================
+    # __init__ video_writer
+    # ========================================================================
+    def _setup_video_writer(self, height, width):
+        """Setup OpenCV VideoWriter for video-only recording."""
+        try:
+            # Try different codecs for compatibility
+            codecs_to_try = [
+                ('mp4v', '.mp4'),
+                ('XVID', '.avi'),
+                ('MJPG', '.avi'),
+            ]
+            
+            for codec, ext in codecs_to_try:
+                try:
+                    # Update file extension if needed
+                    if not self.video_only_path.endswith(ext):
+                        base_name = os.path.splitext(self.video_only_path)[0]
+                        self.video_only_path = base_name + ext
+                    
+                    fourcc = cv2.VideoWriter_fourcc(*codec)
+                    self.video_writer_stream = cv2.VideoWriter(
+                        self.video_only_path,
+                        fourcc,
+                        self.target_fps,
+                        (width, height)
+                    )
+                    
+                    if self.video_writer_stream.isOpened():
+                        return True
+                    else:
+                        self.video_writer_stream.release()
+                        
+                except Exception as e:
+                    print(f"Failed to initialize with codec {codec}: {e}")
+                    if self.video_writer_stream:
+                        self.video_writer_stream.release()
+                    continue
+            
+            print("Failed to initialize video writer")
+            self.save_stream = False
+            return False
+            
+        except Exception as e:
+            print(f"Error setting up video writer: {e}")
+            self.save_stream = False
+            return False
+    
+    # ========================================================================
+    # Merge video vs audio tool
+    # ========================================================================
+    def _merge_video_audio(self):
+        """Merge video and audio files into final output."""
+        try:
+            # Check if both files exist
+            if not os.path.exists(self.video_only_path):
+                print("Video file not found, cannot merge")
+                return False
+                
+            if not os.path.exists(self.audio_only_path):
+                print("Audio file not found, cannot merge")
+                return False
+            
+            # FFmpeg command to merge video + audio
+            merge_command = [
+                "ffmpeg",
+                "-y",  # Overwrite output
+                "-i", self.video_only_path,  # Video input
+                "-i", self.audio_only_path,  # Audio input
+                "-c:v", "copy",  # Copy video stream (no re-encoding)
+                "-c:a", "aac",   # Audio codec
+                "-shortest",     # End when shortest stream ends
+                self.final_video_path
+            ]
+            
+            # Run merge process
+            merge_process = subprocess.run(
+                merge_command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                timeout=300  # 5 minute timeout
+            )
+            
+            if merge_process.returncode == 0:
+                
+                # Get file size
+                if os.path.exists(self.final_video_path):
+                    file_size = os.path.getsize(self.final_video_path)
+                    print(f"Final video size: {file_size / (1024*1024):.2f} MB")
+                
+                # Clean up temporary files
+                try:
+                    os.remove(self.video_only_path)
+                    os.remove(self.audio_only_path)
+                except:
+                    pass
+                
+                return True
+            else:
+                error_msg = merge_process.stderr.decode() if merge_process.stderr else "Unknown error"
+                print(f"Merge failed: {error_msg}")
+                return False
+                
+        except subprocess.TimeoutExpired:
+            print("Merge process timed out")
+            return False
+        except Exception as e:
+            print(f"Error merging video and audio: {e}")
+            return False
+    
+    # ========================================================================
+    # Calculate FPS for Input stream block
+    # ========================================================================
     def _calculate_input_fps(self):
         """
         Calculate input FPS based on frame arrival times.
@@ -247,7 +418,7 @@ class StreamController:
         current_time = time.time()
         self._frame_times.append(current_time)
         
-        # Only calculate FPS every 3 seconds to avoid fluctuations
+        # Only calculate FPS every 3 seconds
         if current_time - self._last_fps_calc > 3.0:
             if len(self._frame_times) > 1:
                 # Calculate FPS based on frame count over time span
@@ -262,6 +433,9 @@ class StreamController:
         
         return None
     
+    # ========================================================================
+    # Check input stream type
+    # ========================================================================
     def detect_input_stream(self, url: str) -> str:
         """
         Specify output stream type (RTMP, RTSP, UDP) or video file
@@ -276,7 +450,10 @@ class StreamController:
             return "UDP"
         else:
             return "FILE"
-        
+
+    # ========================================================================
+    # Input stream block
+    # ======================================================================== 
     def source_capture(self):
         """
         Main capture loop that reads frames from input stream.
@@ -306,6 +483,9 @@ class StreamController:
                 self.circle_queue.add_frame(frame=frame)
                 self._frame_index += 1
                 
+                if self.application == "STREAM" and self.save_stream:
+                    self._start_audio_extraction()
+                    
                 # Calculate and update input FPS
                 input_fps = self._calculate_input_fps()
                 self.logger.update_in_stream_fps(input_fps)
@@ -345,11 +525,13 @@ class StreamController:
                     self._consecutive_failed_reads += 1
                     if self._consecutive_failed_reads >= 1000:
                         self.running = False
-                        self.ai_instance.video_writer.release()
                         print(f"Stream ended: No frames received for {self._consecutive_failed_reads} consecutive attempts")
                         break
                     time.sleep(0.01)
 
+    # ========================================================================
+    # Output stream block
+    # ========================================================================
     def out_stream(self):
         """
         Main output streaming loop.
@@ -380,11 +562,17 @@ class StreamController:
                     if self._write_frame_index == 0:
                         h, w = frame_out.frame_data.shape[:2]
                         print(f"Output resolution: {w}x{h}")
+                        
+                        # Start audio extraction and setup video writer
+                        if self.save_stream:
+                            self._setup_video_writer(h, w)
                             
                     if self.application == "STREAM":
-                        # save stream to video
-                        # if self.save_stream:
-                            
+                        # Save processed frame to video file (without audio)
+                        if self.save_stream and self.video_writer_stream:
+                            if len(frame_out.frame_data.shape) == 3:
+                                self.video_writer_stream.write(frame_out.frame_data)
+                                
                         # Convert frame to bytes and write to FFmpeg
                         frame_bytes = frame_out.frame_data.tobytes()
                         self.ffmpeg_process.stdin.write(frame_bytes)
@@ -406,14 +594,16 @@ class StreamController:
                     fps = 1.0 / avg_delta if avg_delta > 0 else 0.0
                     self.logger.update_out_stream_fps(fps)
                 self.last_fps_update = now
-                
-            # Smooth - Avoiding streaming bottlenecks
-            time.sleep(0.001)
             
         if self.application == "STREAM":   
             print("Output stream stopped")
             self._cleanup_ffmpeg()
+            if self.save_stream:
+                self._cleanup_video_saving()
 
+    # ========================================================================
+    # Clear cache and exit FFmpeg
+    # ========================================================================        
     def _cleanup_ffmpeg(self):
         """
         Clean up FFmpeg process and resources.
@@ -434,7 +624,59 @@ class StreamController:
                 except:
                     pass
             self.ffmpeg_process = None
+            
+    # ========================================================================
+    # Video saving cleanup routine
+    # ========================================================================
+    def _cleanup_video_saving(self):
+        """
+        Release video/audio resources and finalize output.
 
+        This method performs the following:
+        - Releases the video writer resource
+        - Terminates the background audio extraction process
+        - Cleans up any active FFmpeg save process
+        - Merges the video-only and audio-only files into a final output
+        """
+        try:
+            # 1. Release the video writer if it was initialized
+            if hasattr(self, 'video_writer_stream') and self.video_writer_stream:
+                self.video_writer_stream.release()
+                self.video_writer_stream = None
+            
+            # 2. Stop the audio extraction process if it's running
+            if hasattr(self, 'audio_process') and self.audio_process:
+                try:
+                    self.audio_process.terminate()           # Try graceful termination
+                    self.audio_process.wait(timeout=10)      # Wait up to 10s for exit
+                except subprocess.TimeoutExpired:
+                    self.audio_process.kill()                # Force kill if unresponsive
+                    self.audio_process.wait(timeout=5)
+                except Exception as e:
+                    print(f"Error stopping audio extraction: {e}")
+                finally:
+                    self.audio_process = None
+            
+            # 3. Clean up FFmpeg save process if one exists
+            if hasattr(self, 'ffmpeg_save_process'):
+                self._cleanup_ffmpeg_save()
+            
+            # 4. Merge audio and video files into a final output
+            #    (only if both paths are available and the files exist)
+            if self.save_stream and hasattr(self, 'video_only_path') and hasattr(self, 'audio_only_path'):
+                if os.path.exists(self.video_only_path) or os.path.exists(self.audio_only_path):
+                    success = self._merge_video_audio()
+                    if success:
+                        print("Video and audio merged successfully")
+                    else:
+                        print("Failed to merge video and audio")
+        
+        except Exception as e:
+            print(f"Error during video saving cleanup: {e}")
+
+    # ========================================================================
+    # Stop StreamController
+    # ========================================================================
     def stop(self):
         """
         Stop all streaming operations and clean up resources.
@@ -446,7 +688,13 @@ class StreamController:
         if self.cap:
             self.cap.release()
         self._cleanup_ffmpeg() 
+        
+        if self.save_stream:
+            self._cleanup_video_saving()
     
+    # ========================================================================
+    # Singleton accessor for StreamController
+    # ========================================================================
     @classmethod
     def get_instance(cls, cfg=None) -> "StreamController":
         """

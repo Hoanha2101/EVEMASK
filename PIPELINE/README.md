@@ -157,13 +157,7 @@ source evemask_env/bin/activate
 pip install -r requirements.txt
 ```
 
-4. **Verify CUDA installation**
-```bash
-python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
-python -c "import tensorrt; print(f'TensorRT version: {tensorrt.__version__}')"
-```
-
-5. **Test installation**
+4. **Test installation**
 ```bash
 python tester/run_all_tests.py
 ```
@@ -244,12 +238,6 @@ extract_model:
 ```bash
 # Start the main pipeline
 python main.py
-
-# Monitor system resources
-python monitor.py
-
-# Test stream connectivity
-python test_stream.py
 ```
 
 ### 4. Verify Operation
@@ -473,17 +461,28 @@ CLASSES_NO_BLUR: [0]
 CLASSES_NO_BLUR:
 - 0
 
+# Show config
+APPLICATION: STREAM # STREAM / VIDEO - # Auto save a video (.mp4)
+SAVE_STREAM_TO_VIDEO: True
+FOLDER_SAVE_STREAM_TO_VIDEO: videos
+USE_FEATURE_EXTRACTION: True
+USE_BOX_PLOT: False
+
 # Delay time in seconds
 DELAY_TIME: 2
 
 # Target frames per second for processing/output
-TARGET_FPS: 30
+TARGET_FPS: 25
 
 # Batch size for model inference or processing
-batch_size: 3
+batch_size: 1
+
+# Maximum batch size for model inference
+MAX_BATCH_SIZE: 3
 
 # Input video stream source (UDP multicast address with packet size)
-INPUT_SOURCE: udp://input...
+INPUT_SOURCE: udp://@224.1.1.1:30122?pkt_size=1316
+# INPUT_SOURCE: "videos/11.mp4"
 
 # Output stream type (e.g., udp, rtmp, rtsp)
 OUTPUT_TYPE: udp
@@ -491,7 +490,7 @@ OUTPUT_TYPE: udp
 # Output stream URLs for different protocols (set to None if not used)
 OUTPUT_STREAM_URL_RTMP: None
 OUTPUT_STREAM_URL_RTSP: None
-OUTPUT_STREAM_URL_UDP: udp://output...
+OUTPUT_STREAM_URL_UDP: udp://@225.1.9.254:30133?pkt_size=1316
 
 # Confidence threshold for detection (e.g., for object detection models)
 conf_threshold: 0.5
@@ -505,7 +504,19 @@ nc: 14
 # Mapping of class indices to class names
 names:
   0: unbet
-  ...
+  1: betrivers
+  2: fanduel
+  3: betway
+  4: caesars
+  5: bally
+  6: draftkings
+  7: pointsbet
+  8: bet365
+  9: fanatics
+  10: betparx
+  11: betmgm
+  12: gilariver
+  13: casino
 
 # Path to directory containing recognition data
 recognizeData_path: recognizeData
@@ -530,7 +541,7 @@ segment_model:
   # Maximum batch size supported by the model
   max_batch_size: 3
   # Path to the model weights/plan file
-  path: weights/trtPlans/yolov8_seg_aug_best_l_trimmed.trt
+  path: weights/trtPlans/seg_v1.0.0_trimmed.trt
 
 # Configuration for the feature extraction model
 extract_model:
@@ -538,14 +549,14 @@ extract_model:
   input_names:
   - input
   # Length of the embedding vector output by the model
-  len_emb: 256
+  len_emb: 224
   # Maximum batch size supported by the model
   max_batch_size: 32
   # List of output tensor names for the model
   output_names:
   - output
   # Path to the model weights/plan file
-  path: weights/trtPlans/supconloss_bbresnet50_50e.trt
+  path: weights/trtPlans/fe_v1.0.0.trt
 ```
 
 ### Configuration Validation
@@ -717,9 +728,9 @@ python benchmarks/evaluator.py
 **AI Inference Speed - Only**
 | Batch Size | RTX3050 4GB | RTX3050ti 4GB |
 |--------|-------|-------|
-| **1** | 31.0857 FPS | 45.954 FPS |
-| **2** | 17.945 FPS | 25.547 FPS |
-| **3** | 10.9312 FPS | 17.475 FPS |
+| **1** | 34.6602 FPS | 25.1867 FPS |
+| **2** | 40.3492 FPS | 28.6309 FPS |
+| **3** | 42.0914 FPS | 53.5347 FPS |
 
 **AI Inference Speed - Pipeline**
 
@@ -731,9 +742,9 @@ python benchmarks/evaluator.py
 
 | Batch Size | PC1 | PC2 |
 |--------|-------|-------|
-| **1** | 15.3923 FPS | 19.186 FPS |
-| **2** | 14.771 FPS | 18.708 FPS |
-| **3** | 13.6473 FPS | 17.475 FPS |
+| **1** | 8.1422 FPS | 12.4799 FPS |
+| **2** | 13.2194 FPS | 24.3262 FPS |
+| **3** | 24.6609 FPS | 45.6324 FPS |
 
 ### Performance Optimization Features
 

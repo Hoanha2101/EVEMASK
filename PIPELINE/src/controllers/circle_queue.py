@@ -41,6 +41,9 @@ class CircleQueue:
     
     _global_instance: "CircleQueue" = None
 
+    # ========================================================================
+    # __init__ CircleQueue
+    # ========================================================================
     def __init__(self, buffer_size: int = 1000):
         """
         Initialize circular queue with specified buffer size.
@@ -56,6 +59,9 @@ class CircleQueue:
         # Track last processed frame for skipping logic
         self.last_seen_id = 0
 
+    # ========================================================================
+    # Add new Frame to Queue
+    # ========================================================================
     def add_frame(self, frame: Frame):
         """
         Add a frame to the circular queue.
@@ -79,12 +85,16 @@ class CircleQueue:
         # Auto-remove old frames if buffer overflows
         # This maintains constant memory usage
         while self.queue_length() > self.buffer_size:
-            self.frames.popitem(last=False)  # Remove oldest frame
+            # Remove oldest frame
+            self.frames.popitem(last=False) 
             self.first_frame_id += 1
 
+    # ========================================================================
+    # Pop Frame from Queue - Remove oldest frame from the queue
+    # ========================================================================
     def pop_frame(self) -> Optional[Frame]:
         """
-        Remove and return the oldest frame from the queue.
+        Remove oldest frame from the queue.
         
         Returns:
             Frame or None: Oldest frame if available, None if queue is empty
@@ -94,6 +104,9 @@ class CircleQueue:
             return self.frames.popitem(last=False)[1]  # Return frame data
         return None
 
+    # ========================================================================
+    # Calculate Queue Length
+    # ========================================================================
     def queue_length(self) -> int:
         """
         Get current number of frames in the queue.
@@ -101,9 +114,11 @@ class CircleQueue:
         Returns:
             int: Number of frames currently stored
         """
-        # return self.last_frame_id - self.first_frame_id
         return len(self.frames)
 
+    # ========================================================================
+    # Get Frames at Queue Tail
+    # ========================================================================
     def get_tail(self, count: int) -> List[Frame]:
         """
         Get the most recent frames from the queue.
@@ -116,7 +131,10 @@ class CircleQueue:
         """
         count = min(count, self.queue_length())
         return list(self.frames.values())[-count:]
-
+    
+    # ========================================================================
+    # Get Frames with flag non_processed
+    # ========================================================================
     def get_frame_non_processed(self, count: int, n_skip: int = 0) -> List[Frame]:
         """
         Get unprocessed frames with optional skipping.
@@ -132,7 +150,9 @@ class CircleQueue:
             List[Frame]: List of unprocessed frames
         """
         frames_list: List[Frame] = []
-        skipped = 0  # counter to track skipping
+        
+        # counter to track skipping
+        skipped = 0 
 
         mooc_last_seen_id = self.last_seen_id
 
@@ -151,7 +171,9 @@ class CircleQueue:
 
         return frames_list
     
-
+    # ========================================================================
+    # Get a range of frames by frame ID
+    # ========================================================================
     def get_range(self, start_id: int, count: int) -> (int, List[Frame]):
         """
         Get a range of frames by ID.
@@ -181,6 +203,9 @@ class CircleQueue:
 
         return (start_id + count), frames_list
 
+    # ========================================================================
+    # Get a frame by frame ID
+    # ========================================================================
     def get_by_id(self, frame_id: int) -> Optional[Frame]:
         """
         Get and remove a specific frame by ID.
@@ -193,12 +218,19 @@ class CircleQueue:
         """
         frame = self.frames.get(frame_id)
         if frame:
-            del self.frames[frame_id]  # Remove frame from buffer
+            # Remove frame from buffer
+            del self.frames[frame_id] 
         return frame
     
+    # ========================================================================
+    # Pop frame by frame ID
+    # ========================================================================
     def pop_by_id(self, frame_id: int):
         del self.frames[frame_id]
 
+    # ========================================================================
+    # Check buffer-queue size
+    # ========================================================================
     def buffer_capacity(self) -> int:
         """
         Get the maximum capacity of the buffer.
@@ -208,6 +240,9 @@ class CircleQueue:
         """
         return self.buffer_size
     
+    # ========================================================================
+    # Count number of frames with flag processed
+    # ========================================================================
     def count_processed_frames(self) -> int:
         """
         Count the number of processed frames in the queue.
@@ -217,12 +252,18 @@ class CircleQueue:
         """
         return sum(1 for frame in self.frames.values() if frame.processed)
     
+    # ========================================================================
+    # Clear Queue
+    # ========================================================================
     def clear_queue(self):
         """
         Clear all frames from the queue and reset counters.
         """
         self.frames.clear()
     
+    # ========================================================================
+    # Singleton accessor for CircleQueue
+    # ========================================================================
     @classmethod
     def get_instance(cls) -> "CircleQueue":
         """

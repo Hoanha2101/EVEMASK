@@ -17,6 +17,9 @@ import torch
 from ultralytics import YOLO
 import argparse
 
+# ========================================================================
+# Extract and save raw PyTorch model from Ultralytics YOLOv8
+# ========================================================================
 def save_model(weights_path, output_path):
     """
     Extract and save raw PyTorch model from Ultralytics YOLOv8 format.
@@ -43,6 +46,9 @@ def save_model(weights_path, output_path):
     torch.save(pure_model, output_path)
     print(f"Model saved to: {output_path}")
 
+# ========================================================================
+# Command-line interface to extract raw PyTorch model
+# ========================================================================
 if __name__ == "__main__":
     # Command line argument parser
     parser = argparse.ArgumentParser(description="Save Ultralytics YOLOv8 model in raw PyTorch format")

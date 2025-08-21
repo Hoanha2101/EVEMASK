@@ -1,3 +1,10 @@
+"""
+FFmpeg Video Writer Utility
+Writes processed video frames to a file while muxing the original audio.
+
+Author: EVEMASK Team
+"""
+
 import subprocess
 
 class FFmpegVideoWriter:

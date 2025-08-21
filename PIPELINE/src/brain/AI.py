@@ -27,6 +27,7 @@ import numpy as np
 import torch
 import time
 import os
+import datetime
 from ..controllers import CircleQueue
 from ..logger import EveMaskLogger
 from ..controllers.stream import StreamController
@@ -56,12 +57,18 @@ class AI:
     
     _instance = None
     
+    # ========================================================================
+    # Singleton - StreamController - overwrite cfg - new setting
+    # ========================================================================
     def __new__(cls, *args, **kwargs):
         """Singleton pattern implementation"""
         if cls._instance is None:
             cls._instance = super(AI, cls).__new__(cls)
         return cls._instance
     
+    # ========================================================================
+    # __init__ AI
+    # ========================================================================
     def __init__(self, cfg, blurPlot = True , boxPlot = False ,FEmodel = True):
         """
         Initialize AI processing engine.
@@ -111,13 +118,9 @@ class AI:
         # Frame marking completed by AI
         self.mooc_processed_frames = 0
         
+        # __init__ save video
         if self.application == "VIDEO":
-            self.video_writer = None
-            name_list = self.INPUT_SOURCE.split("/")
-            processed_name_output = "EVEMASK@processed_" + name_list[-1]
-            processed_name_list = name_list[:-1] 
-            processed_name_list.append(processed_name_output)
-            self.new_name_save = "/".join(processed_name_list)
+            self._init_save_video()
 
         # Initialize feature extraction if enabled
         if FEmodel:
@@ -128,7 +131,33 @@ class AI:
             orgFolderPath = cfg["recognizeData_path"]
             vectorizer = VectorPrepare(orgFolderPath=orgFolderPath, enginePlan=self.net2)
             self.recognizeDataVector, self.image_names = vectorizer.run()
+    
+    # ========================================================================
+    # __init__ save video, mode application: VIDEO
+    # ========================================================================
+    def _init_save_video(self):
+        """
+        Initialize output video filename with timestamp.
+        """
+        self.video_writer = None
+        
+        # Split input source path
+        name_list = self.INPUT_SOURCE.split("/")
+        
+        # Generate timestamp string: YYYYMMDD_HHMMSS
+        time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Create processed filename with timestamp
+        processed_name_output = f"EVEMASK@videoProcessed_{time_str}_{name_list[-1]}"
+        
+        # Build full save path
+        processed_name_list = name_list[:-1] 
+        processed_name_list.append(processed_name_output)
+        self.new_name_save = "/".join(processed_name_list)
 
+    # ========================================================================
+    # Get Frames for AI run
+    # ========================================================================
     def _get_frames_from_queue(self):
         """
         Get frames from circular queue with dynamic frame skipping.
@@ -163,6 +192,9 @@ class AI:
         self._instance_list_ = frames
         return frames
 
+    # ========================================================================
+    # AI block
+    # ========================================================================
     def run(self):
         """
         Main AI processing loop.
@@ -186,6 +218,9 @@ class AI:
                     # Perform AI inference on batch
                     self.inference(processed_batch)
 
+    # ========================================================================
+    # Update AI FPS
+    # ========================================================================
     def _update_ai_fps(self, processing_time):
         """
         Update AI processing FPS based on actual processing time.
@@ -209,7 +244,10 @@ class AI:
             
             # Reset tracking for next calculation
             self._processing_times = []
-            
+
+    # ========================================================================
+    # AI inference
+    # ========================================================================    
     def inference(self, processed_batch):
         """
         Perform AI inference on a batch of preprocessed frames.
@@ -405,9 +443,11 @@ class AI:
 
         # Calculate processing time and update AI FPS
         processing_time = time.time() - self.start_time
-        self._update_ai_fps(processing_time)
-        
+        self._update_ai_fps(processing_time)    
     
+    # ========================================================================
+    # Save video with original audio via FFmpeg muxer
+    # ========================================================================
     def _save_video(self, current_frame):
         # Save video with original audio via FFmpeg muxer
         if self.mooc_processed_frames == 0:
@@ -436,13 +476,9 @@ class AI:
         # if self.stream_controller.running == False:
         #     self.video_writer.release()
 
-    def stop(self):
-        if getattr(self, "video_writer", None) is not None:
-            try:
-                self.video_writer.release()
-            except Exception:
-                pass
-
+    # ========================================================================
+    # Push input stream FPS to AI calculate N_skip
+    # ========================================================================
     def update_input_fps(self, input_fps):
         """
         Update input FPS from stream controller.
@@ -452,6 +488,19 @@ class AI:
         """
         self._instream_fps_ = input_fps
 
+    # ========================================================================
+    # Stop AI
+    # ========================================================================
+    def stop(self):
+        if getattr(self, "video_writer", None) is not None:
+            try:
+                self.video_writer.release()
+            except Exception:
+                pass
+
+    # ========================================================================
+    # Singleton accessor for AI
+    # ========================================================================
     @classmethod
     def get_instance(cls, cfg=None, **kwargs):
         if cls._instance is None:

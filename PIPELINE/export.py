@@ -30,6 +30,9 @@ import argparse
 from torchvision import models
 import os
 
+# ========================================================================
+# Intelligently load PyTorch model from various formats
+# ========================================================================
 def smart_load_model(pth_path, model_type, emb_dim=256):
     """
     Intelligently load PyTorch model from various formats.
@@ -84,7 +87,9 @@ def smart_load_model(pth_path, model_type, emb_dim=256):
     else:
         raise RuntimeError("Unsupported model format.")
 
-# Feature extractor model (ResNet50 → embedding)
+# ========================================================================
+# Feature extraction network (ResNet50 → embedding)
+# ========================================================================
 class Network(nn.Module):
     """
     Feature extraction network based on ResNet50 architecture.
@@ -191,6 +196,9 @@ def convert_pytorch_model_to_onnx(
     print(f"ONNX model saved to {path_onnx}")
     return path_onnx
 
+# ========================================================================
+# Command-line interface to export ONNX model
+# ========================================================================
 if __name__ == "__main__":
     # Command line argument parser
     parser = argparse.ArgumentParser(description="Convert PyTorch model to ONNX")

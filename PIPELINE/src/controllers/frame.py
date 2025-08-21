@@ -33,6 +33,9 @@ class Frame:
         processed (bool): Flag indicating if frame has been processed by AI
     """
     
+    # ========================================================================
+    # __init__ Frame
+    # ========================================================================
     def __init__(self, frame_id, frame_data):
         """
         Initialize a new frame object.
@@ -45,6 +48,9 @@ class Frame:
         self.frame_data = frame_data
         self.processed = False  # Initially unprocessed
 
+    # ========================================================================
+    # Get frame data and ID
+    # ========================================================================
     def get_data(self):
         """
         Get frame data and ID.
@@ -54,6 +60,9 @@ class Frame:
         """
         return self.frame_id, self.frame_data
 
+    # ========================================================================
+    # Preprocessing for AI block
+    # ========================================================================
     def framePreprocessing(self):
         """
         Preprocess frame for YOLO model inference.
@@ -100,6 +109,9 @@ class Frame:
 
         return data
 
+    # ========================================================================
+    # Clean memory
+    # ========================================================================
     def destroy(self):
         """
         Clean up frame data to free memory.

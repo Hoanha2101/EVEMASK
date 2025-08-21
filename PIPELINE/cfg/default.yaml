@@ -8,7 +8,7 @@ CLASSES_NO_BLUR:
 
 # Show config
 APPLICATION: STREAM # STREAM / VIDEO - # Auto save a video (.mp4)
-SAVE_STREAM_TO_VIDEO: True
+SAVE_STREAM_TO_VIDEO: False
 FOLDER_SAVE_STREAM_TO_VIDEO: videos
 USE_FEATURE_EXTRACTION: True
 USE_BOX_PLOT: False
@@ -27,7 +27,7 @@ MAX_BATCH_SIZE: 3
 
 # Input video stream source (UDP multicast address with packet size)
 INPUT_SOURCE: udp://@224.1.1.1:30122?pkt_size=1316
-# INPUT_SOURCE: "videos/demo1.mp4"
+# INPUT_SOURCE: "videos/11.mp4"
 
 # Output stream type (e.g., udp, rtmp, rtsp)
 OUTPUT_TYPE: udp
@@ -86,7 +86,7 @@ segment_model:
   # Maximum batch size supported by the model
   max_batch_size: 3
   # Path to the model weights/plan file
-  path: weights/trtPlans/yolov8_seg_aug_best_l_trimmed.trt
+  path: weights/trtPlans/seg_v1.0.0_trimmed.trt
 
 # Configuration for the feature extraction model
 extract_model:

@@ -26,6 +26,9 @@ import ast
 # Initialize TensorRT logger with warning level to reduce verbose output
 TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
 
+# ========================================================================
+# build_trt_engine: Build TensorRT engine from ONNX model
+# ========================================================================
 def build_trt_engine(
     onnx_file_path,
     engine_file_path,
@@ -121,6 +124,9 @@ def build_trt_engine(
         print("Failed to build engine")
 
 
+# ========================================================================
+# __main__: Command-line interface to build TensorRT engine
+# ========================================================================
 if __name__ == "__main__":
     # Command line argument parser
     parser = argparse.ArgumentParser(description="Convert ONNX to TensorRT engine")

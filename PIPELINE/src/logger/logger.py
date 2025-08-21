@@ -47,6 +47,9 @@ class EveMaskLogger:
     
     _global_instance: "EveMaskLogger" = None
     
+    # ========================================================================
+    # __init__EveMaskLogger
+    # ========================================================================    
     def __init__(self, version: str = "1.0.0", year: int = datetime.now().year):
         """
         Initialize the EVEMASK logger with version information.
@@ -67,7 +70,10 @@ class EveMaskLogger:
         # Initialize frame counting variables
         self.number_out_frames = 0  # Total output frames processed
         self.n_skip_frames = 0      # Number of frames skipped for optimization
-        
+
+    # ========================================================================
+    # Update input stream FPS
+    # ========================================================================
     def update_in_stream_fps(self, fps: float):
         """
         Update input stream FPS value.
@@ -76,7 +82,10 @@ class EveMaskLogger:
             fps (float): Current input stream FPS
         """
         self.in_stream_fps = fps
-        
+
+    # ========================================================================
+    # Update out stream FPS
+    # ========================================================================
     def update_out_stream_fps(self, fps: float):
         """
         Update output stream FPS value.
@@ -85,7 +94,10 @@ class EveMaskLogger:
             fps (float): Current output stream FPS
         """
         self.out_stream_fps = fps
-        
+
+    # ========================================================================
+    # Update AI throughput
+    # ======================================================================== 
     def update_ai_throughput(self, ai_throughput: float):
         """
         Update AI throughput value.
@@ -94,16 +106,10 @@ class EveMaskLogger:
             ai_throughput (float): Current AI throughput
         """
         self.ai_throughput = ai_throughput
-        
-    def update_ai_fps(self, fps: float):
-        """
-        Update AI processing FPS value.
-        
-        Args:
-            fps (float): Current AI processing FPS
-        """
-        self.ai_fps = fps
-        
+
+    # ========================================================================
+    # Update number of out frames to show
+    # ========================================================================
     def update_number_out_frames(self, number: int):
         """
         Update total number of output frames processed.
@@ -112,7 +118,10 @@ class EveMaskLogger:
             number (int): Total number of output frames
         """
         self.number_out_frames = number
-        
+    
+    # ========================================================================
+    # Update n_skip to show
+    # ========================================================================
     def update_n_skip_frames(self, n: int):
         """
         Update number of frames skipped for optimization.
@@ -121,7 +130,10 @@ class EveMaskLogger:
             n (int): Number of frames skipped
         """
         self.n_skip_frames = n
-        
+
+    # ========================================================================
+    # Show configuration
+    # ========================================================================
     def show_config(self, cfg: dict):
         """
         Display configuration information with visual indicators.
@@ -142,6 +154,9 @@ class EveMaskLogger:
         print(f"🎯 Target FPS   : {cfg.get('TARGET_FPS', 'Not specified')}")
         print("✅ All components initialized successfully")
 
+    # ========================================================================
+    # Waiting bar
+    # ========================================================================
     def waiting_bar(self, cfg: dict):
         """
         Display a progress bar during initialization.
@@ -176,7 +191,10 @@ class EveMaskLogger:
             time.sleep(duration / steps)
         
         print()  # new line after complete
-    
+
+    # ========================================================================
+    # Display information in table live
+    # ========================================================================
     def display_stream(self, cfg: dict, input_alive: bool, output_alive: bool, ai_alive: bool):
         table = Table(title="🚀 EVEMASK STREAM LOGGER", expand=True)
         table.add_column("Metric", justify="left", style="cyan", no_wrap=True)
@@ -212,20 +230,31 @@ class EveMaskLogger:
 
         return table
 
+    # ========================================================================
+    # Start table live
+    # ========================================================================
     def start_live_display(self, cfg: dict, input_alive: bool, output_alive: bool, ai_alive: bool):
         from rich.live import Live
         self.live = Live(self.display_stream(cfg, input_alive, output_alive, ai_alive), refresh_per_second=4)
         self.live.start()
 
+    # ========================================================================
+    # Update table live
+    # ========================================================================
     def update_live_display(self, cfg: dict, input_alive: bool, output_alive: bool, ai_alive: bool):
         if self.live:
             self.live.update(self.display_stream(cfg, input_alive, output_alive, ai_alive))
 
+    # ========================================================================
+    # Stop Logger
+    # ========================================================================
     def stop_live_display(self):
         if self.live:
             self.live.stop()
 
-    
+    # ========================================================================
+    # Display Logo Evemask
+    # ========================================================================
     def display_logo(self):
         """
         Display EVEMASK logo only (without messages).
@@ -274,6 +303,9 @@ class EveMaskLogger:
             # Fallback to plain text if colorama is not available
             print(logo)
 
+    # ========================================================================
+    # Display message when system start
+    # ========================================================================
     def display_start_message(self):
         """
         Display startup message with yellow color.
@@ -292,6 +324,9 @@ class EveMaskLogger:
             print("=" * 80)
             print()
 
+    # ========================================================================
+    # Display message when system end
+    # ======================================================================== 
     def display_end_message(self):
         """
         Display shutdown message with red color.
@@ -309,7 +344,10 @@ class EveMaskLogger:
             print("🛑 EVEMASK Pipeline Shutdown Complete")
             print("=" * 80)
             print()
-            
+
+    # ========================================================================
+    # Singleton accessor for EveMaskLogger
+    # ========================================================================    
     @classmethod
     def get_instance(cls) -> "EveMaskLogger":
         """
