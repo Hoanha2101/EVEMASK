@@ -726,25 +726,25 @@ python benchmarks/evaluator.py
 <img src="illustration/feSeparation.png" width="100%">
 
 **AI Inference Speed - Only**
-| Batch Size | RTX3050 4GB | RTX3050ti 4GB |
-|--------|-------|-------|
-| **1** | 34.6602 FPS | 25.1867 FPS |
-| **2** | 40.3492 FPS | 28.6309 FPS |
-| **3** | 42.0914 FPS | 53.5347 FPS |
+| Batch Size | RTX3050 4GB | RTX3050ti 4GB |RTX 4060 8GB|
+|--------|-------|-------|-------|
+| **1** | 34.6602 FPS | 25.1867 FPS | 70.2561 FPS |
+| **2** | 40.3492 FPS | 28.6309 FPS | 86.907 FPS |
+| **3** | 42.0914 FPS | 53.5347 FPS | 90.4676 FPS |
 
 **AI Inference Speed - Pipeline**
 
-| Config | PC1 | PC2 |
-|--------|-------|-------|
-| **CPU** | AMD Ryzen 5 | Intel® Core™ i7-11800H |
-| **RAM** | 16GB | 16GB |
-| **GPU** | RTX3050 4GB | RTX3050ti 4GB |
+| Config | PC1 | PC2 | PC3 |
+|--------|-------|-------|-------|
+| **CPU** | AMD Ryzen 5 | Intel® Core™ i7-11800H | Intel® Core™ i7-14650H |
+| **RAM** | 16GB | 16GB | 16GB |
+| **GPU** | RTX3050 4GB | RTX3050ti 4GB | RTX 4060 8GB |
 
-| Batch Size | PC1 | PC2 |
-|--------|-------|-------|
-| **1** | 8.1422 FPS | 12.4799 FPS |
-| **2** | 13.2194 FPS | 24.3262 FPS |
-| **3** | 24.6609 FPS | 45.6324 FPS |
+| Batch Size | PC1 | PC2 | PC3 |
+|--------|-------|-------|-------|
+| **1** | 8.1422 FPS | 12.4799 FPS | 32.2055 FPS |
+| **2** | 13.2194 FPS | 24.3262 FPS | 40.025 FPS |
+| **3** | 24.6609 FPS | 45.6324 FPS | 63.7597 FPS |
 
 ### Performance Optimization Features
 
