@@ -577,7 +577,8 @@ class StreamController:
                         frame_bytes = frame_out.frame_data.tobytes()
                         self.ffmpeg_process.stdin.write(frame_bytes)
                         self.ffmpeg_process.stdin.flush()
-                                 
+                        
+                    time.sleep(0.001)
                     # Clean up frame resources
                     frame_out.destroy()
                     # Update timestamp

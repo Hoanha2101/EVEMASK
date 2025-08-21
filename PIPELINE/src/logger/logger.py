@@ -108,6 +108,17 @@ class EveMaskLogger:
         self.ai_throughput = ai_throughput
 
     # ========================================================================
+    # Update AI FPS
+    # ======================================================================== 
+    def update_ai_fps(self, fps: float):
+        """
+        Update AI processing FPS value.
+        
+        Args:
+            fps (float): Current AI processing FPS
+        """
+        self.ai_fps = fps
+    # ========================================================================
     # Update number of out frames to show
     # ========================================================================
     def update_number_out_frames(self, number: int):
