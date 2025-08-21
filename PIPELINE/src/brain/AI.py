@@ -100,7 +100,7 @@ class AI:
         self.CLASSES_NO_BLUR = cfg['CLASSES_NO_BLUR']
         
         # Processing flags
-        self.FEmodel = FEmodel
+        self.FEmodel = cfg['USE_FEATURE_EXTRACTION']
         self.blurPlot = blurPlot
         self.boxPlot = boxPlot
         self.current_frame = None
@@ -123,7 +123,7 @@ class AI:
             self._init_save_video()
 
         # Initialize feature extraction if enabled
-        if FEmodel:
+        if self.FEmodel:
             from ..models.initNet import net2
             self.net2 = net2
             
