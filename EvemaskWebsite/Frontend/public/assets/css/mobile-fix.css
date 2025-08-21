@@ -1,0 +1,33 @@
+/* Hero section component styling */
+#hero {
+  margin-top: 160px !important;
+  position: relative !important;
+}
+
+@media (max-width: 768px) {
+  #hero, 
+  section#hero,
+  .section.hero,
+  .mobile-fixed-2024.section.hero {
+    margin-top: 160px !important;
+    position: relative !important;
+    top: auto !important;
+    z-index: 5 !important;
+    padding: 10px !important;
+  }
+  
+  /* Tightly stack all hero components */
+  #hero .hero-container,
+  section#hero .hero-container {
+    padding: 5px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #hero, 
+  section#hero,
+  .section.hero,
+  .mobile-fixed-2024.section.hero {
+    margin-top: 140px !important;
+  }
+}
