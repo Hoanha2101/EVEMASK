@@ -1,0 +1,260 @@
+/* Solution Section - Professional Design */
+.solution-section {
+  position: relative;
+  background: var(--gradient-primary);
+  width: calc(100% - 40px);
+  margin: 20px 20px;
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(83, 52, 131, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  animation: gentle-glow 4s ease-in-out infinite;
+}
+
+@media screen and (max-width: 768px) {
+  #solution,
+  .section#solution {
+    min-height: auto !important;
+    width: calc(100% - 8px) !important;
+    margin: 4px !important;
+    padding: 12px 8px !important;
+    border-radius: 8px !important;
+  }
+  
+  .workflow-comparison {
+    margin: 8px 0 !important;
+    padding: 8px !important;
+  }
+  
+  .workflow-grid {
+    display: block !important;
+    grid-template-columns: none !important;
+    gap: 8px !important;
+  }
+  
+  .workflow-section {
+    width: 100% !important;
+    margin-bottom: 8px !important;
+    padding: 8px !important;
+    text-align: center !important;
+  }
+  
+  .workflow-badge {
+    padding: 4px 8px !important;
+    font-size: 0.7rem !important;
+    margin-bottom: 5px !important;
+  }
+  
+  .workflow-title {
+    font-size: 0.9rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 5px !important;
+  }
+  
+  .workflow-description {
+    font-size: 0.7rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .workflow-image-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .workflow-image {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 120px !important;
+    object-fit: contain !important;
+    border-radius: 5px !important;
+  }
+  
+  .workflow-comparison-large .workflow-grid {
+    display: block !important;
+    max-width: 100% !important;
+    padding: 8px !important;
+    gap: 8px !important;
+    margin: 0 !important;
+  }
+  
+  .workflow-comparison-large .workflow-section {
+    padding: 10px !important;
+    border-radius: 6px !important;
+  }
+  
+  .workflow-comparison-large .workflow-image {
+    height: 140px !important;
+    object-fit: cover !important;
+  }
+  
+  .workflow-overlay {
+    padding: 6px !important;
+    font-size: 0.65rem !important;
+  }
+  
+  .workflow-stats {
+    gap: 4px !important;
+    font-size: 0.6rem !important;
+  }
+  
+  .workflow-section.evemask,
+  .workflow-section.before {
+    width: 100% !important;
+    display: block !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .workflow-badge.before,
+  .workflow-badge.after {
+    font-size: 0.65rem !important;
+    padding: 3px 6px !important;
+  }
+  
+  .section-heading {
+    font-size: 1.3rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 8px !important;
+    text-align: center !important;
+  }
+  
+  .section-text {
+    font-size: 0.8rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 10px !important;
+    text-align: center !important;
+    padding: 0 5px !important;
+  }
+  
+  .tagline {
+    font-size: 0.7rem !important;
+    padding: 3px 6px !important;
+  }
+}
+
+.solution-section {
+  transition: all 0.3s ease;
+  padding: 80px 0;
+}
+
+.solution-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 25px 70px rgba(0, 0, 0, 0.35),
+    0 10px 40px rgba(83, 52, 131, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.solution-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--overlay-dark);
+  border-radius: 20px;
+  z-index: 1;
+}
+
+.solution-section .container {
+  position: relative;
+  z-index: 2;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 32px;
+  width: 100%;
+  margin-top: 64px;
+}
+
+.step-card {
+  overflow: hidden;
+  animation: fadeInLeft 0.6s ease-out;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  border-radius: 16px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: var(--shadow-1);
+}
+
+.step-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow: var(--shadow-2);
+}
+
+.step-card-image {
+  width: 100%;
+  aspect-ratio: 394.67/240;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 12px;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.step-card:hover .step-card-image {
+  transform: scale(1.02);
+  filter: brightness(1.06);
+}
+
+.step-card-content {
+  margin-top: 32px;
+  width: 100%;
+}
+
+.step-card-heading {
+  color: var(--color-white);
+  font-size: var(--text-sizes-heading-5);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.step-card-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--text-sizes-text-regular);
+  font-weight: 400;
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .solution-section { 
+    padding: 40px 0;
+    width: calc(100% - 20px);
+    margin: 10px 10px;
+  }
+  .steps-grid { 
+    gap: 20px; 
+    margin-top: 32px;
+    grid-template-columns: 1fr;
+  }
+  .step-card { 
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .solution-section { 
+    padding: 32px 0;
+    width: calc(100% - 16px);
+    margin: 8px 8px;
+  }
+  .steps-grid { 
+    gap: 16px; 
+    margin-top: 24px;
+  }
+  .step-card { 
+    padding: 16px 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-card, .step-card-image { transition: none !important; }
+}

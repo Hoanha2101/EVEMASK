@@ -1,0 +1,374 @@
+/* TeamSection.css - Add any specific styles here */
+
+@media screen and (max-width: 768px) {
+  #team,
+  .section#team {
+    min-height: auto !important;
+    width: calc(100% - 8px) !important;
+    margin: 4px !important;
+    padding: 12px 8px !important;
+    border-radius: 8px !important;
+  }
+  
+  .team-container {
+    padding: 8px !important;
+    max-width: 100% !important;
+  }
+  
+  .team-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    margin-top: 8px !important;
+    justify-items: center !important;
+  }
+  
+  .team-member {
+    padding: 12px 8px !important;
+    text-align: center !important;
+    border-radius: 6px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    max-width: 140px !important;
+    width: 100% !important;
+  }
+  
+  .team-avatar,
+  .member-photo {
+    width: 100px !important;
+    height: 100px !important;
+    margin: 0 auto 8px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
+    max-width: 100px !important;
+    min-width: 100px !important;
+    min-height: 100px !important;
+    max-height: 100px !important;
+    flex-shrink: 0 !important;
+    border: 3px solid #f1f5f9 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  .team-member-image {
+    width: 100px !important;
+    height: 100px !important;
+    margin: 0 auto 8px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+  
+  .team-name,
+  .member-name {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    margin-bottom: 4px !important;
+    line-height: 1.2 !important;
+    color: white !important;
+  }
+  
+  .team-role,
+  .member-role {
+    font-size: 11px !important;
+    margin-bottom: 3px !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+  
+  .team-description {
+    font-size: 0.6rem !important;
+    line-height: 1.2 !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+  
+  .team-social {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    margin-top: 4px !important;
+  }
+  
+  .social-link {
+    font-size: 0.8rem !important;
+    padding: 2px !important;
+  }
+}
+
+.team-section {
+  position: relative;
+  background: var(--gradient-primary);
+  width: calc(100% - 40px);
+  margin: 20px 20px;
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(83, 52, 131, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  animation: fadeInUp 0.8s ease-out;
+  transition: all 0.3s ease;
+  padding: 80px 0;
+}
+
+.team-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 25px 70px rgba(0, 0, 0, 0.35),
+    0 10px 40px rgba(83, 52, 131, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.team-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--overlay-dark);
+  border-radius: 20px;
+  z-index: 1;
+}
+
+.team-section .container {
+  position: relative;
+  z-index: 2;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+  margin-top: 48px;
+  margin-bottom: 48px;
+  justify-items: center;
+}
+
+.team-member {
+  text-align: center;
+  padding: 32px 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.team-member:hover {
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.team-member-image {
+  margin-bottom: 24px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 180px;
+  height: 180px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.member-photo {
+  width: 180px !important;
+  height: 180px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border: 4px solid #f1f5f9 !important;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  display: block !important;
+  margin: 0 !important;
+  max-width: 180px !important;
+  min-width: 180px !important;
+  min-height: 180px !important;
+  max-height: 180px !important;
+  flex-shrink: 0 !important;
+}
+
+.team-member:hover .member-photo {
+  border-color: #3b82f6;
+  transform: scale(1.05);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.3);
+}
+
+.team-member-info {
+  margin-top: 20px;
+}
+
+.member-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 8px;
+  font-family: 'Roboto', sans-serif;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.member-role {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  padding-top: 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.member-role::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border-radius: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .team-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 32px;
+    margin-bottom: 32px;
+    justify-items: center;
+  }
+  
+  .team-member {
+    padding: 20px 16px;
+    max-width: 200px;
+    width: 100%;
+  }
+  
+  .team-member-image {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 120px;
+    height: 120px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .member-photo {
+    width: 120px !important;
+    height: 120px !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    max-width: 120px !important;
+    min-width: 120px !important;
+    min-height: 120px !important;
+    max-height: 120px !important;
+    flex-shrink: 0 !important;
+    border: 3px solid #f1f5f9 !important;
+  }
+  
+  .member-name {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .team-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    justify-items: center;
+  }
+  
+  .team-member {
+    padding: 12px 8px;
+    max-width: 120px;
+    width: 100%;
+  }
+  
+  .team-member-image {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    height: 100px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .member-photo {
+    width: 100px !important;
+    height: 100px !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    max-width: 100px !important;
+    min-width: 100px !important;
+    min-height: 100px !important;
+    max-height: 100px !important;
+    flex-shrink: 0 !important;
+    border: 3px solid #f1f5f9 !important;
+  }
+  
+  .member-name {
+    font-size: 14px !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .member-role {
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .team-member {
+    padding: 8px 4px;
+    max-width: 100px;
+  }
+  
+  .team-member-image {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 8px;
+  }
+  
+  .member-photo {
+    width: 80px !important;
+    height: 80px !important;
+    max-width: 80px !important;
+    min-width: 80px !important;
+    min-height: 80px !important;
+    max-height: 80px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    border: 2px solid #f1f5f9 !important;
+  }
+  
+  .member-name {
+    font-size: 12px !important;
+  }
+  
+  .member-role {
+    font-size: 10px !important;
+  }
+}

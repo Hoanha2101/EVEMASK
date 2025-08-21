@@ -1,0 +1,32 @@
+# Test Requirements for EVEMASK Backend Testing
+# Author: EVEMASK Team
+
+# Core testing framework
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-mock>=3.11.0
+
+# FastAPI testing dependencies  
+httpx>=0.24.0
+requests>=2.31.0
+
+# Performance testing
+psutil>=5.9.0
+
+# Code coverage
+pytest-cov>=4.1.0
+
+# Test reporting
+pytest-html>=3.2.0
+pytest-json-report>=1.5.0
+
+# Email testing utilities
+email-validator>=2.0.0
+
+# Environment and configuration testing
+python-dotenv>=1.0.0
+
+# Additional testing utilities
+freezegun>=1.2.0  # For time-based testing
+responses>=0.23.0  # For HTTP mocking
+factory-boy>=3.3.0  # For test data generation
