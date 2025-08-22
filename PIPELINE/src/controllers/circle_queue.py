@@ -44,7 +44,7 @@ class CircleQueue:
     # ========================================================================
     # __init__ CircleQueue
     # ========================================================================
-    def __init__(self, buffer_size: int = 1000):
+    def __init__(self, buffer_size: int = 300):
         """
         Initialize circular queue with specified buffer size.
         
@@ -217,9 +217,7 @@ class CircleQueue:
             Frame or None: Requested frame if found, None otherwise
         """
         frame = self.frames.get(frame_id)
-        if frame:
-            # Remove frame from buffer
-            del self.frames[frame_id] 
+
         return frame
     
     # ========================================================================
