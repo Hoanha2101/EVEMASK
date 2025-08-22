@@ -1,0 +1,8 @@
+train: /kaggle/input/data-segment-augmented/dataset_segment_augment/images/train
+val: /kaggle/input/data-segment-augmented/dataset_segment_augment/images/val
+nc: 14
+
+names: [
+  "unbet", "fanduel", "draftkings", "bally", "gilariver", "betrivers", "bet365",
+  "pointsbet", "betmgm", "caesars", "betparx", "betway", "fanatics", "casino"
+]
