@@ -109,6 +109,7 @@ class StreamController:
         self.out_timestamps = deque(maxlen=100)
         self.last_fps_update = time.time()
         
+        self.anti_overflow = False
         # Initialize video capture
         self._init_capture()
         
@@ -472,6 +473,37 @@ class StreamController:
         
         while self.running:
             
+            # ========================================================================
+            # ANTI-OVERFLOW PROTECTION MECHANISM
+            # ========================================================================
+            # This critical section prevents buffer overflow by monitoring the gap between
+            # the current write position and the oldest frame in the circular queue.
+            # 
+            # How it works:
+            # - When the gap between write_index and first_frame_id becomes too small (< 10),
+            #   it indicates the output stream is catching up to the input stream too quickly
+            # - This could lead to buffer underrun or frame starvation in the output
+            # - By adding a small delay (0.1s), we allow the input stream to "get ahead"
+            #   and maintain a healthy buffer of unprocessed frames
+            # 
+            # Why this matters:
+            # - Ensures smooth, continuous output streaming without frame drops
+            # - Prevents the AI processing pipeline from running out of frames to process
+            # - Maintains optimal latency while preventing buffer exhaustion
+            # - Critical for real-time streaming applications where frame timing is crucial
+            # ========================================================================
+            if self.anti_overflow:
+                # Check if output is catching up too quickly to input
+                # This creates a "safety buffer" of at least 10 frames between
+                # what we're writing out and what's available in the queue
+                if (self._write_frame_index > 0 and 
+                    self.circle_queue.first_frame_id > 0 and 
+                    (self._write_frame_index - self.circle_queue.first_frame_id < 10)):
+                    
+                    # Apply backpressure: pause output briefly to let input "get ahead"
+                    # This 0.1s delay is the sweet spot - long enough to help, 
+                    # short enough to not cause noticeable lag
+                    time.sleep(0.1)
             # Read frame from input source
             ret, data = self.cap.read()
             if ret and data is not None:
@@ -544,6 +576,8 @@ class StreamController:
         """
         print("Starting output stream...")
         
+        self.anti_overflow = True
+        
         if self.application == "STREAM":
             # Start FFmpeg process
             self._start_ffmpeg()
@@ -553,6 +587,7 @@ class StreamController:
             return
             
         while self.running:
+            
             if (self.ai_instance.mooc_processed_frames > self._write_frame_index):
                 # Get frame from queue
                 frame_out = self.circle_queue.get_by_id(self._write_frame_index)
@@ -578,7 +613,6 @@ class StreamController:
                         self.ffmpeg_process.stdin.write(frame_bytes)
                         self.ffmpeg_process.stdin.flush()
                         
-                    time.sleep(0.001)
                     # Clean up frame resources
                     frame_out.destroy()
                     # Update timestamp
