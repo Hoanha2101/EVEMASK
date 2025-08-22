@@ -44,7 +44,7 @@ class CircleQueue:
     # ========================================================================
     # __init__ CircleQueue
     # ========================================================================
-    def __init__(self, buffer_size: int = 300):
+    def __init__(self, buffer_size: int = 1000):
         """
         Initialize circular queue with specified buffer size.
         
