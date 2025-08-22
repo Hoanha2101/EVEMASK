@@ -7,7 +7,7 @@ CLASSES_NO_BLUR:
 - 0
 
 # Show config
-APPLICATION: STREAM # STREAM / VIDEO - # Auto save a video (.mp4)
+APPLICATION: VIDEO # STREAM / VIDEO - # Auto save a video (.mp4)
 SAVE_STREAM_TO_VIDEO: False
 FOLDER_SAVE_STREAM_TO_VIDEO: videos
 
@@ -28,7 +28,7 @@ MAX_BATCH_SIZE: 3
 
 # Input video stream source (UDP multicast address with packet size)
 INPUT_SOURCE: udp://@224.1.1.1:30122?pkt_size=1316
-# INPUT_SOURCE: "videos/demo1.mp4"
+# INPUT_SOURCE: "videos/NBABET_cut_1.mp4"
 
 # Output stream type (e.g., udp, rtmp, rtsp)
 OUTPUT_TYPE: udp

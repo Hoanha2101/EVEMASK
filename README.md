@@ -1,5 +1,36 @@
 # EVEMASK v1.0.0
 
+<div align="center" style="margin: 30px;">
+  <div style="
+      background: linear-gradient(145deg, #0f172a, #1e293b);
+      color: #0EA5E9;
+      font-family: 'Courier New', monospace;
+      font-size: 15px;
+      padding: 30px 40px;
+      border-radius: 16px;
+      border: 2px solid rgba(14,165,233,0.8);
+      box-shadow: 0 0 25px rgba(14,165,233,0.9), 0 0 50px rgba(14,165,233,0.4);
+      display: inline-block;
+      text-align: center;
+      white-space: pre;
+      text-shadow: 0 0 12px #0EA5E9, 0 0 24px rgba(14,165,233,0.8);
+  ">
+╔════════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                    ║
+║            ███████╗██╗   ██╗███████╗███╗   ███╗ █████╗ ███████╗██╗  ██╗            ║
+║            ██╔════╝██║   ██║██╔════╝████╗ ████║██╔══██╗██╔════╝██║ ██╔╝            ║
+║            █████╗  ██║   ██║█████╗  ██╔████╔██║███████║███████╗█████╔╝             ║
+║            ██╔══╝  ╚██╗ ██╔╝██╔══╝  ██║╚██╔╝██║██╔══██║╚════██║██╔═██╗             ║
+║            ███████╗ ╚████╔╝ ███████╗██║ ╚═╝ ██║██║  ██║███████║██║  ██╗            ║
+║            ╚══════╝  ╚═══╝  ╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝            ║
+║                                                                                    ║
+╚════════════════════════════════════════════════════════════════════════════════════╝
+  </div>
+</div>
+
+
+
+
 <div align="center">
 
 ![EVEMASK Logo](https://img.shields.io/badge/EVEMASK-%201.0.0-blue?style=for-the-badge&logo=python)
@@ -41,6 +72,17 @@
 In the context of the NBA (National Basketball Association), advertisements from betting companies are commonly displayed on player jerseys, courtside LED boards, and digital overlays. This presents a major challenge for Vietnamese broadcasters, as all forms of gambling and betting promotion are strictly prohibited on mass media under current regulations.
 
 EVEMASK offers a powerful solution: real-time detection and blurring of restricted content during live broadcasts. This ensures legal compliance without compromising viewer experience or broadcast quality. With EVEMASK, airing NBA games becomes safe, seamless, and professional, enabling broadcasters to deliver international sports content while adhering to local content regulations.
+
+<div align="center">
+
+### 🎬 **Introduction Video**
+<p>
+  <a href="https://www.youtube.com/watch?v=YSKz6aoXwxQ" target="_blank">
+    <img src="https://img.shields.io/badge/▶️_Watch_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch Video"/>
+  </a>
+</p>
+
+</div>
 
 ### Key Capabilities
 
