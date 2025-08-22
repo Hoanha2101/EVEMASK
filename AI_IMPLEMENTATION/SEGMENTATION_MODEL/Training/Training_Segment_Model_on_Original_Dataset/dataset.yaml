@@ -1,0 +1,8 @@
+train: /kaggle/input/fixed-original-segment-dataset/dataset/images/train
+val: /kaggle/input/fixed-original-segment-dataset/dataset/images/val
+nc: 14
+
+names: [
+  "unbet", "betrivers", "fanduel", "betway", "caesars", "bally", "draftkings",
+  "pointsbet", "bet365", "fanatics", "betparx", "betmgm", "gilariver", "casino"
+]
